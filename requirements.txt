@@ -7,4 +7,4 @@ typing
 scipy
 scanpy
 appdirs
-autoapi
+sphinx-autoapi
