@@ -8,3 +8,4 @@ scipy
 scanpy
 appdirs
 sphinx-autoapi
+furo
