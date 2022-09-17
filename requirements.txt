@@ -5,6 +5,6 @@ numba
 tqdm
 typing
 scipy
-scanty
+scanpy
 appdirs
 autoapi
