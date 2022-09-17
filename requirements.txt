@@ -1,0 +1,11 @@
+gitpython
+matplotlib
+numpy
+pandas
+numba 
+tqdm
+typing
+scipy
+scanty
+appdirs
+autoapi
