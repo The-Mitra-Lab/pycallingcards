@@ -1,4 +1,4 @@
-gitpython
+Python >= 3.8
 matplotlib
 numpy
 pandas
