@@ -17,9 +17,8 @@ def rank_peak_groups(
     fontsize: int = 8,
     ncols: int = 4,
     sharey: bool = True,
-    show: Optional[bool] = None,
-    save: Optional[bool] = None,
-    ax: Optional[Axes] = None
+    show: Optional[bool] = True,
+    save: Union[bool,str] = False
 ):
 
     """\
@@ -41,6 +40,12 @@ def rank_peak_groups(
     :param sharey:
         Controls if the y-axis of each panels should be shared. But passing
         `sharey=False`, each panel has its own y-axis range.
+    :param show:
+        Whether to show the plot or not. Default is `True`.
+    :param save:
+        Could be bool or str indecating the file name it would be saved.
+        Default is False. if `True` it would give it a defualt name and saved to png.
+
 
     :example:
     >>> import pycallingcards as cc
@@ -133,48 +138,20 @@ def rank_peak_groups(
         ymax += 0.3 * (ymax - ymin)
         ax.set_ylim(ymin, ymax)
 
-    writekey = f"rank_peak_groups_{adata_ccf.uns[key]['params']['groupby']}"
-    _savefig_or_show(writekey, show=show, save=save)
-
-def _savefig_or_show(
-    writekey: str,
-    show: Optional[bool] = None,
-    dpi: Optional[int] = None,
-    ext: str = None,
-    save: Union[bool, str, None] = None,
-):
-    if isinstance(save, str):
-        # check whether `save` contains a figure extension
-        if ext is None:
-            for try_ext in ['.svg', '.pdf', '.png']:
-                if save.endswith(try_ext):
-                    ext = try_ext[1:]
-                    save = save.replace(try_ext, '')
-                    break
-        # append it
-        writekey += save
-        save = True
-    save = False if save is None else save
-    show = False if show is None else show
-    if save:
-        _savefig(writekey, dpi=dpi, ext=ext)
+    if save != False:
+        if save == True:
+            save = f"rank_peak_groups_{adata_ccf.uns[key]['params']['groupby']}" + '.svg'
+        pl.savefig(save, bbox_inches='tight')
+        
     if show:
         pl.show()
-    if save:
-        pl.close()  # clear figure
 
-def _savefig(writekey, dpi=None, ext=None):
-    """Save current figure to file.
-    The `filename` is generated as follows:
-        filename = settings.figdir / (writekey + settings.plot_suffix + '.' + settings.file_format_figs)
-    """
-    if dpi is None:
-        dpi = rcParams['_savefig.dpi']
-    if ext is None:
-        ext = "png"
-    filename = f'{writekey}.{ext}'
+    pl.close() 
 
-    pl._savefig(writekey, dpi=dpi, bbox_inches='tight')
+
+
+
+
 
 def draw_area(
     chromosome: str,

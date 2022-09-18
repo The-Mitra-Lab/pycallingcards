@@ -196,11 +196,11 @@ def _testCompare2(
             boundnumlam, startboundlam = _findinsertionslen2(curChromnp, bound[i][0] - lam_win_size/2 + 1, bound[i][1] + lam_win_size/2, 
                                              length, startboundlam, totalcurChrom) 
             
-            scaleFactorTTAA = bgnumlam/TTAAnumlam
+            scaleFactorTTAA = boundnumlam/TTAAnumlam
             lamTTAA = TTAAnum * scaleFactorTTAA +pseudocounts
             
-            scaleFactorbg = bgnumlam/boundnumlam
-            lambg = TTAAnum * scaleFactorbg +pseudocounts
+            scaleFactorbg = boundnumlam/bgnumlam
+            lambg = bgnum * scaleFactorbg +pseudocounts
             
             if test_method == "poisson":
                 
@@ -209,10 +209,11 @@ def _testCompare2(
                 
             elif test_method == "binomial":
                 
-                pvalueTTAA = binomtest(int(boundnum+pseudocounts), n=bgnumlam, 
+
+                pvalueTTAA = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
                                    p=((TTAAnum+pseudocounts)/TTAAnumlam ) , alternative='greater').pvalue
-                pvaluebg = binomtest(int(boundnum+pseudocounts), n=bgnumlam, 
-                                   p=((bgnum+pseudocounts)/boundnumlam) , alternative='greater').pvalue
+                pvaluebg = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
+                                   p=((bgnum+pseudocounts)/bgnumlam) , alternative='greater').pvalue
    
         
         if pvaluebg < pvalue_cutoffbg and pvalueTTAA < pvalue_cutoffTTAA :
@@ -1219,7 +1220,7 @@ def _callpeaksMACS2new2(
 
 
                 else:
-                    pvaluebg = 0
+                    pvaluebg = 1
 
                 # if it passes, then look at the TTAA:
                 if pvaluebg < pvalue_cutoff_background :
