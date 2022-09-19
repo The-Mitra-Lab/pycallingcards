@@ -172,7 +172,7 @@ def draw_area(
     title: Optional[str] = None,
     example_length: int = 10000,
     peak_line: int = 1,
-    save = False):
+    save: Union[bool,str] = False):
 
     """\
     Plot specific area of the genome.
