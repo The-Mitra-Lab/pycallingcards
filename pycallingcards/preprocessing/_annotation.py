@@ -107,6 +107,9 @@ def annotation(
     
     """
 
+    
+    save_peakinitial = save_peak 
+
     if method == "homer":
         
         import os
@@ -114,11 +117,9 @@ def annotation(
         
         save_annotationinitial = save_annotation
         if save_annotation ==  None:
-                import random
-                save_annotation = "save_annotation_"+str(random.randint(1,1000))+".gos"
-
-        save_peakinitial = save_peak 
-        #save_annotationinitial = save_annotation
+            import random
+            save_annotation = "save_annotation_"+str(random.randint(1,1000))+".gos"
+            
         if save_peak ==  None:
             import random
             save_peak = "temp_peaks_"+str(random.randint(1,1000))+".gos"
@@ -161,7 +162,7 @@ def annotation(
         if save_annotationinitial ==  None:
             os.remove(save_annotation)
             
-        if save_peakinitial == None:
+        if save_peakinitial == None and peaks_path==None:
             os.remove(save_peak)
             
         return annotated_peaks[["Chr","Start","End","Nearest Refseq","Gene Name"]]
@@ -181,7 +182,7 @@ def annotation(
             
         elif type(peaks_frame) == pd.DataFrame :
             
-            save_peakinitial = save_peak
+            
             if save_peak ==  None:
                 
                 import random
@@ -250,7 +251,7 @@ def annotation(
         if save_annotation != None:
             finalresult.to_csv(save_annotation,index = None, sep = "\t")
             
-        if save_peakinitial ==  None:
+        if save_peakinitial ==  None and peaks_path==None:
             import os
             os.remove(save_peak)
                 
