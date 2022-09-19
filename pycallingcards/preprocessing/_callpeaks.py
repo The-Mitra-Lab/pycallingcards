@@ -1,3 +1,4 @@
+from cmath import nan
 import numpy as np
 import pandas as pd
 import tqdm
@@ -163,7 +164,7 @@ def _testCompare2(
         bgnum, startbg = _findinsertionslen2(curbgframe, bound[i][0], bound[i][1], length, startbg, totalcurbackground ) 
         TTAAnum, startTTAA = _findinsertionslen2(curTTAAframenp,bound[i][0], bound[i][1], length, startTTAA, totalcurTTAA) 
         boundnum = bound[i][2]
-        
+
         
         if lam_win_size == None:
 
@@ -199,10 +200,15 @@ def _testCompare2(
             scaleFactorTTAA = boundnumlam/TTAAnumlam
             lamTTAA = TTAAnum * scaleFactorTTAA +pseudocounts
             
-            scaleFactorbg = boundnumlam/bgnumlam
-            lambg = bgnum * scaleFactorbg +pseudocounts
+            
+            if bgnumlam!= 0:
+                scaleFactorbg = boundnumlam/bgnumlam
+                lambg = bgnum * scaleFactorbg +pseudocounts
+            else:
+                lambg = 0
             
             if test_method == "poisson":
+                
                 
                 pvalueTTAA = 1-poisson.cdf(boundnum , lamTTAA)
                 pvaluebg = _compute_cumulative_poisson(boundnum,bgnum,boundnumlam,bgnumlam,pseudocounts)
@@ -212,7 +218,12 @@ def _testCompare2(
 
                 pvalueTTAA = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
                                    p=((TTAAnum+pseudocounts)/TTAAnumlam ) , alternative='greater').pvalue
-                pvaluebg = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
+
+
+                if bgnumlam == 0:
+                    pvaluebg = 0
+                else:
+                    pvaluebg = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
                                    p=((bgnum+pseudocounts)/bgnumlam) , alternative='greater').pvalue
    
         
@@ -1220,7 +1231,18 @@ def _callpeaksMACS2new2(
 
 
                 else:
-                    pvaluebg = 1
+                    if lam_win_size != None:
+                        num_exp_hops_lam, starthoplam =_findinsertionslen2(curChromnp, 
+                                                                window_start - int(lam_win_size/2) +1,
+                                                                    window_start+window_size + int(lam_win_size/2) - 1, 
+                                                                           length,starthoplam, totalcurChrom)
+                        
+                        num_exp_bg_lam, startbglam1 = _findinsertionslen2(curbackgroundframe, 
+                                                             window_start - int(lam_win_size/2) +1,
+                                                             window_start+window_size + int(lam_win_size/2) - 1,
+                                                             length,startbglam1, totalcurbackground)
+
+                    pvaluebg = 0
 
                 # if it passes, then look at the TTAA:
                 if pvaluebg < pvalue_cutoff_background :
@@ -1374,7 +1396,10 @@ def _callpeaksMACS2new2(
                                                               n=num_exp_hops_lam, 
                                                               p=((num_TTAA_hops+pseudocounts)/num_exp_TTAA_lam) , 
                                                               alternative='greater').pvalue)
-                            pvalue_list_background.append(binomtest(int(num_exp_hops+pseudocounts), 
+                            if num_exp_bg_lam == 0:
+                                pvalue_list_background.append(0)
+                            else:
+                                pvalue_list_background.append(binomtest(int(num_exp_hops+pseudocounts), 
                                                                 n=num_exp_hops_lam, 
                                                                 p=((num_bg_hops+pseudocounts)/num_exp_bg_lam) , 
                                                                 alternative='greater').pvalue)
