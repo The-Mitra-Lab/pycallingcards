@@ -1,7 +1,7 @@
 ## Pycallingcards
 
 <p align="center">
-    <img src="./docs/pycallingcards_icon.png", width="550">
+    <img src="./docs/pycallingcards_icon.png", width="350">
 </p>
 
 This a python package designed for single-cell calling cards data. It also provides efficient peak calling implementation for both bulk and single-cell calling cards data.
