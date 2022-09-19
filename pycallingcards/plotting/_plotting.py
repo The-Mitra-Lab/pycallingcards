@@ -140,7 +140,7 @@ def rank_peak_groups(
 
     if save != False:
         if save == True:
-            save = f"rank_peak_groups_{adata_ccf.uns[key]['params']['groupby']}" + '.svg'
+            save = f"rank_peak_groups_{adata_ccf.uns[key]['params']['groupby']}" + '.png'
         pl.savefig(save, bbox_inches='tight')
         
     if show:
@@ -171,7 +171,8 @@ def draw_area(
     color_genes: str = None,
     title: Optional[str] = None,
     example_length: int = 10000,
-    peak_line: int = 1):
+    peak_line: int = 1,
+    save = False):
 
     """\
     Plot specific area of the genome.
@@ -217,6 +218,9 @@ def draw_area(
         The length of example. Default is 10000.
     :param peak_line:
         The total number of peak lines. Default is 1.
+    :param save:
+        Could be bool or str indecating the file name it would be saved.
+        Default is False. if `True` it would give it a defualt name and saved to png.
 
 
     :Example:
@@ -230,7 +234,7 @@ def draw_area(
 
     """
 
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as pl
 
     if color == "blue":
         color_ccf = "cyan"
@@ -284,7 +288,7 @@ def draw_area(
     d1 = htopschr[(htopschr.iloc[:,1]>=start-extend)  & (htopschr.iloc[:,2]<= end + extend)]
     p1 = peakschr[(peakschr.iloc[:,1]>=start-extend)  & (peakschr.iloc[:,2]<= end + extend)].to_numpy()
 
-    figure, axis = plt.subplots(2, 1, figsize=figsize, gridspec_kw={'height_ratios': [1,1]})
+    figure, axis = pl.subplots(2, 1, figsize=figsize, gridspec_kw={'height_ratios': [1,1]})
 
     axis[0].plot(list(d1.iloc[:,1]), list(np.log(d1.iloc[:,3]+1)),color_ccf,marker = 'o',linestyle = 'None',markersize=6)
     axis[0].axis('off')
@@ -322,3 +326,9 @@ def draw_area(
         axis[1].plot([end+extend-example_length-example_length/5, end+extend-example_length-example_length/5], [-1,-0.6], linewidth=2, c = "k")
         axis[1].plot([end+extend-example_length/5, end+extend-example_length/5], [-1,-0.6], linewidth=2, c = "k")
         axis[1].text(end+extend, -1, str(example_length)+"pb", fontsize=12)
+
+    if save != False:
+        if save == True:
+            save = 'draw_area_' +chromosome + "_" + str(start) +  "_"  + str(end) + '.png'
+        figure.savefig(save, bbox_inches='tight')
+
