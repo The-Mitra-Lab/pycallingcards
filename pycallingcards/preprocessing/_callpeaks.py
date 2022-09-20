@@ -822,7 +822,8 @@ def _callpeaksMACS2_bfnew2(
     pvalue_cutoff: float = 0.01,
     lam_win_size: Optional[int] = None,
     record: bool = False, 
-    test_method: _PeaktestMethod = "poisson") -> pd.DataFrame:
+    test_method: _PeaktestMethod = "poisson",
+    multinumber = 100000000) -> pd.DataFrame:
     
     
     if test_method == "poisson":
@@ -1036,7 +1037,7 @@ def _callpeaksMACS2_bfnew2(
 
                             #add fraction of experiment hops in peak to frame
                             frac_exp_list.append(float(num_exp_hops)/total_experiment_hops)
-                            tph_exp_list.append(float(num_exp_hops)*100000/total_experiment_hops)
+                            tph_exp_list.append(float(num_exp_hops)*multinumber/total_experiment_hops)
                       
                             background_hops.append(num_TTAAs_window)
                         
@@ -1094,6 +1095,8 @@ def _callpeaksMACS2new2(
         from scipy.stats import poisson
     elif test_method == "binomial":  
         from scipy.stats import binomtest
+
+    multinumber = 100000000
     
     # The chromosomes we need to consider
     chrm = list(expdata[0].unique())
@@ -1167,7 +1170,6 @@ def _callpeaksMACS2new2(
         
         # caluclate the ratio for TTAA and background 
             lambdacurTTAA = float(totalcurChrom/totalcurTTAA) #expected ratio of hops per TTAA
-            lambdacurbackground = float(totalcurChrom/totalcurbackground) #expected ratio of hops per background
             
         else:
             
@@ -1329,11 +1331,11 @@ def _callpeaksMACS2new2(
                         num_TTAA_hops_list.append(num_TTAA_hops)
                         num_exp_hops_list.append(num_exp_hops)#add fraction of experiment hops in peak to frame
                         frac_exp_list.append(float(num_exp_hops)/total_experiment_hops)
-                        tph_exp_list.append(float(num_exp_hops)*100000/total_experiment_hops)
+                        tph_exp_list.append(float(num_exp_hops)*multinumber/total_experiment_hops)
                         num_bg_hops_list.append(num_bg_hops)
                         frac_bg_list.append(float(num_bg_hops)/total_background_hops)
-                        tph_bg_list.append(float(num_bg_hops)*100000/total_background_hops)
-                        tph_bgs = float(num_exp_hops)*100000/total_experiment_hops-float(num_bg_hops)*100000/total_background_hops
+                        tph_bg_list.append(float(num_bg_hops)*multinumber/total_background_hops)
+                        tph_bgs = float(num_exp_hops)*multinumber/total_experiment_hops-float(num_bg_hops)*multinumber/total_background_hops
                         tph_bgs_list.append(tph_bgs)
 
                     # caluclate the final P value 
@@ -1557,11 +1559,13 @@ def callpeaks(
         | **pvalue** - The pvalue we calculate from null hypothesis (for background free situation or Blockify).
         | **pvalue Reference** - The total number of hops of within a peak in the reference data (for background situation).
         | **pvalue Background** - The total number of hops of within a peak in the reference data (for background situation).
-        | **Fraction Experiment** - 
-        | **TPH Experiment** - 
-        | **Fraction Background** - 
-        | **TPH Background** - 
-        | **TPH Background subtracted** - 
+        | **Fraction Experiment** - The fraction of hops among total number of hops in the experiment data.
+        | **TPH Experiment** - Transpositions per hundred million hops in the experiment data for mammalian and
+                               transpositions per hundred million hops in the experiment data for yeast.
+        | **Fraction Background** - The fraction of hops among total number of hops in the background data.
+        | **TPH Background** - Transpositions per hundred million hops in the background data for mammalian and
+                               transpositions per hundred million hops in the background data for yeast.
+        | **TPH Background subtracted** - The difference between TPH Experiment and TPH Background.
 
    
     :Examples:
@@ -1742,16 +1746,19 @@ def callpeaks(
                 
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
                 length = 3
+                multinumber = 100000000
                 
             elif reference == "mm10":
                 
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
                 length = 3
+                multinumber = 100000000
                 
             elif reference == "yeast":
                 
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None)
                 length = 0
+                multinumber = 100000
                 
             else:
                 raise ValueError("Not valid reference.")
@@ -1774,13 +1781,13 @@ def callpeaks(
                 return _callpeaksMACS2_bfnew2(expdata, TTAAframe, length, extend = extend, 
                       pvalue_cutoff =  pvalue_cutoff, window_size = window_size, 
                       lam_win_size = lam_win_size,  step_size = step_size, pseudocounts = pseudocounts,
-                      test_method= test_method, min_hops = min_hops, record = record).reset_index(drop = True)
+                      test_method= test_method, min_hops = min_hops, record = record, multinumber = multinumber).reset_index(drop = True)
             else:
                 
                 data = _callpeaksMACS2_bfnew2(expdata, TTAAframe, length, extend = extend, 
                       pvalue_cutoff =  pvalue_cutoff, window_size = window_size, 
                       lam_win_size = lam_win_size,  step_size = step_size, pseudocounts = pseudocounts,
-                      test_method= test_method, min_hops = min_hops, record = record).reset_index(drop = True)
+                      test_method= test_method, min_hops = min_hops, record = record, multinumber = multinumber).reset_index(drop = True)
                 
                 data.to_csv(save,sep ="\t",header = None, index = None)
                 

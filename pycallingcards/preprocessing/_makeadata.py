@@ -4,8 +4,9 @@ from scipy.sparse import lil_matrix
 import anndata as ad
 from scipy.sparse import csr_matrix
 from anndata import AnnData
+from typing import Union, Optional, List, Sequence, Iterable, Mapping, Literal, Tuple
 
-
+_reference = Optional[Literal["hg38","mm10","yeast"]]
 
 def _myFuncsorting(e):
     try:
@@ -17,7 +18,7 @@ def makeAnndata(
     insertions: pd.DataFrame, 
     peaks: pd.DataFrame, 
     barcodes: pd.DataFrame,
-    length: int = 3
+    reference: _reference = "hg38"
     ) -> AnnData:
 
     """\
@@ -30,6 +31,9 @@ def makeAnndata(
         pd.DataFrame with first three columns: chromosome, start, end. Other information may go after these.
     :param barcodes:
         pd.DataFrame with all barcodes information.
+    :param reference:
+        Should be among `hg38`, `mm10`, `yeast`. This information is only for the length of one htop.
+        `hg38` and `mm10` are the same. Default is `hg38`.
 
 
     :Returns:
@@ -51,7 +55,12 @@ def makeAnndata(
     >>> adata_ccf = cc.pp.makeAnndata(ccf_data, peak_data, barcodes)
 
     """
-    
+    if reference == "hg38" or reference == "mm10":
+        length = 3
+    elif reference == "yeast":
+        length = 0
+
+
     barcodesorigin = barcodes.copy()
     barcodes = list(barcodes.iloc[:,0])
     barcodes_dict = {}

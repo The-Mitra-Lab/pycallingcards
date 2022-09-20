@@ -5,6 +5,7 @@ from typing import Union, Optional, List, Sequence, Iterable, Mapping, Literal, 
 
 
 _Method_rank_peak_groups = Optional[Literal['binomtest', 'binomtest2','fisher_exact', 'chisquare']]
+_reference = Optional[Literal["hg38","mm10","yeast"]]
 
 def _calculatePvalue(number1,number2,total1,total2,method = "binomtest"):
 
@@ -133,7 +134,6 @@ def diff2group(
 def rank_peak_groups(
     adata_ccf: AnnData,
     groupby: str,
-    use_raw: bool = False,
     groups: Union[Literal['all'], Iterable[str]] = 'all',
     reference: str = None,
     n_peaks: Optional[int] = None,
@@ -149,10 +149,8 @@ def rank_peak_groups(
         Annotated data matrix.
     :param groupby:
         The key of the observations grouping to consider.
-    :param use_raw:
-        Use `raw` attribute of `adata` if present.
     :param groups:
-        Subset of groups, e.g. [`'g1'`, `'g2'`, `'g3'`], to which comparison
+        Subset of groups (list), e.g. [`'g1'`, `'g2'`, `'g3'`], to which comparison
         shall be restricted, or `'all'` (default), for all groups.
     :param reference:
         If `'rest'`, compare each group to the union of the rest of the group.
@@ -166,8 +164,7 @@ def rank_peak_groups(
         The default method is `'binomtest'`,
         `'binomtest'` uses binomial test,
         `'binomtest2'` uses binomial test but stands on different hypothesis of `'binomtest'`,
-        `'fisher_exact'` uses fisher exact test,
-        `'chisquare'` uses chi-squeare test.
+        `'fisher_exact'` uses fisher exact test and `'chisquare'` uses chi-squeare test.
 
 
     :Returns: 
@@ -211,8 +208,7 @@ def rank_peak_groups(
     elif type(key_added) != str:
         raise ValueError("key_added should be str.")
 
-    if type(use_raw) != bool:
-        print( "use_row should be bool.")
+
 
     adata_ccf = adata_ccf.copy() if copy else adata_ccf
 
@@ -220,8 +216,7 @@ def rank_peak_groups(
     adata_ccf.uns[key_added]['params'] = dict(
     groupby=groupby,
     reference=reference,
-    method=method,
-    use_raw=use_raw)
+    method=method)
 
     peak_list  = list(adata_ccf.var.index)
 

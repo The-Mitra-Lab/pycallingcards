@@ -100,7 +100,7 @@ def rank_peak_groups(
         else:
             ymin = np.min(pvalues)
             ymax = np.max(pvalues)
-            ymax += np.min(0.3 * (ymax - ymin),1)
+            ymax += 0.3 * (ymax - ymin)
 
             ax = fig.add_subplot(gs[count])
             ax.set_ylim(ymin, ymax)
@@ -150,9 +150,6 @@ def rank_peak_groups(
 
 
 
-
-
-
 def draw_area(
     chromosome: str,
     start: int,
@@ -161,6 +158,7 @@ def draw_area(
     peaks: pd.DataFrame,
     htops: pd.DataFrame,
     reference: Union[str,pd.DataFrame],
+    background: Union[None,pd.DataFrame] = None,
     adata: Optional[AnnData] = None,
     name: Optional[str] = None,
     key: Optional[str] = None ,
@@ -192,6 +190,8 @@ def draw_area(
         pd.Datadrame of ccf
     :param reference:
         `'hg38'`, `'mm10'` or pd.Datadrame of the reference data.
+    :param background:
+        pd.Datadrame of ccf or None. Default is `None`.
     :param adata:
         This should be input along with `name` and `key`.
         It would only show the htops when the `'key'` of adata is `'name'` .Default is `'None'`.
@@ -259,11 +259,9 @@ def draw_area(
         color_genes = "plum"
 
 
-
-
     peakschr = peaks[peaks.iloc[:,0] == chromosome]
-
     htopschr = htops[htops.iloc[:,0] == chromosome]
+    
 
     if type(adata) == AnnData:
         if name != None:
@@ -273,9 +271,9 @@ def draw_area(
 
     if type(reference) == str:
         if reference == "hg38":
-            refdata = pd.read_csv("/scratch/ref/rmlab/calling_card_ref/human/refGene.hg38.Sorted.bed",delimiter="\t",header=None)
+            refdata = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.hg38.Sorted.bed",delimiter="\t",header=None)
         elif reference == "mm10":
-            refdata = pd.read_csv("/scratch/ref/rmlab/calling_card_ref/mouse/refGene.mm10.Sorted.bed",delimiter="\t",header=None)
+            refdata = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.mm10.Sorted.bed",delimiter="\t",header=None)
     elif type(reference) == pd.DataFrame:
         refdata = reference
     else:
@@ -288,16 +286,22 @@ def draw_area(
     d1 = htopschr[(htopschr.iloc[:,1]>=start-extend)  & (htopschr.iloc[:,2]<= end + extend)]
     p1 = peakschr[(peakschr.iloc[:,1]>=start-extend)  & (peakschr.iloc[:,2]<= end + extend)].to_numpy()
 
+    if type(background) == pd.DataFrame:
+        backgroundchr = background[background.iloc[:,0] == chromosome]
+        b1 = backgroundchr[(backgroundchr.iloc[:,1]>=start-extend)  & (backgroundchr.iloc[:,2]<= end + extend)]
+
     figure, axis = pl.subplots(2, 1, figsize=figsize, gridspec_kw={'height_ratios': [1,1]})
 
     axis[0].plot(list(d1.iloc[:,1]), list(np.log(d1.iloc[:,3]+1)),color_ccf,marker = 'o',linestyle = 'None',markersize=6)
+    if type(background) == pd.DataFrame:
+        axis[0].plot(list(b1.iloc[:,1]), list(np.log(b1.iloc[:,3]+1)),"lightgray",marker = 'o',linestyle = 'None',markersize=6)
     axis[0].axis('off')
     axis[0].set_xlim([start - extend, end + extend])
 
 
     pnumber = 0
-    for i in range(len(p1)):
 
+    for i in range(len(p1)):
 
         axis[1].plot([p1[i,1],p1[i,2]], [ -1* (pnumber % peak_line) + 0.15,  -1* (pnumber % peak_line )+ 0.15], linewidth=10, c =color_peak)
         axis[1].text((p1[i,2]+extend/40),  -1*  (pnumber % peak_line )+ 0.15 , p1[i,0]+"_"+str(p1[i,1])+"_"+str(p1[i,2]),fontsize=14)
