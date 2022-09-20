@@ -329,7 +329,7 @@ def draw_area(
         axis[1].plot([end+extend-example_length-example_length/5, end+extend-example_length/5], [-1,-1], linewidth=2, c = "k")
         axis[1].plot([end+extend-example_length-example_length/5, end+extend-example_length-example_length/5], [-1,-0.6], linewidth=2, c = "k")
         axis[1].plot([end+extend-example_length/5, end+extend-example_length/5], [-1,-0.6], linewidth=2, c = "k")
-        axis[1].text(end+extend, -1, str(example_length)+"pb", fontsize=12)
+        axis[1].text(end+extend, -1, str(example_length)+"bp", fontsize=12)
 
     if save != False:
         if save == True:
