@@ -1570,7 +1570,7 @@ def callpeaks(
    
     :Examples:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_ccf()
+    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, lam_win_size = 1000000,  pseudocounts = 1, record = True)
                   
     """

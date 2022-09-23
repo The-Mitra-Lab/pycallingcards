@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from anndata import AnnData
-from typing import Union, Optional, List, Sequence, Iterable, Mapping, Literal, Tuple
+from typing import Union, Optional, List, Sequence, Iterable, Literal, Tuple
 from matplotlib.axes import Axes
 from matplotlib import rcParams, cm
 from matplotlib import pyplot as pl
@@ -49,7 +49,7 @@ def rank_peak_groups(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mousecortex_CCF()
+    >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
     >>> cc.pl.rank_peaks_groups(adata_ccf)
 
     :See also: `tl.rank_peaks_groups`
@@ -162,6 +162,7 @@ def draw_area(
     adata: Optional[AnnData] = None,
     name: Optional[str] = None,
     key: Optional[str] = None ,
+    htopkey: Optional[str] = None ,
     figsize: Tuple[int, int] = (10, 3),
     color: _draw_area_color = "blue",
     color_ccf: str = None,
@@ -201,6 +202,9 @@ def draw_area(
     :param key:
         This should be input along with `adata` and `name`.
         It would only show the htops when the `'key'` of adata is `'name'` .Default is `'None'`.
+    :param htopkey:
+        This should be input along with `adata` and `name`.
+        It would find the column `'htopkey'` of the htops file.
     :param figsize:
         The size of the figure. Default is (10, 3).
     :param color:
@@ -226,9 +230,9 @@ def draw_area(
     :Example:
     --------
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_ccf()
+    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10", maxbetween = 2000,pvalue_cutoff = 0.01, lam_win_size = 1000000,  pseudocounts = 1, record = True)
-    >>> adata_ccf = cc.datasets.mousecortex_CCF()
+    >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
     >>> cc.pl.rank_peaks_groups(adata_ccf)
     >>> cc.pl.draw_area("chr12",50102917,50124960,400000,peak_data,ccf_data,"mm10",adata_ccf,"Neuron_Excit",'cluster',figsize = (30,6),peak_line = 4,color = "red")
 
@@ -265,9 +269,16 @@ def draw_area(
 
     if type(adata) == AnnData:
         if name != None:
-            adata = adata[adata.obs[key] == name]
+            if key == "Index":
+                adata = adata[name,:]
+            else:
+                adata = adata[adata.obs[key] == name]
 
-        htopschr = htopschr[htopschr[5].isin(adata.obs.index)]
+                
+        if htopkey == None:
+            htopschr = htopschr[htopschr[5].isin(adata.obs.index)]
+        else:
+            htopschr = htopschr[htopschr[htopkey].isin(adata.obs.index)]
 
     if type(reference) == str:
         if reference == "hg38":
@@ -292,9 +303,10 @@ def draw_area(
 
     figure, axis = pl.subplots(2, 1, figsize=figsize, gridspec_kw={'height_ratios': [1,1]})
 
-    axis[0].plot(list(d1.iloc[:,1]), list(np.log(d1.iloc[:,3]+1)),color_ccf,marker = 'o',linestyle = 'None',markersize=6)
     if type(background) == pd.DataFrame:
         axis[0].plot(list(b1.iloc[:,1]), list(np.log(b1.iloc[:,3]+1)),"lightgray",marker = 'o',linestyle = 'None',markersize=6)
+    
+    axis[0].plot(list(d1.iloc[:,1]), list(np.log(d1.iloc[:,3]+1)),color_ccf,marker = 'o',linestyle = 'None',markersize=6)
     axis[0].axis('off')
     axis[0].set_xlim([start - extend, end + extend])
 
