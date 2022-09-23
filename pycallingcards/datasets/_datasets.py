@@ -22,10 +22,10 @@ def mousecortex_data(
 
     :param data:
         Should be among `["ccf","barcodes","RNA","CCF"]`. No default.
-        `ccf` reads the htop ccf file.
-        `barcodes` reads the barcodes file.
-        `RNA` reads the RNA anndata.
-        `CCF` reads the CCF anndata.
+        | `ccf` reads the htop ccf file.
+        | `barcodes` reads the barcodes file.
+        | `RNA` reads the RNA anndata.
+        | `CCF` reads the CCF anndata.
 
     """
 
@@ -69,9 +69,9 @@ def SP1_K562HCT116_data(
 
     :param data:
         Should be among `["experience_ccf","background_ccf","barcodes"]`. No default.
-        `experience_ccf` reads the htop ccf file for the combined data of K562 and HCT-116 cell lines.
-        `background_ccf` reads the htop ccf file for the data of mixed K562 and HCT-116 cell lines.
-        `barcodes` reads the barcode file for the combined data of K562 and HCT-116 cell lines.
+        | `experience_ccf` reads the htop ccf file for the combined data of K562 and HCT-116 cell lines.
+        | `background_ccf` reads the htop ccf file for the data of mixed K562 and HCT-116 cell lines.
+        | `barcodes` reads the barcode file for the combined data of K562 and HCT-116 cell lines.
 
 
     """
@@ -107,10 +107,10 @@ def mouse_brd4_data(
 
     :param data:
         Should be among `["Female_Brd4","Male_Brd4","Female_WT","Male_WT"]`. No default.
-        `Female_Brd4` reads the htop ccf file for the female mouse Brd4 binding bulk data.
-        `Male_Brd4` reads the htop ccf file for the male mouse Brd4 binding bulk data.
-        `Female_WT` reads the htop ccf file for the female mouse wild type binding bulk data.
-        `Male_WT` reads the htop ccf file for the male mouse wild type  binding bulk data.
+        | `Female_Brd4` reads the htop ccf file for the female mouse Brd4 binding bulk data.
+        | `Male_Brd4` reads the htop ccf file for the male mouse Brd4 binding bulk data.
+        | `Female_WT` reads the htop ccf file for the female mouse wild type binding bulk data.
+        | `Male_WT` reads the htop ccf file for the male mouse wild type  binding bulk data.
 
 
     """
