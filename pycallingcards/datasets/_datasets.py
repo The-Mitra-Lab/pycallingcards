@@ -21,7 +21,6 @@ def mousecortex_data(
     Mouse cortex single-cell calling cards  data [Moudgil20]_.
 
     :param data: `['ccf','barcodes','RNA','CCF']`. 
-
         | `ccf` reads the htop ccf file.
         | `barcodes` reads the barcodes file.
         | `RNA` reads the RNA anndata.
