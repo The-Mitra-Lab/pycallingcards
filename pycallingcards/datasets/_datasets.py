@@ -20,12 +20,11 @@ def mousecortex_data(
     """\
     Mouse cortex single-cell calling cards  data [Moudgil20]_.
 
-    :param data:[`ccf`,`barcodes`,`RNA`,`CCF`]. 
-
-        | `ccf` reads the htop ccf file.
-        | `barcodes` reads the barcodes file.
-        | `RNA` reads the RNA anndata.
-        | `CCF` reads the CCF anndata.
+    :param data: '[`ccf`,`barcodes`,`RNA`,`CCF`]'. 
+        `ccf` reads the htop ccf file.
+        `barcodes` reads the barcodes file.
+        `RNA` reads the RNA anndata.
+        `CCF` reads the CCF anndata.
 
     """
 
@@ -67,13 +66,10 @@ def SP1_K562HCT116_data(
     Transcription factor SP1 is added to both K562 and HCT-116 cell lines seperately. 
     Wild-type single-cell calling cards is data also recorded in mixed K562 and HCT-116 cell lines [Moudgil20]_.
 
-    :param data: [`experience_ccf`,`background_ccf`,`barcodes`].
-
-        | `experience_ccf` reads the htop ccf file for the combined data for K562 and HCT-116 cell lines.
-
-        | `background_ccf` reads the htop ccf file for the data for mixed K562 and HCT-116 cell lines.
-
-        | `barcodes` reads the barcode file for the combined data for K562 and HCT-116 cell lines.
+    :param data: '[`experience_ccf`,`background_ccf`,`barcodes`]'.
+        `experience_ccf` reads the htop ccf file for the combined data for K562 and HCT-116 cell lines.
+        `background_ccf` reads the htop ccf file for the data for mixed K562 and HCT-116 cell lines.
+        `barcodes` reads the barcode file for the combined data for K562 and HCT-116 cell lines.
 
 
     """
@@ -107,10 +103,9 @@ def mouse_brd4_data(
     """\
     Bulk Brd4 bindings for both male and female mice [Kfoury21]_.
 
-    :param data: [`Female_Brd4`,`Male_Brd4`]. 
-
-        | `Female_Brd4` reads the htop ccf file for the bulk Brd4 binding data for female mouse .
-        | `Male_Brd4` reads the htop ccf file for the bulk Brd4 binding data for male mouse.
+    :param data: '[`Female_Brd4`,`Male_Brd4`]'. 
+        `Female_Brd4` reads the htop ccf file for the bulk Brd4 binding data for female mouse .
+        `Male_Brd4` reads the htop ccf file for the bulk Brd4 binding data for male mouse.
 
 
     """
@@ -139,14 +134,10 @@ def SP1_Cre_data(
     """\
     Bulk SP1 bindings for both P10 and P28 cohort in Cre-driver mouse lines[Cammack19]_.
 
-    :param data:
-        Should be among [`SP1_P10`,`SP1_P28`,`background`].
-
-        | `SP1_P10` reads the htop ccf file for P10 cohert.
-
-        | `SP1_P28` reads the htop ccf file for P28 cohert.
-
-        | `background` reads the htop ccf file for backgound.
+    :param data: '[`SP1_P10`,`SP1_P28`,`background`]'.
+        `SP1_P10` reads the htop ccf file for P10 cohert.
+        `SP1_P28` reads the htop ccf file for P28 cohert.
+        `background` reads the htop ccf file for backgound.
 
 
     """
