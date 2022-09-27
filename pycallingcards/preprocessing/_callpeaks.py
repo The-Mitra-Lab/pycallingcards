@@ -1509,7 +1509,7 @@ def callpeaks(
         `MACS2` uses the idea adapted from [Zhang08]_ and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
         `Blockify` uses the method from `here <https://Blockify.readthedocs.io/en/latest/pages/introduction.html>`__.
-    :param reference: [`hg38`, `mm10`, `yeast`].Default is `hg38`.
+    :param reference:  `['hg38','mm10','yeast']`. Default is `hg38`.
         We currently have `hg38` for human data, `mm10` for mouse data and `yeast` for yeast data.
     :param pvalue_cutoff: Default is 0.0001.
         The P-value cutoff for a backgound free situation. 
@@ -1526,7 +1526,7 @@ def callpeaks(
         Valid for method = `test` and `MACS2`. The length (bp) that peaks extend for both sides.
     :param maxbetween: Default is 2000.
         Valid only for method = `test`. The maximum length of nearby hops within one peak. 
-    :param test_method: [`poisson`, `binomial`]. Default is `poisson`.
+    :param test_method: `['poisson','binomial']`. Default is `poisson`.
         The method for making hypothesis test. 
     :param window_size: Default is 1500.
         Valid only for method = `MACS2`. The length of window looking for. 

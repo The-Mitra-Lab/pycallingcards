@@ -33,7 +33,7 @@ def makeAnndata(
         pd.DataFrame with first three columnsas chromosome, start and end. Other information is contained after these.
     :param barcodes:
         pd.DataFrame or a list of all barcodes.
-    :param reference: [`hg38`, `mm10`, `yeast`]. Default is `hg38`.
+    :param reference: `['hg38','mm10','yeast']`. Default is `hg38`.
         This information is only used to calculate the length of one htop.
         `hg38` and `mm10` are the same. Default is `hg38`.
     :param key: Default is 5.
@@ -66,7 +66,7 @@ def makeAnndata(
         length = 0
 
     if type(barcodes) ==  list:
-        barcodes = pd.DataFrame(barcodes,columns=['index'])
+        barcodes = pd.DataFrame(barcodes,columns=['Index'])
 
     barcodes = barcodes.drop_duplicates()
     barcodesorigin = barcodes.copy()

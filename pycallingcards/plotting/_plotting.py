@@ -207,7 +207,7 @@ def draw_area(
         It would find the column `htopkey` of the htops file.
     :param figsize: Default is (10, 3).
         The size of the figure. 
-    :param color:  [`blue`,`red`,`green`,`pruple`]. Default is `blue`.
+    :param color:  `['blue','red','green','pruple']`. Default is `blue`.
         The color of the plot.
         If `color` is not a valid color, `color_ccf`, `color_peak`, `color_genes` should be utilized.
     :param color_ccf: Default is `None`.
@@ -231,7 +231,7 @@ def draw_area(
     --------
     >>> import pycallingcards as cc
     >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10", maxbetween = 2000,pvalue_cutoff = 0.01, lam_win_size = 1000000,  pseudocounts = 1, record = True)
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10", record = True)
     >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
     >>> cc.pl.rank_peaks_groups(adata_ccf)
     >>> cc.pl.draw_area("chr12",50102917,50124960,400000,peak_data,ccf_data,"mm10",adata_ccf,"Neuron_Excit",'cluster',figsize = (30,6),peak_line = 4,color = "red")

@@ -30,7 +30,7 @@ def DE_pvalue(
         The name of the peak for comparing.
     :param copy: Default is `False`.
         Whether to modify copied input object. 
-    :param method: ['binomtest', 'binomtest2','fisher_exact']. Default is `fisher_exact`
+    :param method: `['binomtest', 'binomtest2','fisher_exact']`. Default is `fisher_exact`
         The default method is 'fisher_exact', `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on different hypothesis of `binomtest`, 'fisher_exact' uses
         fisher exact test.
@@ -97,7 +97,7 @@ def diff2group_bygroup(
         The name of the second group.
     :param peakname: Default is `None`.
         The name of the peak used for comparing.
-    :param test_method: ['binomtest', 'binomtest2','fisher_exact']. Default is `fisher_exact`
+    :param test_method: `['binomtest', 'binomtest2','fisher_exact']`. Default is `fisher_exact`
         `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.

@@ -7,9 +7,5 @@ Pycallingcards: calling cards data analysis in Python
 ======================================================
 
 
-.. toctree::
-   installation
-   tutorials
-   autoapi/pycallingcards/index
-   references
-
+Pycallingcards is a python package designed for both bulk and single-cell calling cards data  based on `Anndata <https://anndata.readthedocs.io/en/latest/>`__ . 
+It includes peak calling, annotation, differential peak analysis and visualization.

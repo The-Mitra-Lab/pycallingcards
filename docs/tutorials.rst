@@ -15,6 +15,6 @@ Single-cell calling cards data without background.
 
 Bulk calling cards data without background.
 
-`SP1 bindings <https://github.com/The-Mitra-Lab/pycallingcards_data/blob/main/SP1_bulk.ipynb>`__ **in Cre-driver mouse lines**
+`SP1 bindings <https://nbviewer.org/github/The-Mitra-Lab/pycallingcards_data/blob/main/SP1_bulk.ipynb>`__ **in Cre-driver mouse lines**
 
 Bulk calling cards data with background.
