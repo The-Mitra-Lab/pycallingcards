@@ -74,21 +74,6 @@ Classes
 
 {% block functions scoped %}
 {% if visible_functions %}
-Functions
-~~~~~~~~~
-
-.. autoapisummary::
-
-{% for function in visible_functions %}
-   {{ function.id }}
-{% endfor %}
-
-
-{% endif %}
-{% endblock %}
-
-{% block attributes scoped %}
-{% if visible_attributes %}
 Attributes
 ~~~~~~~~~~
 
