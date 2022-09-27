@@ -27,7 +27,7 @@ copyright = '2022, Juanru Guo, Lucy Chen, Robi Mitra'
 author = 'Juanru Guo, Lucy Chen, Robi Mitra'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+#release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
 
@@ -64,6 +64,8 @@ exclude_patterns = []
 #
 
 html_theme = "furo"
+
+html_logo = "pycallingcards_icon.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

@@ -4,8 +4,9 @@ from scipy.sparse import lil_matrix
 import anndata as ad
 from scipy.sparse import csr_matrix
 from anndata import AnnData
+from typing import Union, Optional, List, Sequence, Iterable, Mapping, Literal, Tuple
 
-
+_reference = Optional[Literal["hg38","mm10","yeast"]]
 
 def _myFuncsorting(e):
     try:
@@ -13,44 +14,61 @@ def _myFuncsorting(e):
     except :
         return int(ord(e.split('_')[0][3:]))
 
+    
 def makeAnndata(
-    insertions: pd.DataFrame, 
+    ccf: pd.DataFrame, 
     peaks: pd.DataFrame, 
-    barcodes: pd.DataFrame,
-    length: int = 3
+    barcodes: Union[pd.DataFrame,List],
+    reference: _reference = "hg38",
+    key: Union[str,int] = 5
     ) -> AnnData:
 
     """\
-    Make cell by peak anndata for calling cards.
+    Make cell(sample) by using peak anndata for calling cards.
 
-    :param insertions:
-        pd.DataFrame with first three columns: chromosome, start, end, reads number, diretion, barcodes. 
-        Chromosome, start, end, barcodes are actually needed.
+    :param ccf:
+        pd.DataFrame the first five with columns as chromosome, start, end, reads number, diretion and barcodes. 
+        Chromosome, start, end and barcodes are the actual information needed.
     :param peaks:
-        pd.DataFrame with first three columns: chromosome, start, end. Other information may go after these.
+        pd.DataFrame with first three columnsas chromosome, start and end. Other information is contained after these.
     :param barcodes:
-        pd.DataFrame with all barcodes information.
+        pd.DataFrame or a list of all barcodes.
+    :param reference: `['hg38','mm10','yeast']`. Default is `hg38`.
+        This information is only used to calculate the length of one htop.
+        `hg38` and `mm10` are the same. Default is `hg38`.
+    :param key: Default is 5.
+        The name of the column in ccf file containing the barcodes information. 
+        
 
 
     :Returns:
-        Annotated data matrix, where observations/cells are named by their barcode and 
-        variables/peaks by Chr_Start_End. Stores the following information.
-    :anndata.AnnData.X: The data matrix is stored
-    :anndata.AnnData.obs_names: Cell names
-    :anndata.AnnData.var_names: Peak names
-    :anndata.AnnData.var['peak_ids']: Peak information fron the origin file
-    :anndata.AnnData.var['feature_types']: Feature types
+        Annotated data matrix, where observations (cells/samples) are named by their barcode and 
+        variables/peaks by Chr_Start_End. The matrix stores the following information.
+        
+        | **anndata.AnnData.X** - Where the data matrix is stored
+        | **anndata.AnnData.obs_names** -  Cell(sample) names
+        | **anndata.AnnData.var_names** -  Peak names
+        | **anndata.AnnData.var['peak_ids']** -  Peak information from the original file
+        | **anndata.AnnData.var['feature_types']** -  Feature types
 
    
     :Example:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_ccf()
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, lam_win_size = 1000000,  pseudocounts = 1, record = True)
-    >>> barcodes = cc.datasets.mousecortex_barcodes()
+    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  record = True)
+    >>> barcodes = cc.datasets.mousecortex_data(data="barcodes")
     >>> adata_ccf = cc.pp.makeAnndata(ccf_data, peak_data, barcodes)
 
     """
-    
+    if reference == "hg38" or reference == "mm10":
+        length = 3
+    elif reference == "yeast":
+        length = 0
+
+    if type(barcodes) ==  list:
+        barcodes = pd.DataFrame(barcodes,columns=['Index'])
+
+    barcodes = barcodes.drop_duplicates()
     barcodesorigin = barcodes.copy()
     barcodes = list(barcodes.iloc[:,0])
     barcodes_dict = {}
@@ -87,11 +105,16 @@ def makeAnndata(
         peaksf[i,4] = peak_name_dict[peaksf[i,3]]
     
 
-    insertions1 = insertions.copy()
+    ccf1 = ccf.copy()
     
-    insertions1[6] = insertions1[5].apply(lambda x: barcodes_dict[x])
-    ccff = insertions1.iloc[:,[0,1,5,6]].to_numpy()
+    if key == None:
+        key = 5
 
+    ccfbar = (ccf1[key].apply(lambda x: barcodes_dict[x])).to_numpy()
+    ccff = ccf1.iloc[:,[0,1]].to_numpy()
+    
+    ccff = np.concatenate((ccff, ccf1[key].to_numpy().reshape((-1,1)),ccfbar.reshape((-1,1))), axis=1)
+    
     
     for chro in chrolist:
 
