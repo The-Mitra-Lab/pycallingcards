@@ -22,7 +22,7 @@ def mousecortex_data(
 
     :param data: `['ccf','barcodes','RNA','CCF']`. 
         `ccf` reads the htop ccf file.
-        | `barcodes` reads the barcodes file.
+        `barcodes` reads the barcodes file.
         | `RNA` reads the RNA anndata.
         | `CCF` reads the CCF anndata.
 
@@ -132,7 +132,7 @@ def SP1_Cre_data(
 
 
     """\
-    Bulk SP1 bindings for both P10 and P28 cohort in Cre-driver mouse lines[Cammack19]_.
+    Bulk SP1 bindings for both P10 and P28 cohort in Cre-driver mouse lines [Cammack19]_.
 
     :param data: `['SP1_P10','SP1_P28','background']`.
         `SP1_P10` reads the htop ccf file for P10 cohert.
