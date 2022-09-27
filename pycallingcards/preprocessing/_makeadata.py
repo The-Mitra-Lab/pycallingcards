@@ -20,42 +20,42 @@ def makeAnndata(
     peaks: pd.DataFrame, 
     barcodes: Union[pd.DataFrame,List],
     reference: _reference = "hg38",
-    key: Union[str,int] = None
+    key: Union[str,int] = 5
     ) -> AnnData:
 
     """\
-    Make cell(sample) by peak anndata for calling cards.
+    Make cell(sample) by using peak anndata for calling cards.
 
     :param ccf:
-        pd.DataFrame with first three columns: chromosome, start, end, reads number, diretion, barcodes. 
-        Chromosome, start, end, barcodes are actually needed.
+        pd.DataFrame the first five with columns as chromosome, start, end, reads number, diretion and barcodes. 
+        Chromosome, start, end and barcodes are the actual information needed.
     :param peaks:
-        pd.DataFrame with first three columns: chromosome, start, end. Other information may go after these.
+        pd.DataFrame with first three columnsas chromosome, start and end. Other information is contained after these.
     :param barcodes:
-        pd.DataFrame with all barcodes information or a list with barcodes.
-    :param reference:
-        Should be among `hg38`, `mm10`, `yeast`. This information is only for the length of one htop.
+        pd.DataFrame or a list of all barcodes.
+    :param reference: [`hg38`, `mm10`, `yeast`]. Default is `hg38`.
+        This information is only used to calculate the length of one htop.
         `hg38` and `mm10` are the same. Default is `hg38`.
-    :param key:
+    :param key: Default is 5.
         The name of the column in ccf file containing the barcodes information. 
-        Default is the fifth column.
+        
 
 
     :Returns:
-        Annotated data matrix, where observations(cells/samples) are named by their barcode and 
-        variables/peaks by Chr_Start_End. Stores the following information.
+        Annotated data matrix, where observations (cells/samples) are named by their barcode and 
+        variables/peaks by Chr_Start_End. The matrix stores the following information.
         
-        | **anndata.AnnData.X** -  The data matrix is stored
+        | **anndata.AnnData.X** - Where the data matrix is stored
         | **anndata.AnnData.obs_names** -  Cell(sample) names
         | **anndata.AnnData.var_names** -  Peak names
-        | **anndata.AnnData.var['peak_ids']** -  Peak information fron the origin file
+        | **anndata.AnnData.var['peak_ids']** -  Peak information from the original file
         | **anndata.AnnData.var['feature_types']** -  Feature types
 
    
     :Example:
     >>> import pycallingcards as cc
     >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, lam_win_size = 1000000,  pseudocounts = 1, record = True)
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  record = True)
     >>> barcodes = cc.datasets.mousecortex_data(data="barcodes")
     >>> adata_ccf = cc.pp.makeAnndata(ccf_data, peak_data, barcodes)
 

@@ -1501,49 +1501,46 @@ def callpeaks(
     Call peaks from ccf data.
 
     :param expdata:
-        pd.DataFrame with first three columns as: chromosome, start, end.
-    :param background:
-        pd.DataFrame with first three columns as: chromosome, start, end. Default is `'None'` for the backgound free situation.
-    :param method:
-        The default method is `'test'`,
+        pd.DataFrame with the first three columns as chromosome, start and end.
+    :param background: Default is `None` for backgound free situation.
+        pd.DataFrame with the first three columns as chromosome, start and end. 
+    :param method: Default method is `test`.
         `'test'` is a method considering the maxdistance between hops in the data,
-        `'MACS2'` uses the idea adapted from [Zhang08]_,
-        `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__,
+        `'MACS2'` uses the idea adapted from [Zhang08]_ and
+        `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
         `Blockify` uses the method from `here <https://Blockify.readthedocs.io/en/latest/pages/introduction.html>`__.
-    :param reference:
-        Default method is `'hg38'`,
-        We currently have `'hg38'` for human data, `'mm10'` for mouse data and `'yeast'` for yeast data.
-    :param pvalue_cutoff:
-        The P-value cutoff for backgound free situation. Default is 0.0001.
-    :param pvalue_cutoffbg:
-        The P-value cutoff for backgound data when backgound exists. Default is 0.0001.
-    :param pvalue_cutoffTTAA:
-        The P-value cutoff for reference data when backgound exists. Default is 0.00001. 
-        Normally, pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg.
-    :param min_hops:
-        The number of minimal hops for each peak. Default is 5.
-    :param minlen:
-        Valid only for `'test'`. The minimal length for a peak without extend.  Default is 0.
-    :param extend:
-        Valid for `'test'` and `'MACS2'`. The length (bp) that peaks extend for both sides. Default is 200.
-    :param maxbetween:
-        Valid only for `'test'`. The maximum length of nearby hops within one peak. Default is 2000.
-    :param test_method:
+    :param reference: Default  is `hg38`.
+        We currently have `hg38` for human data, `mm10` for mouse data and `yeast` for yeast data.
+    :param pvalue_cutoff: Default is 0.0001.
+        The P-value cutoff for a backgound free situation. 
+    :param pvalue_cutoffbg: Default is 0.0001.
+        The P-value cutoff for backgound data when backgound exists. 
+    :param pvalue_cutoffTTAA: Default is 0.00001. 
+        The P-value cutoff for reference data when backgound exists. 
+        Note that pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg.
+    :param min_hops: Default is 5.
+        The number of minimal hops for each peak. 
+    :param minlen:  Default is 0.
+        Valid only for method = `test`. The minimal length for a peak without extend. 
+    :param extend:  Default is 200.
+        Valid for method = `test` and `MACS2`. The length (bp) that peaks extend for both sides.
+    :param maxbetween: Default is 2000.
+        Valid only for method = `test`. The maximum length of nearby hops within one peak. 
+    :param test_method: [`poisson`, `binomial`]. Default is `poisson`.
         The method for making hypothesis test. 
-        We currently have `'poisson'` and `'binomial'` available. Default is `'poisson'`.
-    :param window_size:
-        Valid only for `'MACS2'`. The length of window we look for. Default is 1500.
-    :param lam_win_size:
-        Valid for `'test'` and `'MACS2'`. The length of peak area we consider when performing the test.
-    :param step_size:
-        Valid only for `'MACS2'`. The length of each step. Default is 500.
-    :param pseudocounts:
-        Number for pseudocounts added for the pyhothesis test. Default is 0.2.
-    :param record:
-        Whether to record other information or not. Default is `True`.
-        If it is `False`, the output would only have three columns: Chromosome, Start, End.
-    :param save:
-        The file name for the file we save. Default is `'None'` and would not be saved.
+    :param window_size: Default is 1500.
+        Valid only for method = `MACS2`. The length of window looking for. 
+    :param lam_win_size: Default is 100000.
+        Valid for  method = `test` and `MACS2`. The length of peak area considered when performing a test.
+    :param step_size: Default is 500.
+        Valid only for `MACS2`. The length of each step. 
+    :param pseudocounts: Default is 0.2.
+        Number for pseudocounts added for the pyhothesis test. 
+    :param record:  Default is `True`.
+        Controls if information is recorded.
+        If `False`, the output would only have three columns: Chromosome, Start, End.
+    :param save: Default is `'None'`
+        The file name for the file we saved. 
        
 
     :Returns:
@@ -1553,16 +1550,16 @@ def callpeaks(
         | **Experiment Hops** - The total number of hops within a peak in the experiment data.
         | **Reference Hops** - The total number of hops of within a peak in the reference data.
         | **Background Hops** - The total number of hops within a peak in the experiment data.
-        | **Expected Hops** - The total number of expected hops under null hypothesis from the reference data (for background free situation). 
-        | **Expected Hops background** - The total number of expected hops under null hypothesis from the background data (for background situation).
-        | **Expected Hops Reference** - The total number of expected hops under null hypothesis from the reference data (for background situation).
-        | **pvalue** - The pvalue we calculate from null hypothesis (for background free situation or Blockify).
-        | **pvalue Reference** - The total number of hops of within a peak in the reference data (for background situation).
-        | **pvalue Background** - The total number of hops of within a peak in the reference data (for background situation).
-        | **Fraction Experiment** - The fraction of hops among total number of hops in the experiment data.
+        | **Expected Hops** - The total number of expected hops under null hypothesis from the reference data (in a background free situation). 
+        | **Expected Hops background** - The total number of expected hops under null hypothesis from the background data (in a background situation).
+        | **Expected Hops Reference** - The total number of expected hops under null hypothesis from the reference data (in a background situation).
+        | **pvalue** - The pvalue we calculate from null hypothesis (in a background free situation or method = `Blockify`).
+        | **pvalue Reference** - The total number of hops of within a peak in the reference data (in a background situation).
+        | **pvalue Background** - The total number of hops of within a peak in the reference data (in a background situation).
+        | **Fraction Experiment** - The fraction of hops  in the experiment data.
         | **TPH Experiment** - Transpositions per hundred million hops in the experiment data for mammalian and
                                transpositions per hundred million hops in the experiment data for yeast.
-        | **Fraction Background** - The fraction of hops among total number of hops in the background data.
+        | **Fraction Background** - The fraction of hops in the background data.
         | **TPH Background** - Transpositions per hundred million hops in the background data for mammalian and
                                transpositions per hundred million hops in the background data for yeast.
         | **TPH Background subtracted** - The difference between TPH Experiment and TPH Background.

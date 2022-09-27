@@ -6,14 +6,14 @@ from typing import Union, Optional, List,  Iterable,  Literal
 
 
 _Method_rank_peak_groups = Optional[Literal['binomtest', 'binomtest2','fisher_exact']]
-_type = Optional[Literal['single-cell', 'bulk']]
+
 
 def DE_pvalue(
     number1: int,
     number2: int,
     total1: int,
     total2: int,
-    method: _Method_rank_peak_groups = "binomtest"):
+    method: _Method_rank_peak_groups = 'fisher_exact'):
 
     """\
     Comaparing the peak difference between two groups for specific peak.
@@ -27,11 +27,14 @@ def DE_pvalue(
     :param total2:
         The total number of cells in group 2.
     :param peakname:
-        The name of the peak for comparing
-    :param method:
-        The default method is `'fisher_exact'`, `'binomtest'` uses binomial test, `'binomtest2'` uses
-        binomial test but stands on different hypothesis of `'binomtest'`, `'fisher_exact'` uses
+        The name of the peak for comparing.
+    :param copy: Default is `False`.
+        Whether to modify copied input object. 
+    :param method: ['binomtest', 'binomtest2','fisher_exact']. Default is `fisher_exact`
+        The default method is 'fisher_exact', `binomtest` uses binomial test, `binomtest2` uses
+        binomial test but stands on different hypothesis of `binomtest`, 'fisher_exact' uses
         fisher exact test.
+    
 
     :return:
         Pvalue for the specific hypothesis.
@@ -82,22 +85,28 @@ def diff2group_bygroup(
 
     """\
     Comaparing the peak difference between two groups for specific peak by group.
+
+
     :param adata_ccf:
         Annotated data matrix.
     :param groupby:
-        The key of the observations grouping to consider.
+        The key in adata_ccf of the observation groups to consider.
     :param name1:
-        The name of the first group
-    :param name2:
-        The name of the second group
-    :param peakname:
-        The name of the peak for comparing
-    :param method:
-        The default method is `'binomtest'`, `'binomtest'` uses binomial test, `'binomtest2'` uses
-        binomial test but stands on different hypothesis of `'binomtest'`, `'fisher_exact'` uses
+        The name of the first group.
+    :param name2: Default is `None`.
+        The name of the second group.
+    :param peakname: Default is `None`.
+        The name of the peak used for comparing.
+    :param test_method: ['binomtest', 'binomtest2','fisher_exact']. Default is `fisher_exact`
+        `binomtest` uses binomial test, `binomtest2` uses
+        binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
+
+
     :return:
         Pvalue for the specific hypothesis.
+
+
     :example:
     >>> import pycallingcards as cc
     >>> adata_ccf = cc.datasets.mousecortex_CCF()
@@ -169,25 +178,29 @@ def diff2group_bysample(
 ) -> Union[List[float], float]:
 
     """\
-    Comaparing the peak difference between two groups for specific peak by sample.
+    Comaparing the peak difference between two groups for a specific peak by sample.
+
+
     :param adata_ccf:
         Annotated data matrix.
+    :param groupby:
+        The key in adata_ccf of the observation groups to consider.
     :param name1:
-        The name of the first group
-    :param name2:
-        The name of the second group
-    :param peakname:
-        The name of the peak for comparing
-    :param method:
-        The default method is `'binomtest'`, `'binomtest'` uses binomial test, `'binomtest2'` uses
-        binomial test but stands on different hypothesis of `'binomtest'`, `'fisher_exact'` uses
+        The name of the first group.
+    :param name2: Default is `None`.
+        The name of the second group.
+    :param peakname: Default is `None`.
+        The name of the peak used for comparing.
+    :param test_method: ['binomtest', 'binomtest2','fisher_exact']. Default is `fisher_exact`
+        `binomtest` uses binomial test, `binomtest2` uses
+        binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
+
+
     :return:
         Pvalue for the specific hypothesis.
-    :example:
-    >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mousecortex_CCF()
-    >>> cc.tl.diff2group_bysample(adata_ccf, 'Neuron_Excit_L5_Mixed','Astrocyte','chr2_28188592_28188996')
+
+
     """
 
     if peakname != None:
@@ -252,32 +265,31 @@ def rank_peak_groups(
     :param adata_ccf:
         Annotated data matrix.
     :param groupby:
-        The key of the observations grouping to consider.
-    :param groups:
+        The key of the groups.
+    :param groups: Default is `all`.
         Subset of groups (list), e.g. [`'g1'`, `'g2'`, `'g3'`], to which comparison
         shall be restricted, or `'all'` (default), for all groups.
-    :param reference:
-        If `'rest'`, compare each group to the union of the rest of the group.
+    :param reference: Defaulf is `rest`.
+        If `rest`, compare each group to the union of the rest of the group.
         If a group identifier, compare with respect to this group.
     :param n_peaks:
         The number of peaks that appear in the returned tables.
         Default includes all peaks.
     :param key_added:
         The key in `adata.uns` information is saved to.
-    :param  method:
-        The default method is `'binomtest'`,
-        `'binomtest'` uses binomial test,
-        `'binomtest2'` uses binomial test but stands on different hypothesis of `'binomtest'`,
-        `'fisher_exact'` uses fisher exact test.
+    :param  method: ['binomtest', 'binomtest2','fisher_exact']. Default is `binomtest`.
+        `binomtest` uses binomial test,
+        `binomtest2` uses binomial test but stands on a different hypothesis of `binomtest`,
+        `fisher_exact` uses fisher exact test.
 
 
     :Returns: 
-        | **names** - structured `np.ndarray` (`.uns['rank_peaks_groups']`). Structured array to be indexed by group id storing the peak names. Ordered according to scores.
+        | **names** - structured `np.ndarray` (`.uns['rank_peaks_groups']`). Structured array is to be indexed by the group ID storing the peak names. Ordered according to scores.
         | **return pvalues** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
-        | **number** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks/ or the number of cells contian peaks (depending on the method) expressing the peaks for each group.
-        | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks/ or the number of cells contian peaks (depending on the method) expressing the peaks for each group in the reference data.
-        | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contian peaks expressing the peaks for each group.
-        | **total_rest** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contian peaks expressing the peaks for each group in the reference data.
+        | **number** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells contian peaks (depending on the method).
+        | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells contianing peaks (depending on the method).
+        | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contianing peaks.
+        | **total_rest** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contianing peaks.
 
     :example:
     >>> import pycallingcards as cc

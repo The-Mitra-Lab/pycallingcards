@@ -20,11 +20,14 @@ def mousecortex_data(
     """\
     Mouse cortex single-cell calling cards  data [Moudgil20]_.
 
-    :param data:
-        Should be among `["ccf","barcodes","RNA","CCF"]`. No default.
+    :param data: `["ccf","barcodes","RNA","CCF"]`. 
+
         | `ccf` reads the htop ccf file.
+
         | `barcodes` reads the barcodes file.
+
         | `RNA` reads the RNA anndata.
+
         | `CCF` reads the CCF anndata.
 
     """
@@ -65,13 +68,15 @@ def SP1_K562HCT116_data(
 
     """\
     Transcription factor SP1 is added to both K562 and HCT-116 cell lines seperately. 
-    Wild type single-cell calling cards is also done in mixed K562 and HCT-116 cell lines [Moudgil20]_.
+    Wild-type single-cell calling cards is data also recorded in mixed K562 and HCT-116 cell lines [Moudgil20]_.
 
-    :param data:
-        Should be among `["experience_ccf","background_ccf","barcodes"]`. No default.
-        | `experience_ccf` reads the htop ccf file for the combined data of K562 and HCT-116 cell lines.
-        | `background_ccf` reads the htop ccf file for the data of mixed K562 and HCT-116 cell lines.
-        | `barcodes` reads the barcode file for the combined data of K562 and HCT-116 cell lines.
+    :param data: `["experience_ccf","background_ccf","barcodes"]`.
+
+        | `experience_ccf` reads the htop ccf file for the combined data for K562 and HCT-116 cell lines.
+
+        | `background_ccf` reads the htop ccf file for the data for mixed K562 and HCT-116 cell lines.
+
+        | `barcodes` reads the barcode file for the combined data for K562 and HCT-116 cell lines.
 
 
     """
@@ -95,22 +100,21 @@ def SP1_K562HCT116_data(
         avail_data = ["experience_ccf","background_ccf","barcodes"]
         raise ValueError(f'data must be one of {avail_data}.')
             
-
+_mouse_brd4 = Optional[Literal["Female_Brd4","Male_Brd4"]]
 
 def mouse_brd4_data(
-    data = _SP1
+    data = _mouse_brd4
 ) -> Union[pd.DataFrame,ad.AnnData]:
 
 
     """\
-    Bulk Brd4 bindings for both male and female mouse [Kfoury21]_.
+    Bulk Brd4 bindings for both male and female mice [Kfoury21]_.
 
-    :param data:
-        Should be among `["Female_Brd4","Male_Brd4","Female_WT","Male_WT"]`. No default.
-        | `Female_Brd4` reads the htop ccf file for the female mouse Brd4 binding bulk data.
-        | `Male_Brd4` reads the htop ccf file for the male mouse Brd4 binding bulk data.
-        | `Female_WT` reads the htop ccf file for the female mouse wild type binding bulk data.
-        | `Male_WT` reads the htop ccf file for the male mouse wild type  binding bulk data.
+    :param data: `["Female_Brd4","Male_Brd4"]`. 
+
+        | `Female_Brd4` reads the htop ccf file for the bulk Brd4 binding data for female mouse .
+
+        | `Male_Brd4` reads the htop ccf file for the bulk Brd4 binding data for male mouse.
 
 
     """
@@ -125,17 +129,48 @@ def mouse_brd4_data(
                             sep = "\t",  header = None)
         return ccf_data
 
-    if data == "Female_WT":
-        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_F6_WT_pBC.ccf.txt",
+    else:
+        avail_data = ["Female_Brd4","Male_Brd4"]
+        raise ValueError(f'data must be one of {avail_data}.')
+            
+_Cre = Optional[Literal["SP1_P10","SP1_P28","background"]]
+
+def SP1_Cre_data(
+    data = _Cre
+) -> Union[pd.DataFrame,ad.AnnData]:
+
+
+    """\
+    Bulk SP1 bindings for both P10 and P28 cohort in Cre-driver mouse lines[Virshup21]_.
+
+    :param data:
+        Should be among `["SP1_P10","SP1_P28","background"]`.
+
+        | `SP1_P10` reads the htop ccf file for P10 cohert.
+
+        | `SP1_P28` reads the htop ccf file for P28 cohert.
+
+        | `background` reads the htop ccf file for backgound.
+
+
+    """
+
+    if data == "SP1_P10":
+        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt",
                             sep = "\t",  header = None)
         return ccf_data
         
-    if data == "Male_WT":
-        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_M6_WT_pBC.ccf.txt",
+    if data == "SP1_P28":
+        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P28.txt",
                             sep = "\t",  header = None)
         return ccf_data
 
+    if data == "background":
+        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_bg.txt",
+                            sep = "\t",  header = None)
+        return ccf_data
+        
     else:
-        avail_data = ["Female_Brd4","Male_Brd4","Female_WT","Male_WT"]
+        avail_data = ["SP1_P10","SP1_P28","background"]
         raise ValueError(f'data must be one of {avail_data}.')
             

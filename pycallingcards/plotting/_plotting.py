@@ -26,25 +26,26 @@ def rank_peak_groups(
 
     :param adata_ccf:
         Annotated data matrix.
-    :param groups:
-        The groups for which to show the peak ranking.
-    :param n_peaks:
-        Number of peaks to show.
-    :param peak_symbols:
-        Key for field in `.var` that stores peak symbols if you do not want to
-        use `.var_names`.
-    :param fontsize:
+    :param groups: Default is `None`.
+        The groups used to show the peak ranking.
+    :param n_peaks: Default is 10.
+        Number of peaks that appear in the returned tables.
+    :param peak_symbols: Default is `None`.
+         Key for field in .var that stores peak symbols if you do not want to use .var_names.
+    :param key: Default is 'rank_peak_groups'.
+        Key for the name of the cluster.
+    :param fontsize: Default is 8.
         Fontsize for peak names.
-    :param ncols:
+    :param ncols: Default is 4.
         Number of panels shown per row.
-    :param sharey:
-        Controls if the y-axis of each panels should be shared. But passing
+    :param sharey: Default is True.
+        Controls if the y-axis of each panels should be shared. By passing
         `sharey=False`, each panel has its own y-axis range.
-    :param show:
-        Whether to show the plot or not. Default is `True`.
-    :param save:
-        Could be bool or str indecating the file name it would be saved.
-        Default is False. if `True` it would give it a defualt name and saved to png.
+    :param show: Default is `True`
+        Controls if the plot shows or not. 
+    :param save: Default is False.
+        Could be bool or str indicating the file name it would be saved.
+        If `True`, a default name would be given and the plot would be saved as png.
 
 
     :example:
@@ -54,7 +55,6 @@ def rank_peak_groups(
 
     :See also: `tl.rank_peaks_groups`
     """
-
 
     n_panels_per_row = ncols
     if n_peaks < 1:
@@ -174,15 +174,15 @@ def draw_area(
     save: Union[bool,str] = False):
 
     """\
-    Plot specific area of the genome.
+    Plot the specific area of the genome.
 
 
     :param chromosome:
-        The chromosome we plot.
+        The chromosome plotted.
     :param start:
-        The start point of the middle area. Usually, it could be the start point of a peak.
+        The start point of middle area. Usually, it's the start point of a peak.
     :param end:
-        The end point of the middle area. Usually, it could be the end point of a peak.
+        The end point of middle area. Usually, it's the end point of a peak.
     :param extend:
         The extend length (bp) to plot.
     :param peaks:
@@ -190,41 +190,41 @@ def draw_area(
     :param htops:
         pd.Datadrame of ccf
     :param reference:
-        `'hg38'`, `'mm10'` or pd.Datadrame of the reference data.
-    :param background:
-        pd.Datadrame of ccf or None. Default is `None`.
-    :param adata:
-        This should be input along with `name` and `key`.
-        It would only show the htops when the `'key'` of adata is `'name'` .Default is `'None'`.
-    :param name:
-        This should be input along with `adata` and `key`.
-        It would only show the htops when the `'key'` of adata is `'name'` .Default is `'None'`.
-    :param key:
-        This should be input along with `adata` and `name`.
-        It would only show the htops when the `'key'` of adata is `'name'` .Default is `'None'`.
+        `'hg38'`, `'mm10'` or pd.DataFrame of the reference data.
+    :param background: Default is `None`.
+        pd.DataFrame of ccf or None. 
+    :param adata: Default is `None`.
+        Input along with `name` and `key`.
+        It would only show the htops when the `'key'` of adata is `'name'`.
+    :param name: Default is `None`.
+        Input along with `adata` and `key`.
+        It would only show the htops when the `'key'` of adata is `'name'`.
+    :param key: Default is `None`.
+        Input along with `adata` and `name`.
+        It would only show the htops when the `'key'` of adata is `'name'`.
     :param htopkey:
-        This should be input along with `adata` and `name`.
+        Input along with `adata` and `name`.
         It would find the column `'htopkey'` of the htops file.
-    :param figsize:
-        The size of the figure. Default is (10, 3).
-    :param color:
-        The color of the plot, could be among `['blue','red','green','pruple']`. Default is `'blue'`.
-        If `'color'` is not a valid color above, `'color_ccf'`, `'color_peaks'`, `'color_genes'` would be utilized.
-    :param color_ccf:
-        The color of ccf htops. Used only when `'color'` is not a valid color above.
-    :param color_peaks:
-        The color of peaks. Used only when `'color'` is not a valid color above.
-    :param color_genes:
-        The color of genes. Used only when `'color'` is not a valid color above.
-    :param title:
-        The title of the plot. Default is `'None'`.
-    :param example_length:
-        The length of example. Default is 10000.
-    :param peak_line:
-        The total number of peak lines. Default is 1.
-    :param save:
-        Could be bool or str indecating the file name it would be saved.
-        Default is False. if `True` it would give it a defualt name and saved to png.
+    :param figsize: Default is (10, 3).
+        The size of the figure. 
+    :param color:  Default is `blue`.
+        The color of the plot, valid colors are `['blue','red','green','pruple']`.
+        If `'color'` is not a valid color, `'color_ccf'`, `'color_peak'`, `'color_genes'` should be utilized.
+    :param color_ccf: Default is `None`.
+        The color of ccf htops. Used only when `'color'` is not a valid color.
+    :param color_peak: Default is `None`.
+        The color of peaks. Used only when `'color'` is not a valid color.
+    :param color_genes: Default is `None`.
+        The color of genes. Used only when `'color'` is not a valid color.
+    :param title: Default is `None`.
+        The title of the plot. 
+    :param example_length:  Default is 10000.
+        The length of example.
+    :param peak_line: Default is 1.
+        The total number of peak lines. 
+    :param save: Default is False. 
+        Could be bool or str indicating the file name it would be saved.
+        If `True`, a default name would be given and the plot would be saved as png.
 
 
     :Example:

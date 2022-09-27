@@ -5,6 +5,11 @@ References
    *Self-Reporting Transposons Enable Simultaneous Readout of Gene Expression and Transcription Factor Binding in Single Cells*,
    `Cell <https://doi.org/10.1016/j.cell.2020.06.037>`__.
 
+.. [Virshup21]  Virshup *et al.* (2021),
+   *anndata: Annotated data*,
+   `bioRxiv <https://www.biorxiv.org/content/10.1101/2021.12.16.473007v1>`__.
+   
+
 .. [Wolf18] Wolf *et al.* (2018),
    *SCANPY: large-scale single-cell gene expression data analysis*,
    `Genome Biology <https://doi.org/10.1186/s13059-017-1382-0>`__.
