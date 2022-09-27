@@ -191,7 +191,7 @@ def diff2group_bysample(
         The name of the second group.
     :param peakname: Default is `None`.
         The name of the peak used for comparing.
-    :param test_method: ['binomtest', 'binomtest2','fisher_exact']. Default is `fisher_exact`
+    :param test_method: ["binomtest", "binomtest2","fisher_exact"]. Default is `fisher_exact`
         `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
@@ -256,7 +256,7 @@ def rank_peak_groups(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
-    method: _Method_rank_peak_groups = None
+    method: _Method_rank_peak_groups = 'fisher_exact'
 ) -> Optional[AnnData]:
 
     """\
@@ -268,7 +268,7 @@ def rank_peak_groups(
         The key of the groups.
     :param groups: Default is `all`.
         Subset of groups (list), e.g. [`'g1'`, `'g2'`, `'g3'`], to which comparison
-        shall be restricted, or `'all'` (default), for all groups.
+        shall be restricted, or `all` (default), for all groups.
     :param reference: Defaulf is `rest`.
         If `rest`, compare each group to the union of the rest of the group.
         If a group identifier, compare with respect to this group.
@@ -277,7 +277,7 @@ def rank_peak_groups(
         Default includes all peaks.
     :param key_added:
         The key in `adata.uns` information is saved to.
-    :param  method: ['binomtest', 'binomtest2','fisher_exact']. Default is `binomtest`.
+    :param  method: ["binomtest", "binomtest2","fisher_exact"]. Default is `fisher_exact`.
         `binomtest` uses binomial test,
         `binomtest2` uses binomial test but stands on a different hypothesis of `binomtest`,
         `fisher_exact` uses fisher exact test.

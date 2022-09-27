@@ -10,7 +10,6 @@ Pycallingcards is a python package designed for both bulk and single-cell callin
 It includes peak calling, annotation, differential peak analysis and visualization. 
 
 
-Pycallingcards is a
 .. toctree::
    installation
    tutorials

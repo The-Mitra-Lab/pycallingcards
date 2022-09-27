@@ -1505,11 +1505,11 @@ def callpeaks(
     :param background: Default is `None` for backgound free situation.
         pd.DataFrame with the first three columns as chromosome, start and end. 
     :param method: Default method is `test`.
-        `'test'` is a method considering the maxdistance between hops in the data,
-        `'MACS2'` uses the idea adapted from [Zhang08]_ and
+        `test` is a method considering the maxdistance between hops in the data,
+        `MACS2` uses the idea adapted from [Zhang08]_ and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
         `Blockify` uses the method from `here <https://Blockify.readthedocs.io/en/latest/pages/introduction.html>`__.
-    :param reference: Default  is `hg38`.
+    :param reference: [`hg38`, `mm10`, `yeast`].Default is `hg38`.
         We currently have `hg38` for human data, `mm10` for mouse data and `yeast` for yeast data.
     :param pvalue_cutoff: Default is 0.0001.
         The P-value cutoff for a backgound free situation. 
@@ -1539,7 +1539,7 @@ def callpeaks(
     :param record:  Default is `True`.
         Controls if information is recorded.
         If `False`, the output would only have three columns: Chromosome, Start, End.
-    :param save: Default is `'None'`
+    :param save: Default is `None`
         The file name for the file we saved. 
        
 

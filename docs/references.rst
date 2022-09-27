@@ -9,7 +9,6 @@ References
    *anndata: Annotated data*,
    `bioRxiv <https://www.biorxiv.org/content/10.1101/2021.12.16.473007v1>`__.
    
-
 .. [Wolf18] Wolf *et al.* (2018),
    *SCANPY: large-scale single-cell gene expression data analysis*,
    `Genome Biology <https://doi.org/10.1186/s13059-017-1382-0>`__.
@@ -29,6 +28,10 @@ References
 .. [Kfoury21] Kfoury *et al.* (2021),
    *Brd4-bound enhancers drive cell-intrinsic sex differences in glioblastoma*,
    `PNAS <https://doi.org/10.1073/pnas.2017148118>`__.
+
+.. [Cammack19] Cammack *et al.* (2019),
+   *A viral toolkit for recording transcription factor–DNA interactions in live mouse tissues*,
+   `PNAS <https://doi.org/10.1073/pnas.1918241117>`__.
 
 
 

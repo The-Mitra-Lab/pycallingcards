@@ -14,7 +14,7 @@ def combine_annotation(
     Combine peak information and annotation information.
 
     :param peak_data:
-        pd.DataFrame with the first three columns as: chromosome, start and end.
+        pd.DataFrame with the first three columns as chromosome, start and end.
         Following columns indicate extra information of the peak.
     :param peak_annotation:
         pd.DataFrame with first three columns as chromosome, start and end.
@@ -56,7 +56,7 @@ def annotation(
     ) -> pd.DataFrame:
     
     """\
-    Annotate the peak data by `'bedtools' <https://bedtools.readthedocs.io/en/latest/index.html>`__ [Quinlan10]_.
+    Annotate the peak data by `bedtools <https://bedtools.readthedocs.io/en/latest/index.html>`__ [Quinlan10]_.
 
     :param peaks_frame: Default is `None`.
         pd.DataFrame with the first three columns as chromosome, start and end.
@@ -69,7 +69,7 @@ def annotation(
         Currently, `hg38` and `mm10` are provided only.
     :param save_peak: Default is `None`.
         If peaks_path is not provided, peaks_frame would be saved. This is the path and name peaks_frame would be saved.
-    :param save_annotation:  Default is `'None'`.
+    :param save_annotation:  Default is `None`.
         The path and name of the annotation results would be saved.
     :param bedtools_path: Default is `None`.
         Default uses the default path for bedtools.

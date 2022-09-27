@@ -8,10 +8,11 @@ def read_ccf(
     """\
     Read .ccf file.
 
-    :param filename: Path to the ccf file.
+    :param filename: 
+        Path to the ccf file.
 
     :Returns:
-    pd.DataFrame for the ccf file.
+        pd.DataFrame for the ccf file.
 
     :example:
     >>> import pycallingcards as cc
@@ -30,8 +31,10 @@ def combine_ccf(
     """\
     Read .ccf file.
 
-    :param filelist: a list containing all the pd.DataFrames need to be combined.
-    :param name: name of the first two colums. Default is [0,1]
+    :param filelist: 
+        List containing all the pd.DataFrames need to be combined.
+    :param name: 
+        Name of the first two colums. Default is [0,1].
 
     :Returns:
     pd.DataFrame after combined.
