@@ -16,7 +16,7 @@ def read_ccf(
 
     :example:
     >>> import pycallingcards as cc
-    >>> ccf = cc.rd.read_ccf(https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt)
+    >>> ccf = cc.rd.read_ccf("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt")
 
        
     """
@@ -41,8 +41,8 @@ def combine_ccf(
 
     :example:
     >>> import pycallingcards as cc
-    >>> P10 = cc.rd.read_ccf(https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt)
-    >>> P28 = cc.rd.read_ccf(https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P28.txt)
+    >>> P10 = cc.rd.read_ccf("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt")
+    >>> P28 = cc.rd.read_ccf("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P28.txt")
     >>> ccf = cc.rd.combine_ccf([P10,P28])
     """
 

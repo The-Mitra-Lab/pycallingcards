@@ -207,7 +207,7 @@ def draw_area(
         It would find the column `htopkey` of the htops file.
     :param figsize: Default is (10, 3).
         The size of the figure. 
-    :param color:  [`blue"`,`red`,`green`,`pruple`]. Default is `blue`.
+    :param color:  [`blue`,`red`,`green`,`pruple`]. Default is `blue`.
         The color of the plot.
         If `color` is not a valid color, `color_ccf`, `color_peak`, `color_genes` should be utilized.
     :param color_ccf: Default is `None`.

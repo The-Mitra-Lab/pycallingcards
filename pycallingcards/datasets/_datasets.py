@@ -20,14 +20,11 @@ def mousecortex_data(
     """\
     Mouse cortex single-cell calling cards  data [Moudgil20]_.
 
-    :param data: [`ccf`,`barcodes`,`RNA`,`CCF`]. 
+    :param data:[`ccf`,`barcodes`,`RNA`,`CCF`]. 
 
         | `ccf` reads the htop ccf file.
-
         | `barcodes` reads the barcodes file.
-
         | `RNA` reads the RNA anndata.
-
         | `CCF` reads the CCF anndata.
 
     """
@@ -113,7 +110,6 @@ def mouse_brd4_data(
     :param data: [`Female_Brd4`,`Male_Brd4`]. 
 
         | `Female_Brd4` reads the htop ccf file for the bulk Brd4 binding data for female mouse .
-
         | `Male_Brd4` reads the htop ccf file for the bulk Brd4 binding data for male mouse.
 
 

@@ -4,10 +4,7 @@
    contain the root `toctree` directive.
 
 Pycallingcards: calling cards data analysis in Python
-=====================================================
-
-Pycallingcards is a python package designed for both bulk and single-cell calling cards data  based on [Virshup21]_. 
-It includes peak calling, annotation, differential peak analysis and visualization. 
+======================================================
 
 
 .. toctree::
