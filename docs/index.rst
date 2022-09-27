@@ -14,5 +14,5 @@ It includes peak calling, annotation, differential peak analysis and visualizati
 .. toctree::
    installation
    tutorials
-   autoapi/pycallingcards
+   autoapi/pycallingcards/index
    references
