@@ -1,4 +1,3 @@
-from cmath import nan
 import numpy as np
 import pandas as pd
 import tqdm
@@ -164,7 +163,7 @@ def _testCompare2(
         bgnum, startbg = _findinsertionslen2(curbgframe, bound[i][0], bound[i][1], length, startbg, totalcurbackground ) 
         TTAAnum, startTTAA = _findinsertionslen2(curTTAAframenp,bound[i][0], bound[i][1], length, startTTAA, totalcurTTAA) 
         boundnum = bound[i][2]
-
+        
         
         if lam_win_size == None:
 
@@ -197,34 +196,23 @@ def _testCompare2(
             boundnumlam, startboundlam = _findinsertionslen2(curChromnp, bound[i][0] - lam_win_size/2 + 1, bound[i][1] + lam_win_size/2, 
                                              length, startboundlam, totalcurChrom) 
             
-            scaleFactorTTAA = boundnumlam/TTAAnumlam
+            scaleFactorTTAA = bgnumlam/TTAAnumlam
             lamTTAA = TTAAnum * scaleFactorTTAA +pseudocounts
             
-            
-            if bgnumlam!= 0:
-                scaleFactorbg = boundnumlam/bgnumlam
-                lambg = bgnum * scaleFactorbg +pseudocounts
-            else:
-                lambg = 0
+            scaleFactorbg = bgnumlam/boundnumlam
+            lambg = TTAAnum * scaleFactorbg +pseudocounts
             
             if test_method == "poisson":
-                
                 
                 pvalueTTAA = 1-poisson.cdf(boundnum , lamTTAA)
                 pvaluebg = _compute_cumulative_poisson(boundnum,bgnum,boundnumlam,bgnumlam,pseudocounts)
                 
             elif test_method == "binomial":
                 
-
-                pvalueTTAA = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
+                pvalueTTAA = binomtest(int(boundnum+pseudocounts), n=bgnumlam, 
                                    p=((TTAAnum+pseudocounts)/TTAAnumlam ) , alternative='greater').pvalue
-
-
-                if bgnumlam == 0:
-                    pvaluebg = 0
-                else:
-                    pvaluebg = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
-                                   p=((bgnum+pseudocounts)/bgnumlam) , alternative='greater').pvalue
+                pvaluebg = binomtest(int(boundnum+pseudocounts), n=bgnumlam, 
+                                   p=((bgnum+pseudocounts)/boundnumlam) , alternative='greater').pvalue
    
         
         if pvaluebg < pvalue_cutoffbg and pvalueTTAA < pvalue_cutoffTTAA :
@@ -822,8 +810,7 @@ def _callpeaksMACS2_bfnew2(
     pvalue_cutoff: float = 0.01,
     lam_win_size: Optional[int] = None,
     record: bool = False, 
-    test_method: _PeaktestMethod = "poisson",
-    multinumber = 100000000) -> pd.DataFrame:
+    test_method: _PeaktestMethod = "poisson") -> pd.DataFrame:
     
     
     if test_method == "poisson":
@@ -1037,7 +1024,7 @@ def _callpeaksMACS2_bfnew2(
 
                             #add fraction of experiment hops in peak to frame
                             frac_exp_list.append(float(num_exp_hops)/total_experiment_hops)
-                            tph_exp_list.append(float(num_exp_hops)*multinumber/total_experiment_hops)
+                            tph_exp_list.append(float(num_exp_hops)*100000/total_experiment_hops)
                       
                             background_hops.append(num_TTAAs_window)
                         
@@ -1095,8 +1082,6 @@ def _callpeaksMACS2new2(
         from scipy.stats import poisson
     elif test_method == "binomial":  
         from scipy.stats import binomtest
-
-    multinumber = 100000000
     
     # The chromosomes we need to consider
     chrm = list(expdata[0].unique())
@@ -1170,6 +1155,7 @@ def _callpeaksMACS2new2(
         
         # caluclate the ratio for TTAA and background 
             lambdacurTTAA = float(totalcurChrom/totalcurTTAA) #expected ratio of hops per TTAA
+            lambdacurbackground = float(totalcurChrom/totalcurbackground) #expected ratio of hops per background
             
         else:
             
@@ -1233,17 +1219,6 @@ def _callpeaksMACS2new2(
 
 
                 else:
-                    if lam_win_size != None:
-                        num_exp_hops_lam, starthoplam =_findinsertionslen2(curChromnp, 
-                                                                window_start - int(lam_win_size/2) +1,
-                                                                    window_start+window_size + int(lam_win_size/2) - 1, 
-                                                                           length,starthoplam, totalcurChrom)
-                        
-                        num_exp_bg_lam, startbglam1 = _findinsertionslen2(curbackgroundframe, 
-                                                             window_start - int(lam_win_size/2) +1,
-                                                             window_start+window_size + int(lam_win_size/2) - 1,
-                                                             length,startbglam1, totalcurbackground)
-
                     pvaluebg = 0
 
                 # if it passes, then look at the TTAA:
@@ -1331,11 +1306,11 @@ def _callpeaksMACS2new2(
                         num_TTAA_hops_list.append(num_TTAA_hops)
                         num_exp_hops_list.append(num_exp_hops)#add fraction of experiment hops in peak to frame
                         frac_exp_list.append(float(num_exp_hops)/total_experiment_hops)
-                        tph_exp_list.append(float(num_exp_hops)*multinumber/total_experiment_hops)
+                        tph_exp_list.append(float(num_exp_hops)*100000/total_experiment_hops)
                         num_bg_hops_list.append(num_bg_hops)
                         frac_bg_list.append(float(num_bg_hops)/total_background_hops)
-                        tph_bg_list.append(float(num_bg_hops)*multinumber/total_background_hops)
-                        tph_bgs = float(num_exp_hops)*multinumber/total_experiment_hops-float(num_bg_hops)*multinumber/total_background_hops
+                        tph_bg_list.append(float(num_bg_hops)*100000/total_background_hops)
+                        tph_bgs = float(num_exp_hops)*100000/total_experiment_hops-float(num_bg_hops)*100000/total_background_hops
                         tph_bgs_list.append(tph_bgs)
 
                     # caluclate the final P value 
@@ -1398,10 +1373,7 @@ def _callpeaksMACS2new2(
                                                               n=num_exp_hops_lam, 
                                                               p=((num_TTAA_hops+pseudocounts)/num_exp_TTAA_lam) , 
                                                               alternative='greater').pvalue)
-                            if num_exp_bg_lam == 0:
-                                pvalue_list_background.append(0)
-                            else:
-                                pvalue_list_background.append(binomtest(int(num_exp_hops+pseudocounts), 
+                            pvalue_list_background.append(binomtest(int(num_exp_hops+pseudocounts), 
                                                                 n=num_exp_hops_lam, 
                                                                 p=((num_bg_hops+pseudocounts)/num_exp_bg_lam) , 
                                                                 alternative='greater').pvalue)
@@ -1501,73 +1473,74 @@ def callpeaks(
     Call peaks from ccf data.
 
     :param expdata:
-        pd.DataFrame with the first three columns as chromosome, start and end.
-    :param background: Default is `None` for backgound free situation.
-        pd.DataFrame with the first three columns as chromosome, start and end. 
-    :param method: Default method is `test`.
-        `test` is a method considering the maxdistance between hops in the data,
-        `MACS2` uses the idea adapted from [Zhang08]_ and
-        `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
+        pd.DataFrame with first three columns as: chromosome, start, end.
+    :param background:
+        pd.DataFrame with first three columns as: chromosome, start, end. Default is `'None'` for the backgound free situation.
+    :param method:
+        The default method is `'test'`,
+        `'test'` is a method considering the maxdistance between hops in the data,
+        `'MACS2'` uses the idea adapted from `[Zhang08] <https://genomebiology.biomedcentral.com/articles/10.1186/gb-2008-9-9-r137>`__,
+        `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__,
         `Blockify` uses the method from `here <https://Blockify.readthedocs.io/en/latest/pages/introduction.html>`__.
-    :param reference:  `['hg38','mm10','yeast']`. Default is `hg38`.
-        We currently have `hg38` for human data, `mm10` for mouse data and `yeast` for yeast data.
-    :param pvalue_cutoff: Default is 0.0001.
-        The P-value cutoff for a backgound free situation. 
-    :param pvalue_cutoffbg: Default is 0.0001.
-        The P-value cutoff for backgound data when backgound exists. 
-    :param pvalue_cutoffTTAA: Default is 0.00001. 
-        The P-value cutoff for reference data when backgound exists. 
-        Note that pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg.
-    :param min_hops: Default is 5.
-        The number of minimal hops for each peak. 
-    :param minlen:  Default is 0.
-        Valid only for method = `test`. The minimal length for a peak without extend. 
-    :param extend:  Default is 200.
-        Valid for method = `test` and `MACS2`. The length (bp) that peaks extend for both sides.
-    :param maxbetween: Default is 2000.
-        Valid only for method = `test`. The maximum length of nearby hops within one peak. 
-    :param test_method: `['poisson','binomial']`. Default is `poisson`.
+    :param reference:
+        Default method is `'hg38'`,
+        We currently have `'hg38'` for human data, `'mm10'` for mouse data and `'yeast'` for yeast data.
+    :param pvalue_cutoff:
+        The P-value cutoff for backgound free situation. Default is 0.0001.
+    :param pvalue_cutoffbg:
+        The P-value cutoff for backgound data when backgound exists. Default is 0.0001.
+    :param pvalue_cutoffTTAA:
+        The P-value cutoff for reference data when backgound exists. Default is 0.00001. 
+        Normally, pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg.
+    :param min_hops:
+        The number of minimal hops for each peak. Default is 5.
+    :param minlen:
+        Valid only for `'test'`. The minimal length for a peak without extend.  Default is 0.
+    :param extend:
+        Valid for `'test'` and `'MACS2'`. The length (bp) that peaks extend for both sides. Default is 200.
+    :param maxbetween:
+        Valid only for `'test'`. The maximum length of nearby hops within one peak. Default is 2000.
+    :param test_method:
         The method for making hypothesis test. 
-    :param window_size: Default is 1500.
-        Valid only for method = `MACS2`. The length of window looking for. 
-    :param lam_win_size: Default is 100000.
-        Valid for  method = `test` and `MACS2`. The length of peak area considered when performing a test.
-    :param step_size: Default is 500.
-        Valid only for `MACS2`. The length of each step. 
-    :param pseudocounts: Default is 0.2.
-        Number for pseudocounts added for the pyhothesis test. 
-    :param record:  Default is `True`.
-        Controls if information is recorded.
-        If `False`, the output would only have three columns: Chromosome, Start, End.
-    :param save: Default is `None`
-        The file name for the file we saved. 
+        We currently have `'poisson'` and `'binomial'` available. Default is `'poisson'`.
+    :param window_size:
+        Valid only for `'MACS2'`. The length of window we look for. Default is 1500.
+    :param lam_win_size:
+        Valid for `'test'` and `'MACS2'`. The length of peak area we consider when performing the test.
+    :param step_size:
+        Valid only for `'MACS2'`. The length of each step. Default is 500.
+    :param pseudocounts:
+        Number for pseudocounts added for the pyhothesis test. Default is 0.2.
+    :param record:
+        Whether to record other information or not. Default is `True`.
+        If it is `False`, the output would only have three columns: Chromosome, Start, End.
+    :param save:
+        The file name for the file we save. Default is `'None'` and would not be saved.
        
 
     :Returns:
-        | **Chr** - The chromosome of the peak. 
-        | **Start** - The start point of the peak. 
-        | **End** - The end point of the peak. 
-        | **Experiment Hops** - The total number of hops within a peak in the experiment data.
-        | **Reference Hops** - The total number of hops of within a peak in the reference data.
-        | **Background Hops** - The total number of hops within a peak in the experiment data.
-        | **Expected Hops** - The total number of expected hops under null hypothesis from the reference data (in a background free situation). 
-        | **Expected Hops background** - The total number of expected hops under null hypothesis from the background data (in a background situation).
-        | **Expected Hops Reference** - The total number of expected hops under null hypothesis from the reference data (in a background situation).
-        | **pvalue** - The pvalue we calculate from null hypothesis (in a background free situation or method = `Blockify`).
-        | **pvalue Reference** - The total number of hops of within a peak in the reference data (in a background situation).
-        | **pvalue Background** - The total number of hops of within a peak in the reference data (in a background situation).
-        | **Fraction Experiment** - The fraction of hops  in the experiment data.
-        | **TPH Experiment** - Transpositions per hundred million hops in the experiment data for mammalian and
-                               transpositions per hundred million hops in the experiment data for yeast.
-        | **Fraction Background** - The fraction of hops in the background data.
-        | **TPH Background** - Transpositions per hundred million hops in the background data for mammalian and
-                               transpositions per hundred million hops in the background data for yeast.
-        | **TPH Background subtracted** - The difference between TPH Experiment and TPH Background.
+        :Chr: The chromosome of the peak.
+        :Start: The start point of the peak.
+        :End: The end point of the peak.
+        :Experiment Hops: The total number of hops within a peak in the experiment data.
+        :Reference Hops: The total number of hops of within a peak in the reference data.
+        :Background Hops: The total number of hops within a peak in the experiment data.
+        :Expected Hops: The total number of expected hops under null hypothesis from the reference data (for background free situation). 
+        :Expected Hops background: The total number of expected hops under null hypothesis from the background data (for background situation).
+        :Expected Hops Reference: The total number of expected hops under null hypothesis from the reference data (for background situation).
+        :pvalue: The pvalue we calculate from null hypothesis (for background free situation or Blockify).
+        :pvalue Reference: The total number of hops of within a peak in the reference data (for background situation).
+        :pvalue Background: The total number of hops of within a peak in the reference data (for background situation).
+        :Fraction Experiment: 
+        :TPH Experiment:
+        :Fraction Background:
+        :TPH Background:
+        :TPH Background subtracted:
 
    
     :Examples:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> ccf_data = cc.datasets.mousecortex_ccf()
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, lam_win_size = 1000000,  pseudocounts = 1, record = True)
                   
     """
@@ -1587,9 +1560,9 @@ def callpeaks(
             print("For the MACS2 method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_hops, record] would be utilized.")
             
             if reference == "hg38":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_hg38_ccf_new.bed",delimiter="\t",header=None)
             elif reference == "mm10":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_mm10_ccf_new.bed",delimiter="\t",header=None)
             else:
                 raise ValueError("Not valid reference.")
                 
@@ -1630,9 +1603,9 @@ def callpeaks(
             print("For the test method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_hops, record] would be utilized.")
             
             if reference == "hg38":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_hg38_ccf_new.bed",delimiter="\t",header=None)
             elif reference == "mm10":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_mm10_ccf_new.bed",delimiter="\t",header=None)
             else:
                 raise ValueError("Not valid reference.")
                 
@@ -1700,9 +1673,9 @@ def callpeaks(
             print("For the MACS2 method with background, [expdata, background, reference, pvalue, lam_win_size, window_size, step_size,pseudocounts,  record] would be utilized.")
             
             if reference == "hg38":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_hg38_ccf_new.bed",delimiter="\t",header=None)
             elif reference == "mm10":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_mm10_ccf_new.bed",delimiter="\t",header=None)
             else:
                 raise ValueError("Not valid reference.")
                 
@@ -1741,21 +1714,18 @@ def callpeaks(
             
             if reference == "hg38":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_hg38_ccf_new.bed",delimiter="\t",header=None)
                 length = 3
-                multinumber = 100000000
                 
             elif reference == "mm10":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_mm10_ccf_new.bed",delimiter="\t",header=None)
                 length = 3
-                multinumber = 100000000
                 
             elif reference == "yeast":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/yeast_S288C_dSir4_Background.ccf",delimiter="\t",header=None)
                 length = 0
-                multinumber = 100000
                 
             else:
                 raise ValueError("Not valid reference.")
@@ -1778,13 +1748,13 @@ def callpeaks(
                 return _callpeaksMACS2_bfnew2(expdata, TTAAframe, length, extend = extend, 
                       pvalue_cutoff =  pvalue_cutoff, window_size = window_size, 
                       lam_win_size = lam_win_size,  step_size = step_size, pseudocounts = pseudocounts,
-                      test_method= test_method, min_hops = min_hops, record = record, multinumber = multinumber).reset_index(drop = True)
+                      test_method= test_method, min_hops = min_hops, record = record).reset_index(drop = True)
             else:
                 
                 data = _callpeaksMACS2_bfnew2(expdata, TTAAframe, length, extend = extend, 
                       pvalue_cutoff =  pvalue_cutoff, window_size = window_size, 
                       lam_win_size = lam_win_size,  step_size = step_size, pseudocounts = pseudocounts,
-                      test_method= test_method, min_hops = min_hops, record = record, multinumber = multinumber).reset_index(drop = True)
+                      test_method= test_method, min_hops = min_hops, record = record).reset_index(drop = True)
                 
                 data.to_csv(save,sep ="\t",header = None, index = None)
                 
@@ -1796,17 +1766,17 @@ def callpeaks(
             
             if reference == "hg38":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_hg38_ccf_new.bed",delimiter="\t",header=None)
                 length = 3
                 
             elif reference == "mm10":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_mm10_ccf_new.bed",delimiter="\t",header=None)
                 length = 3
                 
             elif reference == "yeast":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/yeast_S288C_dSir4_Background.ccf",delimiter="\t",header=None)
                 length = 0
                 
             else:
@@ -1851,17 +1821,17 @@ def callpeaks(
             
             if reference == "hg38":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_hg38_ccf_new.bed",delimiter="\t",header=None)
                 length = 3
                 
             elif reference == "mm10":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/TTAA_mm10_ccf_new.bed",delimiter="\t",header=None)
                 length = 3
                 
             elif reference == "yeast":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("pycallingcards/datasets/yeast_S288C_dSir4_Background.ccf",delimiter="\t",header=None)
                 length = 0
                 
             else:
