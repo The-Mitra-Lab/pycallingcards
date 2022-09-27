@@ -21,10 +21,6 @@ References
    *BEDTools: a flexible suite of utilities for comparing genomic featuress*,
    `Bioinformatics <https://doi.org/10.1093/bioinformatics/btq033>`__.
 
-.. [Heinz10]  Heinz *et al.* (2010),
-   *Simple combinations of lineage-determining transcription factors prime cis-regulatory elements required for macrophage and B cell identities*,
-   `Mol Cell <https://doi.org/10.1016/j.molcel.2010.05.004>`__.
-
 .. [Kfoury21] Kfoury *et al.* (2021),
    *Brd4-bound enhancers drive cell-intrinsic sex differences in glioblastoma*,
    `PNAS <https://doi.org/10.1073/pnas.2017148118>`__.
