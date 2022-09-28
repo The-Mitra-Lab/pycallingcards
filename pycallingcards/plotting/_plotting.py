@@ -164,7 +164,7 @@ def draw_area(
     key: Optional[str] = None ,
     htopkey: Optional[str] = None ,
     figsize: Tuple[int, int] = (10, 3),
-    color: _draw_area_color = "blue",
+    color: _draw_area_color = "red",
     color_ccf: str = None,
     color_peak: str = None,
     color_genes: str = None,
@@ -202,12 +202,12 @@ def draw_area(
     :param key: Default is `None`.
         Input along with `adata` and `name`.
         It would only show the htops when the `key` of adata is `name`.
-    :param htopkey: Default is `None`.
+    :param htopkey: Default is `None`('Barcodes').
         Input along with `adata` and `name`.
         It would find the column `htopkey` of the htops file.
     :param figsize: Default is (10, 3).
         The size of the figure. 
-    :param color:  `['blue','red','green','pruple']`. Default is `blue`.
+    :param color:  `['blue','red','green','pruple']`. Default is `red`.
         The color of the plot.
         If `color` is not a valid color, `color_ccf`, `color_peak`, `color_genes` should be utilized.
     :param color_ccf: Default is `None`.
@@ -276,7 +276,7 @@ def draw_area(
 
                 
         if htopkey == None:
-            htopschr = htopschr[htopschr[5].isin(adata.obs.index)]
+            htopschr = htopschr[htopschr["Barcodes"].isin(adata.obs.index)]
         else:
             htopschr = htopschr[htopschr[htopkey].isin(adata.obs.index)]
 

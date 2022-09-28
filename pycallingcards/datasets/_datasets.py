@@ -30,7 +30,7 @@ def mousecortex_data(
 
     if data == "ccf":
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/Mouse-Cortex.ccf",
-                            sep = "\t",  header = None)
+                            sep = "\t",  header = None , names = ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
 
     elif data == "barcodes":
@@ -76,12 +76,12 @@ def SP1_K562HCT116_data(
 
     if data == "experience_ccf":
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/K562HCT116_SP1.ccf",
-                            sep = "\t",  header = None)
+                            sep = "\t",  header = None , names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
         
     if data == "background_ccf":
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/K562HCT116_wild.ccf",
-                            sep = "\t",  header = None)
+                            sep = "\t",  header = None , names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
 
     elif data == "barcodes":
@@ -112,12 +112,12 @@ def mouse_brd4_data(
 
     if data == "Female_Brd4":
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_F6_Brd4_pBC.ccf.txt",
-                            sep = "\t",  header = None)
+                            sep = "\t",  header = None, names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"]) 
         return ccf_data
         
     if data == "Male_Brd4":
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_M6_Brd4_pBC.ccf.txt",
-                            sep = "\t",  header = None)
+                            sep = "\t",  header = None, names = ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
 
     else:
@@ -144,17 +144,17 @@ def SP1_Cre_data(
 
     if data == "SP1_P10":
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt",
-                            sep = "\t",  header = None)
+                            sep = "\t",  header = None, names = ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
         
     if data == "SP1_P28":
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P28.txt",
-                            sep = "\t",  header = None)
+                            sep = "\t",  header = None, names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
 
     if data == "background":
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_bg.txt",
-                            sep = "\t",  header = None)
+                            sep = "\t",  header = None, names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
         
     else:

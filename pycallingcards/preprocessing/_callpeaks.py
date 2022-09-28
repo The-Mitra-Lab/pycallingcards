@@ -252,7 +252,7 @@ def _test_bf2(
     
 
     # The chromosomes we need to consider
-    chrm = list(expdata[0].unique())
+    chrm = list(expdata["Chr"].unique())
 
     # create a list to record every peaks
     boundnew = []
@@ -260,12 +260,12 @@ def _test_bf2(
     # going through one chromosome from another
     for chrom in tqdm.tqdm(chrm):
 
-        curTTAAframe = np.array(list(TTAAframe[TTAAframe[0]==chrom][1]))
+        curTTAAframe = np.array(list(TTAAframe[TTAAframe["Chr"]==chrom]["Start"]))
         if len(curTTAAframe) == 0:
             continue
             
         # find out the insertion data of our current chromosome
-        curChrom = list(expdata[expdata[0] == chrom][1]) 
+        curChrom = list(expdata[expdata["Chr"] == chrom]["Start"]) 
         curChromnp = np.array(curChrom)
         # sort it so that we could accelarate the searching afterwards
         curChromnp.sort()
@@ -340,7 +340,7 @@ def _test2(
     record: bool = False)-> pd.DataFrame:
 
     # The chromosomes we need to consider
-    chrm = list(expdata[0].unique())
+    chrm = list(expdata["Chr"].unique())
 
     # create a list to record every peaks
     boundnew = []
@@ -348,18 +348,18 @@ def _test2(
     # going through one chromosome from another
     for chrom in tqdm.tqdm(chrm):
         
-        curbackgroundframe = np.array(list(backgroundframe[backgroundframe[0]==chrom][1]))
+        curbackgroundframe = np.array(list(backgroundframe[backgroundframe["Chr"]==chrom]["Start"]))
         if len(curbackgroundframe) == 0:
             continue
         curbackgroundframe.sort()
         
-        curTTAAframe = np.array(list(TTAAframe[TTAAframe[0]==chrom][1]))
+        curTTAAframe = np.array(list(TTAAframe[TTAAframe["Chr"]==chrom]["Start"]))
         if len(curTTAAframe) == 0:
             continue
 
         
         # find out the insertion data of our current chromosome
-        curChrom = list(expdata[expdata[0] == chrom][1]) 
+        curChrom = list(expdata[expdata["Chr"] == chrom]["Start"]) 
         curChromnp = np.array(curChrom)
         # sort it so that we could accelarate the searching afterwards
         curChromnp.sort()
@@ -506,7 +506,7 @@ def _Blockify(
     record: bool = True) -> pd.DataFrame:
     
     # The chromosomes we need to consider
-    chrm = list(expdata[0].unique())
+    chrm = list(expdata["Chr"].unique())
 
     # create a list to record every peaks
     boundnew = []
@@ -516,10 +516,10 @@ def _Blockify(
         
 
         # find out the insertion data of our current chromosome
-        curChrom = list(expdata[expdata[0] == chrom][1]) 
+        curChrom = list(expdata[expdata["Chr"] == chrom]["Start"]) 
         curChromnp = np.array(curChrom)
         
-        curTTAAframe = np.array(list(TTAAframe[TTAAframe[0]==chrom][1]))
+        curTTAAframe = np.array(list(TTAAframe[TTAAframe["Chr"]==chrom]["Start"]))
 
         if len(curTTAAframe) == 0:
             continue
@@ -532,7 +532,7 @@ def _Blockify(
 
 
         import astropy.stats as astrostats
-        hist, bin_edges = astrostats.histogram(expdata[expdata[0] == chrom][1], bins="blocks")
+        hist, bin_edges = astrostats.histogram(expdata[expdata["Chr"] == chrom]["Start"], bins="blocks")
 
         hist = list(hist)
         bin_edges = list(bin_edges.astype(int))
@@ -568,7 +568,7 @@ def _callpeaksMACS2(
     from scipy.stats import poisson
     
     # The chromosomes we need to consider
-    chrm = list(expdata[0].unique())
+    chrm = list(expdata["Chr"].unique())
     
     chr_list = []
     start_list = []
@@ -597,7 +597,7 @@ def _callpeaksMACS2(
     for chrom in tqdm.tqdm(chrm):
 
         # find out the insertion data of our current chromosome
-        curChrom = list(expdata[expdata[0] == chrom][1]) 
+        curChrom = list(expdata[expdata["Chr"] == chrom]["Start"]) 
         curChromnp = np.array(curChrom)
         # sort it so that we could accelarate the searching afterwards
         curChrom.sort()
@@ -607,9 +607,9 @@ def _callpeaksMACS2(
         sig_end = 0
         sig_flag = 0
         
-        curTTAAframe = np.array(list(TTAAframe[TTAAframe[0]==chrom][1]))
+        curTTAAframe = np.array(list(TTAAframe[TTAAframe["Chr"]==chrom]["Start"]))
         
-        curbackgroundframe = np.array(list(background[background[0]==chrom][1]))
+        curbackgroundframe = np.array(list(background[background["Chr"]==chrom]["Start"]))
         
         sig_start = 0
         sig_end = 0
@@ -833,7 +833,7 @@ def _callpeaksMACS2_bfnew2(
     
         
     # The chromosomes we need to consider
-    chrm = list(expdata[0].unique())
+    chrm = list(expdata["Chr"].unique())
     
     # create lists to record 
     chr_list = []
@@ -855,13 +855,13 @@ def _callpeaksMACS2_bfnew2(
     
     for chrom in tqdm.tqdm(chrm):
         
-        curTTAAframe = np.array(list(TTAAframe[TTAAframe[0]==chrom][1]))
+        curTTAAframe = np.array(list(TTAAframe[TTAAframe["Chr"]==chrom]["Start"]))
         totalcurTTAA = len(curTTAAframe)
         if len(curTTAAframe) == 0:
             continue
 
         # find out the insertion data of our current chromosome
-        curChrom = list(expdata[expdata[0] == chrom][1]) 
+        curChrom = list(expdata[expdata["Chr"] == chrom]["Start"]) 
         curChromnp = np.array(curChrom)
         
         # sort it so that we could accelarate the searching afterwards
@@ -1099,7 +1099,7 @@ def _callpeaksMACS2new2(
     multinumber = 100000000
     
     # The chromosomes we need to consider
-    chrm = list(expdata[0].unique())
+    chrm = list(expdata["Chr"].unique())
     
     # create lists to record the basic information
     chr_list = []
@@ -1128,18 +1128,18 @@ def _callpeaksMACS2new2(
     # going from the first Chromosome to the last
     for chrom in tqdm.tqdm(chrm):
 
-        curbackgroundframe = np.array(list(background[background[0]==chrom][1]))
+        curbackgroundframe = np.array(list(background[background["Chr"]==chrom]["Start"]))
         totalcurbackground = len(curbackgroundframe)
         if totalcurbackground == 0:
             continue
 
-        curTTAAframe = np.array(list(TTAAframe[TTAAframe[0]==chrom][1]))
+        curTTAAframe = np.array(list(TTAAframe[TTAAframe["Chr"]==chrom]["Start"]))
         totalcurTTAA = len(curTTAAframe)
         if totalcurTTAA == 0:
             continue
         
         # find out the insertion data of our current chromosome
-        curChrom = list(expdata[expdata[0] == chrom][1]) 
+        curChrom = list(expdata[expdata["Chr"] == chrom]["Start"]) 
         curChromnp = np.array(curChrom)
         
         # sort it so that we could accelarate the searching afterwards
@@ -1587,9 +1587,9 @@ def callpeaks(
             print("For the MACS2 method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_hops, record] would be utilized.")
             
             if reference == "hg38":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
             elif reference == "mm10":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
             else:
                 raise ValueError("Not valid reference.")
                 
@@ -1630,9 +1630,9 @@ def callpeaks(
             print("For the test method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_hops, record] would be utilized.")
             
             if reference == "hg38":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
             elif reference == "mm10":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
             else:
                 raise ValueError("Not valid reference.")
                 
@@ -1700,9 +1700,9 @@ def callpeaks(
             print("For the MACS2 method with background, [expdata, background, reference, pvalue, lam_win_size, window_size, step_size,pseudocounts,  record] would be utilized.")
             
             if reference == "hg38":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
             elif reference == "mm10":
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
             else:
                 raise ValueError("Not valid reference.")
                 
@@ -1741,19 +1741,19 @@ def callpeaks(
             
             if reference == "hg38":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
                 length = 3
                 multinumber = 100000000
                 
             elif reference == "mm10":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
                 length = 3
                 multinumber = 100000000
                 
             elif reference == "yeast":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None,names=["Chr","Start","End","Reads"])
                 length = 0
                 multinumber = 100000
                 
@@ -1796,17 +1796,17 @@ def callpeaks(
             
             if reference == "hg38":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
                 length = 3
                 
             elif reference == "mm10":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
                 length = 3
                 
             elif reference == "yeast":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None,names=["Chr","Start","End","Reads"])
                 length = 0
                 
             else:
@@ -1851,17 +1851,17 @@ def callpeaks(
             
             if reference == "hg38":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
                 length = 3
                 
             elif reference == "mm10":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
                 length = 3
                 
             elif reference == "yeast":
                 
-                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None)
+                TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None,names=["Chr","Start","End","Reads"])
                 length = 0
                 
             else:

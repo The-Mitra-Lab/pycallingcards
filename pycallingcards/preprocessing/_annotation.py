@@ -50,7 +50,6 @@ def annotation(
     peaks_frame: pd.DataFrame = None, 
     peaks_path: str = None, 
     reference: _reference2  = "hg38", 
-    save_peak: str = None, 
     save_annotation: str = None, 
     bedtools_path: str = None
     ) -> pd.DataFrame:
@@ -67,8 +66,7 @@ def annotation(
     :param reference:  Default is `hg38`.
         reference of the annoatation data.
         Currently, `hg38` and `mm10` are provided only.
-    :param save_peak: Default is `None`.
-        If peaks_path is not provided, peaks_frame would be saved. This is the path and name peaks_frame would be saved.
+    
     :param save_annotation:  Default is `None`.
         The path and name of the annotation results would be saved.
     :param bedtools_path: Default is `None`.
@@ -92,7 +90,7 @@ def annotation(
     >>> peak_annotation = cc.pp.annotation(peak_data, reference = "mm10")
     
     """
-    save_peakinitial = save_peak 
+
 
     import pybedtools
     print("In the bedtools method, we would use bedtools in the default path. Set bedtools path by 'bedtools_path' if needed.")
@@ -102,23 +100,12 @@ def annotation(
         
         
     if  peaks_path != None:
-        peaks_bed = pybedtools.BedTool(peaks_path)
-        
-        
+        peaks_bed = pybedtools.BedTool(peaks_path)  
     elif type(peaks_frame) == pd.DataFrame :
-        
-        
-        if save_peak ==  None:
-            
-            import random
-            save_peak = "temp_peaks_"+str(random.randint(1,1000))+".bed"
-            
-        peaks_frame.to_csv(save_peak, sep = "\t", index = None, header = None)
-        peaks_bed = pybedtools.BedTool(save_peak)
-        
-    
+        peaks_bed = pybedtools.BedTool.from_dataframe(peaks_frame)
     else :
         print("Please input a valid peak.")
+
          
     if reference == "hg38":
 
@@ -174,10 +161,6 @@ def annotation(
     
     if save_annotation != None:
         finalresult.to_csv(save_annotation,index = None, sep = "\t")
-        
-    if save_peakinitial ==  None and peaks_path==None:
-        import os
-        os.remove(save_peak)
             
             
     return pd.concat([temp_annotated_peaks1, temp_annotated_peaks2],axis = 1)

@@ -20,7 +20,7 @@ def makeAnndata(
     peaks: pd.DataFrame, 
     barcodes: Union[pd.DataFrame,List],
     reference: _reference = "hg38",
-    key: Union[str,int] = 5
+    key: Union[str,int] =  "Barcodes"
     ) -> AnnData:
 
     """\
@@ -36,7 +36,7 @@ def makeAnndata(
     :param reference: `['hg38','mm10','yeast']`. Default is `hg38`.
         This information is only used to calculate the length of one htop.
         `hg38` and `mm10` are the same. Default is `hg38`.
-    :param key: Default is 5.
+    :param key: Default is  `Barcodes`.
         The name of the column in ccf file containing the barcodes information. 
         
 
@@ -108,7 +108,7 @@ def makeAnndata(
     ccf1 = ccf.copy()
     
     if key == None:
-        key = 5
+        key = "Barcodes"
 
     ccfbar = (ccf1[key].apply(lambda x: barcodes_dict[x])).to_numpy()
     ccff = ccf1.iloc[:,[0,1]].to_numpy()

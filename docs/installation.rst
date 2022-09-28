@@ -1,7 +1,7 @@
 Installation
 ------------
 
-pycallingcards is currently tested on Python 3.9.12 and should be used on Python > 3.8.
+pycallingcards is currently tested on Python 3.9.12 and should be used on Python >= 3.8.
 
 .. code-block:: python
 

@@ -21,11 +21,11 @@ def read_ccf(
        
     """
 
-    return pd.read_csv(filename, sep = "\t",  header = None)
+    return pd.read_csv(filename, sep = "\t",  header = None, names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
 
 def combine_ccf(
     filelist: list, 
-    name: List = [0,1]
+    name: List = ["Chr", "Start"]
     ) -> pd.DataFrame:
 
     """\
@@ -34,10 +34,10 @@ def combine_ccf(
     :param filelist: 
         List containing all the pd.DataFrames need to be combined.
     :param name: 
-        Name of the first two colums. Default is [0,1].
+        Name of the first two colums. Default is ["Chr", "Start"].
 
     :Returns:
-    pd.DataFrame after combined.
+        pd.DataFrame after combined.
 
     :example:
     >>> import pycallingcards as cc
