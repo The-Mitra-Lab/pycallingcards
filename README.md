@@ -15,3 +15,23 @@ Please check [**here**](https://pycallingcards.readthedocs.io/en/latest/installa
 ```shell
 pip install "git+https://github.com/The-Mitra-Lab/pycallingcards.git" --upgrade
 ```
+
+## Command line tools
+
+To see available command line tools, enter:
+
+```shell
+python -m pycallingcards --help
+```
+
+All of the cmd line tools allow you to set the logging level. To redirect the 
+log from the console to a file, redirect the std_err like so:
+
+```shell
+python -m pycallingcards parse_bam \
+    -i aln.bam \
+    -b barcode_details.json \
+    -g chr1.fa \
+    -o . \
+    -l info 2> pycallingcards.log
+```

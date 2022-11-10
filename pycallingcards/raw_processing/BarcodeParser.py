@@ -22,13 +22,14 @@ class BarcodeParser:
     # attributes ---------------------------------------------------------------
     _key_dict = {
         "components":"components",
-        "insert_seqs": "insert_seqs",
+        "insert_seq": "insert_seq",
         "match_allowance": "match_allowance",
     }
     
     _barcode_dict = {}
     _barcode_details_json = ""
     _barcode = ""
+    _max_r1 = -1
     
     # constructor --------------------------------------------------------------
     def __init__(self, barcode_details_json: str) -> None:
@@ -65,6 +66,8 @@ class BarcodeParser:
         # if that works, update the barcode_details_json path
         logging.info("Success! Setting the barcode details json path")
         self._barcode_details_json = new_barcode_details_json
+        # and update some properties
+        self.max_r1 = self.__get_max_r1()
     
     @property
     def key_dict(self):
@@ -111,21 +114,21 @@ class BarcodeParser:
     def insert_length(self):
         """Extract the insertion sequence length from the barcode dictionary"""
         try:
-            l = len(self.barcode_dict[self.key_dict['insert_seqs']][0])
+            l = len(self.barcode_dict[self.key_dict['insert_seq']][0])
         except (KeyError, IndexError):
             l = 1
         return l
     
     @property
-    def insert_seqs(self):
+    def insert_seq(self):
         """Getter for the insert seq sequence from the barcode details json. Returns upper case.
 
         Raises:
             AttributeError: Raised if the current barcode details json does 
             not have an insert seq key
         """
-        if self.key_dict['insert_seqs'] in self.barcode_dict:
-            return self.barcode_dict[self.key_dict['insert_seqs']]
+        if self.key_dict['insert_seq'] in self.barcode_dict:
+            return self.barcode_dict[self.key_dict['insert_seq']]
         else:
             raise AttributeError(f'Current barcode details '\
                 f'{self.barcode_details_json} does not have an ' \
@@ -135,8 +138,29 @@ class BarcodeParser:
         return {k:v['bam_tag'] for k,v \
             in self.barcode_dict['components'].items() \
                 if v.get('bam_tag', None)}
+    @property
+    def max_r1(self):
+        if self.max_r1 < 0:
+            raise AttributeError('Max R1 not set')
+        return self._max_r1
+    @max_r1.setter
+    def max_r1(self,new_max_r1):
+        """getting for the maximum index on the r1 barcode strand"""
+        if new_max_r1 < 0:
+            raise ValueError('Max R1 is invalid. Check the barcode details json')
+        self._max_r1 = new_max_r1
                 
     # private methods ----------------------------------------------------------
+    def __get_max_r1(self):
+        max_r1 = -1
+        for k,v in self.barcode_dict['r1'].items():
+            if v['index'][1] > max_r1:
+                max_r1 = v['index'][1]
+        if max_r1 == -1:
+            raise ValueError('Maximum index on the r1 barcode not found!')
+
+        return max_r1
+
     def __check_component_keys(self, barcode_dict) -> bool:
         """_summary_
 
@@ -183,6 +207,30 @@ class BarcodeParser:
         return True
 
     # public methods -----------------------------------------------------------                    
+    def decompose_barcode(self,barcode:str):
+        component_dict = {} 
+        for end in ['r1','r2']:
+            for component in self.barcode_dict[end].keys():
+                # extract the start/end indicies of a given barcode component.
+                # adjust if the indicies are from r2 under the assumption that 
+                # the sequence is created by appending the r1 seq to the r2 seq
+                seq_start = self.barcode_dict[end][component]['index'][0] \
+                    if end == 'r1' \
+                        else self.barcode_dict[end][component]['index'][0]+self.max_r1
+                seq_end = self.barcode_dict[end][component]['index'][1] \
+                    if end == 'r1' \
+                        else self.barcode_dict[end][component]['index'][1]+self.max_r1
+                
+                # get the component subsequence out of the barcode
+                subseq = barcode[seq_start:seq_end]
+
+                # add the component: best_match_dict key value pair to the 
+                # barcode_breakdown dict
+                component_dict.setdefault("_".join([end,component]), subseq)
+
+        return self.component_check(component_dict)
+
+
     def component_check(self, component_dict: dict) -> dict:
         """Determine if the barcode passes (True) or fails (False) given the 
         edit distances between it and the expected components, and the allowable 
@@ -226,7 +274,7 @@ class BarcodeParser:
         
         passing = True
         for k,v in component_check_dict.items():
-            match_allowance = self.barcode_dict[self.key_dict['match_allowance']].get(k,0)
+            match_allowance = self.barcode_dict.get(self.key_dict.get('match_allowance',None),0)
             if v['dist'] > match_allowance and \
                 self.barcode_dict['components'].get(k,{}).get('require', True):
                 passing = False
@@ -268,3 +316,5 @@ class BarcodeParser:
                 if k in query:
                     return {'name':v, 'dist':0}
             return {'name':"*", 'dist': infinity}
+        else:
+            raise IOError('%s is not a recognized match_type argument' %match_type)
