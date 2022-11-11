@@ -19,4 +19,4 @@ RUN apt-get autoremove -y
 
 RUN pip install --upgrade pip
 
-RUN pip install "git+https://github.com/The-Mitra-Lab/pycallingcards.git" --upgrade
+RUN pip install "git+https://github.com/cmatKhan/pycallingcards.git@raw_processing" --upgrade

@@ -16,10 +16,11 @@ def parse_args():
 	# argument -- see subparsers.add_parser for parse_bam below ----------------
 	common_args = argparse.ArgumentParser(prog="pycallingcards", add_help=False)
 	common_args_group = common_args.add_argument_group('general')
-	common_args_group.add_argument("-l",
-						"--log_level",
-						choices=("critical", "error", "warning", "info", "debug"),
-						default="warning")
+	common_args_group.add_argument(
+		"-l",
+		"--log_level",
+		choices=("critical", "error", "warning", "info", "debug"),
+		default="warning")
     
 	# Create a top level parser ------------------------------------------------
 	parser = argparse.ArgumentParser(
@@ -45,36 +46,43 @@ def parse_args():
 		parents=[common_args])
 		
 	parse_bam_input = parse_bam_parser.add_argument_group('input')
-	parse_bam_input.add_argument("-i",
-						"--input",
-						 help="path to bam file. Note that this must be "+\
-							"sorted, and that an index .bai file must "+\
-								"exist in the same directory",
-						 required=True)
-	parse_bam_input.add_argument("-b",
-						"--barcode_details",
-						 help="path to the barcode details json",
-						 required=True)
-	parse_bam_input.add_argument("-g",
-						"--genome",
-						 help="path to genome fasta file. "+\
-							"Note that a index .fai must exist "+\
-								"in the same directory",
-						 required=True)
+	parse_bam_input.add_argument(
+		"-i",
+		"--input",
+		help="path to bam file. Note that this must be "+\
+			"sorted, and that an index .bai file must "+\
+				"exist in the same directory",
+		required=True)
+	parse_bam_input.add_argument(
+		"-b",
+		"--barcode_details",
+		help="path to the barcode details json",
+		required=True)
+	parse_bam_input.add_argument(
+		"-g",
+		"--genome",
+		help="path to genome fasta file. "+\
+			"Note that a index .fai must exist "+\
+				"in the same directory",
+		required=True)
+	
 	parse_bam_output = parse_bam_parser.add_argument_group('output')
-	parse_bam_output.add_argument("-o",
-						"--output_prefix",
-						 help="path to output directory. if not provided, "+\
-							"output to current working directory",
-						 default = "",
-						 required=False)
+	parse_bam_output.add_argument(
+		"-o",
+		"--output_prefix",
+		help="path to output directory. if not provided, "+\
+			"output to current working directory",
+		default = "",
+		required=False)
+	
 	parse_bam_settings = parse_bam_parser.add_argument_group('settings')
-	parse_bam_settings.add_argument("-q",
-						"--mapq_threshold",
-						 help="Reads less than or equal to mapq_threshold "+\
-							"will be marked as failed",
-						 type=int,
-						 default=10)
+	parse_bam_settings.add_argument(
+		"-q",
+		"--mapq_threshold",
+		help="Reads less than or equal to mapq_threshold "+\
+			"will be marked as failed",
+		type=int,
+		default=10)
 	
 	# return the top level parser to be used in 'entry point' functions --------
 	return parser
