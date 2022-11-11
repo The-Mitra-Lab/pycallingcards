@@ -25,7 +25,7 @@ def genome_file(tests_dirpath):
     
     fasta = os.path.join(
         tests_dirpath,
-        "test_data/chr1.fa")
+        "test_data/chr1.fa.gz")
     
     if not os.path.exists(fasta):
         raise FileNotFoundError("file %s not found in test data" %fasta)

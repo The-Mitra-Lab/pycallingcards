@@ -1,6 +1,7 @@
 
 import argparse
 from importlib.metadata import version
+from .raw_processing.parse_bam import parse_bam
 
 __all__=['parse_args']
 
@@ -35,8 +36,7 @@ def parse_args():
 	
 	# parse_bam subparser ------------------------------------------------------
 	subparsers = parser.add_subparsers(
-		help="Alignment file processing",
-		dest='parse_bam')
+		help="Available Tools")
 
 	parse_bam_parser = subparsers.add_parser(
 		'parse_bam',
@@ -44,6 +44,8 @@ def parse_args():
 		description=script_descriptions['parse_bam'],
 		prog='parse_bam',
 		parents=[common_args])
+	
+	parse_bam_parser.set_defaults(func=parse_bam)
 		
 	parse_bam_input = parse_bam_parser.add_argument_group('input')
 	parse_bam_input.add_argument(

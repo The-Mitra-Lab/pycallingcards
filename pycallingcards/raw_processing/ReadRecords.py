@@ -72,21 +72,23 @@ class ReadRecords():
 		Returns:
 			pd.DataFrame: _description_
 		"""
-		
-		df = pd.DataFrame(self.qbed_list)\
-			.groupby(['chr','start','end','strand'])\
-			.size()\
-		.reset_index()\
-		.rename(columns={0:'depth'})\
-			[['chr','start','end','depth','strand']]
+		if len(self.qbed_list) == 0:
+			logging.critical("No records are in the qbed_list -- cannot make qbed df/file!")
+		else:
+			df = pd.DataFrame(self.qbed_list)\
+				.groupby(['chr','start','end','strand'])\
+				.size()\
+			.reset_index()\
+			.rename(columns={0:'depth'})\
+				[['chr','start','end','depth','strand']]
 
-		if output:
-			if os.path.exists(output):
-				raise FileExistsError(f'{output} already exists -- cannot overwrite')
-			else:
-				df.to_csv(output,sep='\t',index=False,header=False)
-		
-		return df
+			if output:
+				if os.path.exists(output):
+					raise FileExistsError(f'{output} already exists -- cannot overwrite')
+				else:
+					df.to_csv(output,sep='\t',index=False,header=False)
+			
+			return df
 	
 	def summarize_qc(self, output:str="") -> pd.DataFrame:
 		"""_summary_
@@ -100,12 +102,15 @@ class ReadRecords():
 		Returns:
 			pd.DataFrame: _description_
 		"""
-		df = pd.DataFrame(self.qc_list)\
+		if len(self.qbed_list) == 0:
+			logging.critical("No records are in the qc_list -- cannot make qc df/file!")
+		else:
+			df = pd.DataFrame(self.qc_list)\
 
-		if output:
-			if os.path.exists(output):
-				raise FileExistsError(f'{output} already exists -- cannot overwrite')
-			else:
-				df.to_csv(output,sep='\t',index=False,header=False)
-		
-		return df
+			if output:
+				if os.path.exists(output):
+					raise FileExistsError(f'{output} already exists -- cannot overwrite')
+				else:
+					df.to_csv(output,sep='\t',index=False,header=False)
+			
+			return df

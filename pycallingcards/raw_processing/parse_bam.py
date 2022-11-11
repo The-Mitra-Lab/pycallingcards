@@ -15,6 +15,20 @@ __all__ = ['parse_bam']
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 def parse_bam(args:Namespace) -> None:
+
+
+	# Check input paths
+	logging.info('checking input...')
+	input_path_list = [args.input,
+					args.barcode_details,
+					args.genome]
+	if args.output_prefix:
+		input_path_list.append(args.output_prefix)
+	for input_path in input_path_list:
+		if not os.path.exists(input_path):
+			error_msg=f"Input file DNE: {input_path}"
+			logging.debug(error_msg)
+			raise FileNotFoundError(error_msg)
 	
 	logging.info(f'beginning to parse {args.input}')
 	output_bampath_dict = \
