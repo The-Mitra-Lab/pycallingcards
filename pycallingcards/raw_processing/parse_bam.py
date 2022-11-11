@@ -26,6 +26,9 @@ def parse_bam(args:Namespace) -> None:
 	qbed_output = os.path.join(
 		args.output_prefix,
 		os.path.splitext(os.path.basename(args.input))[0]+ '.qbed')
+	qc_output = os.path.join(
+		args.output_prefix,
+		os.path.splitext(os.path.basename(args.input))[0]+ '_qc.tsv')
 
 	# open the bam file
 	bam_in = pysam.AlignmentFile(args.input)#pylint:disable=E0602
@@ -65,5 +68,7 @@ def parse_bam(args:Namespace) -> None:
 	
 	logging.info("writing qBed...")
 	read_records.to_qbed(qbed_output)
+	logging.info("writing qc...")
+	read_records.summarize_qc(qc_output)
 
 	logging.info(f"file: {args.input} complete!")

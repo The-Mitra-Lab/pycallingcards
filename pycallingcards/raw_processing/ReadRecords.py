@@ -88,5 +88,24 @@ class ReadRecords():
 		
 		return df
 	
-	def summarize_qc(self):
-		raise NotImplementedError
+	def summarize_qc(self, output:str="") -> pd.DataFrame:
+		"""_summary_
+
+		Args:
+			output (str, optional): _description_. Defaults to "".
+
+		Raises:
+			FileExistsError: _description_
+
+		Returns:
+			pd.DataFrame: _description_
+		"""
+		df = pd.DataFrame(self.qc_list)\
+
+		if output:
+			if os.path.exists(output):
+				raise FileExistsError(f'{output} already exists -- cannot overwrite')
+			else:
+				df.to_csv(output,sep='\t',index=False,header=False)
+		
+		return df
