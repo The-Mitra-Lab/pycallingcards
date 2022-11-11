@@ -21,17 +21,23 @@ pip install "git+https://github.com/The-Mitra-Lab/pycallingcards.git" --upgrade
 To see available command line tools, enter:
 
 ```shell
-python -m pycallingcards --help
+pycallingcards --help
 ```
 
 All of the cmd line tools allow you to set the logging level. To redirect the 
 log from the console to a file, redirect the std_err like so:
 
 ```shell
-python -m pycallingcards parse_bam \
+pycallingcards parse_bam \
     -i aln.bam \
     -b barcode_details.json \
     -g chr1.fa \
     -o . \
     -l info 2> pycallingcards.log
+```
+
+You can also call the cmd line scripts from the module like so:
+
+```shell
+python -m pycallingcards --help
 ```

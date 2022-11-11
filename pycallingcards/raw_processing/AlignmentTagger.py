@@ -198,7 +198,7 @@ class AlignmentTagger(BarcodeParser):
 				# end of the chrom, set XS to *
 				# TODO remove removeprefix removesuffix once ref genome fixed for eyast
 				if (read_5_prime >
-				   self.genome.get_reference_length(read.reference_name.removeprefix("ref|").removesuffix('|'))):
+				   self.genome.get_reference_length(read.reference_name)):
 					tag_dict['XS'] = "*"
 					tag_dict['XI'] = "*"
 					tag_dict['XE'] = "*"
@@ -206,7 +206,7 @@ class AlignmentTagger(BarcodeParser):
 				# if the endpoint of the insertion sequence is off the end of
 				# the chrom, set XZ to *
 				elif (read_5_prime+1+self.insert_length >=
-				self.genome.get_reference_length(read.reference_name.removeprefix("ref|").removesuffix('|'))):
+				self.genome.get_reference_length(read.reference_name)):
 					tag_dict['XS'] = read_5_prime
 					tag_dict['XI'] = "*"
 					tag_dict['XE'] = "*"
@@ -270,7 +270,7 @@ class AlignmentTagger(BarcodeParser):
 					tag_dict['XI'] = read_5_prime - self.insert_length
 					tag_dict['XE'] = read_5_prime
 					# TODO remove the removeprefix removesuffix -- need to standardize rob's genome names
-					tag_dict['XZ'] = self.genome.fetch(read.reference_name.removeprefix('ref|').removesuffix('|'),
+					tag_dict['XZ'] = self.genome.fetch(read.reference_name,
 											read_5_prime-self.insert_length,
 											read_5_prime).upper()
 			except ValueError as exc:
