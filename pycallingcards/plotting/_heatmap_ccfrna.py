@@ -34,7 +34,7 @@ def heatmap(
         The labels of the rna data. Be sure the length of list match the number of sample in rna file.
     :param log: Default is `True`.
         Whether to log transform the gene expression or not.
-   :param title: Default is `'Relative calling cards and RNA information'`.
+    :param title: Default is `'Relative calling cards and RNA information'`.
         The title of the plot. 
     :param save: Default is `False`.
         Could be bool or str indicating the file name it would be saved.
