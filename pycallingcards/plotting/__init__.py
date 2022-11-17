@@ -1,4 +1,4 @@
-"""Single-cell calling cards Python"""
+"""Single-cell calling cards in Python"""
 
 from ._plotting import rank_peak_groups
 from ._peaks import draw_area,whole_peaks
