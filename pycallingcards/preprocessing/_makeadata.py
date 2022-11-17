@@ -34,7 +34,7 @@ def makeAnndata(
     :param barcodes:
         pd.DataFrame or a list of all barcodes.
     :param reference: `['hg38','mm10','yeast']`. Default is `hg38`.
-        This information is only used to calculate the length of one htop.
+        This information is only used to calculate the length of one insertion.
         `hg38` and `mm10` are the same. Default is `hg38`.
     :param key: Default is  `Barcodes`.
         The name of the column in ccf file containing the barcodes information. 
@@ -137,3 +137,74 @@ def makeAnndata(
     return adata
         
  
+_method = Optional[Literal["avginsertions","logAvginsertions","suminsertions","logSuminsertions"]]
+
+def adata_insertions(
+    adata_ccf: AnnData,
+    adata: AnnData,
+    name: str,
+    groupby = 'cluster',
+    method: _method = 'logAvginsertions',
+    peak: str = 'all'
+):
+
+    """\
+    Calculate sum of peaks per cluster or average peaks per cell in different cluster and give it to anndata object.
+    
+    :param adata_ccf:
+        Anndata for callingcards
+    :param adata:
+        Anndata for RNA.
+    :param name:
+        The name to add to adata.obs.
+    :param groupby: 
+        The name all the cells grouped by.
+    :param method: `["avginsertions","logAvginsertions","suminsertions","logSuminsertions"]` Default is `'logAvginsertions'`.
+        method to calculate the insertions.
+    :param peak: Default is `'all'`.
+        The name of the peak we are looking into. If it is `'all'`, all the peaks would be counted into.
+    
+
+
+    :return:
+        pd.DataFrame with paired genes and peaks for different groups.
+
+    :example:
+    >>> import pycallingcards as cc
+    >>> cc.tl.pair_peak_gene(adata_ccf,adata,peak_annotation,score_cutoff = 10, pvalue_cutoff = 0.005)
+
+    """
+
+
+
+    possible_group = list(adata_ccf.obs[groupby].unique())
+    my_dictionary = {}
+
+    for groupname in possible_group:
+        
+        if peak == 'all':
+            tempadata = adata_ccf[(adata_ccf.obs[[groupby]] == groupname)[groupby],:].X
+        else:
+            tempadata = adata_ccf[(adata_ccf.obs[[groupby]] == groupname)[groupby],peak].X
+        
+
+
+        if method == "avginsertions":
+            my_dictionary[groupname] =  (tempadata.nnz/tempadata.shape[0])
+        elif method == "logAvginsertions":
+            my_dictionary[groupname] =  np.log2((tempadata.nnz/tempadata.shape[0])+1)
+        elif method == "suminsertions":
+            my_dictionary[groupname] =  (tempadata.nnz)
+        elif method == "logSuminsertions":
+            my_dictionary[groupname] =  np.log2(tempadata.nnz+1)
+        else:
+
+            avail_data = ["avginsertions","logAvginsertions","suminsertions","logSuminsertions"]
+            raise ValueError(f'data must be one of {avail_data}.')
+
+    
+    adata.obs[name] = adata.obs[groupby]
+    adata.obs = adata.obs.replace({name: my_dictionary})
+    adata.obs[name] = adata.obs[name].astype(float)
+
+    return  adata

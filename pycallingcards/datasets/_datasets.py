@@ -21,7 +21,7 @@ def mousecortex_data(
     Mouse cortex single-cell calling cards  data [Moudgil20]_.
 
     :param data: `['ccf','barcodes','RNA','CCF']`. 
-        `ccf` reads the htop ccf file.
+        `ccf` reads the ccf file.
         `barcodes` reads the barcodes file.
         | `RNA` reads the RNA anndata.
         | `CCF` reads the CCF anndata.
@@ -55,7 +55,7 @@ def mousecortex_data(
         raise ValueError(f'data must be one of {avail_data}.')
             
 
-_SP1 = Optional[Literal["experience_ccf","background_ccf","barcodes"]]
+_SP1 = Optional[Literal['HCT116_SP1_ccf','K562_SP1_ccf','HCT116_brd4_ccf','K562_brd4_ccf','barcodes']]
 
 def SP1_K562HCT116_data(
     data = _SP1
@@ -66,34 +66,44 @@ def SP1_K562HCT116_data(
     Transcription factor SP1 is added to both K562 and HCT-116 cell lines seperately. 
     Wild-type single-cell calling cards is data also recorded in mixed K562 and HCT-116 cell lines [Moudgil20]_.
 
-    :param data: `['experience_ccf','background_ccf','barcodes']`.
-        `experience_ccf` reads the htop ccf file for the combined data for K562 and HCT-116 cell lines.
-        | `background_ccf` reads the htop ccf file for the data for mixed K562 and HCT-116 cell lines.
+    :param data: `['HCT116_SP1_ccf','K562_SP1_ccf','HCT116_brd4_ccf','K562_brd4_ccf','barcodes']`.
+        `experience_ccf` reads the ccf file for the combined data for K562 and HCT-116 cell lines.
+        | `background_ccf` reads the ccf file for the data for mixed K562 and HCT-116 cell lines.
         | `barcodes` reads the barcode file for the combined data for K562 and HCT-116 cell lines.
 
 
     """
 
-    if data == "experience_ccf":
-        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/K562HCT116_SP1.ccf",
+    if data == "HCT116_brd4_ccf":
+        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSM4471646_HCT-116_HyPBase_scCC.ccf.txt",
+                            sep = "\t",  header = None , names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
+        return ccf_data
+
+    elif data == "K562_brd4_ccf":
+        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSM4471646_K562_HyPBase_scCC.ccf.txt",
                             sep = "\t",  header = None , names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
         
-    if data == "background_ccf":
-        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/K562HCT116_wild.ccf",
+    elif data == "HCT116_SP1_ccf":
+        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSM4471648_HCT-116_SP1-HyPBase_scCC.ccf.txt",
+                            sep = "\t",  header = None , names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
+        return ccf_data
+
+    elif data == "K562_SP1_ccf":
+        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSM4471650_K562_SP1-HyPBase_scCC.ccf.txt",
                             sep = "\t",  header = None , names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
 
     elif data == "barcodes":
         barcodes = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/K562HCT116_barcodes.csv",
-                        sep = ",")
+                        sep = "\t")
         return barcodes
 
     else:
-        avail_data = ["experience_ccf","background_ccf","barcodes"]
+        avail_data = ['HCT116_SP1_ccf','K562_SP1_ccf','HCT116_brd4_ccf','K562_brd4_ccf','barcodes']
         raise ValueError(f'data must be one of {avail_data}.')
             
-_mouse_brd4 = Optional[Literal["Female_Brd4","Male_Brd4"]]
+_mouse_brd4 = Optional[Literal['Female_Brd4','Male_Brd4','RNA']]
 
 def mouse_brd4_data(
     data = _mouse_brd4
@@ -103,9 +113,9 @@ def mouse_brd4_data(
     """\
     Bulk Brd4 bindings for both male and female mice [Kfoury21]_.
 
-    :param data: `['Female_Brd4','Male_Brd4']`. 
-        | `Female_Brd4` reads the htop ccf file for the bulk Brd4 binding data for female mouse .
-        | `Male_Brd4` reads the htop ccf file for the bulk Brd4 binding data for male mouse.
+    :param data: `['Female_Brd4','Male_Brd4','RNA']`. 
+        | `Female_Brd4` reads the ccf file for the bulk Brd4 binding data for female mouse .
+        | `Male_Brd4` reads the ccf file for the bulk Brd4 binding data for male mouse.
 
 
     """
@@ -120,8 +130,13 @@ def mouse_brd4_data(
                             sep = "\t",  header = None, names = ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
         return ccf_data
 
+    if data == "RNA":
+        ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/dmso_MF.csv", index_col = 0)
+        return ccf_data
+
+
     else:
-        avail_data = ["Female_Brd4","Male_Brd4"]
+        avail_data = ['Female_Brd4','Male_Brd4','RNA']
         raise ValueError(f'data must be one of {avail_data}.')
             
 _Cre = Optional[Literal["SP1_P10","SP1_P28","background"]]
@@ -135,9 +150,9 @@ def SP1_Cre_data(
     Bulk SP1 bindings for both P10 and P28 cohort in Cre-driver mouse lines [Cammack19]_.
 
     :param data: `['SP1_P10','SP1_P28','background']`.
-        `SP1_P10` reads the htop ccf file for P10 cohert.
-        | `SP1_P28` reads the htop ccf file for P28 cohert.
-        | `background` reads the htop ccf file for backgound.
+        `SP1_P10` reads the ccf file for P10 cohert.
+        | `SP1_P28` reads the ccf file for P28 cohert.
+        | `background` reads the ccf file for backgound.
 
 
     """

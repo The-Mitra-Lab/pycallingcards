@@ -6,22 +6,24 @@ from typing import Union, Optional, List,  Iterable,  Literal
 
 
 _Method_rank_peak_groups = Optional[Literal['binomtest', 'binomtest2','fisher_exact']]
-
+_alternative = Optional[Literal['two-sided', 'greater']]
+_alternative_no = Optional[Literal['two-sided', 'greater','None']]
 
 def DE_pvalue(
     number1: int,
     number2: int,
     total1: int,
     total2: int,
-    method: _Method_rank_peak_groups = 'fisher_exact'):
+    method: _Method_rank_peak_groups = 'fisher_exact',
+    alternative: _alternative = 'greater'):
 
     """\
-    Comaparing the peak difference between two groups for specific peak.
+    Comparing the peak difference between two groups for specific peak.
 
     :param number1:
-        The total number of htops (or the number of cells containing htops) in group 1.
+        The total number of insertions (or the number of cells containing insertions) in group 1.
     :param number2:
-        The total number of htops (or the number of cells containing htops) in group 2.
+        The total number of insertions (or the number of cells containing insertions) in group 2.
     :param total1:
         The total number of cells in group 1.
     :param total2:
@@ -34,6 +36,8 @@ def DE_pvalue(
         The default method is 'fisher_exact', `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on different hypothesis of `binomtest`, 'fisher_exact' uses
         fisher exact test.
+    :param alternative: `['two-sided', 'greater']`. Default is `'greater'`.
+        If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
     
 
     :return:
@@ -53,20 +57,20 @@ def DE_pvalue(
         if number1 + number2 ==0:
             return 1
         else:
-            return binomtest(int(number1), n=int(number1+number2), p=float(total1/(total1+total2)), alternative='greater').pvalue
+            return binomtest(int(number1), n=int(number1+number2), p=float(total1/(total1+total2)), alternative=alternative).pvalue
 
     if method == "binomtest2":
 
         from scipy.stats import binomtest
 
-        return binomtest(int(number1), n=total1, p=number2/total2, alternative='greater').pvalue
+        return binomtest(int(number1), n=total1, p=number2/total2, alternative=alternative).pvalue
                  
 
     elif method == "fisher_exact":
 
         table = np.array([[number1, number2], [total1- number1, total2 - number2]])
         from scipy.stats import fisher_exact
-        _,p = fisher_exact(table, alternative='greater')
+        _,p = fisher_exact(table, alternative=alternative)
 
         return p
     else:
@@ -80,7 +84,8 @@ def diff2group_bygroup(
     name1: str,
     name2: Optional[str] = None ,
     peakname: Optional[str] = None ,
-    test_method: _Method_rank_peak_groups = "fisher_exact"
+    test_method: _Method_rank_peak_groups = "fisher_exact",
+    alternative: _alternative = 'greater'
 ) -> Union[List[float], float]:
 
     """\
@@ -101,6 +106,8 @@ def diff2group_bygroup(
         `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
+    :param alternative: `['two-sided', 'greater']`. Default is `'greater'`.
+        If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
 
 
     :return:
@@ -136,7 +143,7 @@ def diff2group_bygroup(
         else:
             raise ValueError("Please input a correct method: binomtest/binomtest2/fisher_exact.")
 
-        return DE_pvalue(number1,number2,total1,total2,method = test_method)
+        return DE_pvalue(number1,number2,total1,total2,method = test_method, alternative = alternative)
 
     else:
 
@@ -163,7 +170,7 @@ def diff2group_bygroup(
             else:
                 raise ValueError("Please input a correct method: binomtest/binomtest2/fisher_exact.")
 
-            pvaluelist.append(DE_pvalue(number1,number2,total1,total2,method = test_method))
+            pvaluelist.append(DE_pvalue(number1,number2,total1,total2,method = test_method, alternative = alternative))
 
         return pvaluelist
 
@@ -174,7 +181,8 @@ def diff2group_bysample(
     name1: str,
     name2: Optional[str] = None ,
     peakname: Optional[str] = None ,
-    test_method: _Method_rank_peak_groups = "binomtest"
+    test_method: _Method_rank_peak_groups = "binomtest",
+    alternative: _alternative = 'greater'
 ) -> Union[List[float], float]:
 
     """\
@@ -195,6 +203,9 @@ def diff2group_bysample(
         `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
+    :param alternative: `['two-sided', 'greater']`. Default is `'greater'`.
+        If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
+    
 
 
     :return:
@@ -219,7 +230,7 @@ def diff2group_bysample(
         number1 = adata_ccf[name1,peakname].X[0,0]
         number2 = adata_ccf[name2,peakname].X.sum()
 
-        return DE_pvalue(number1,number2,total1,total2,method = test_method)
+        return DE_pvalue(number1,number2,total1,total2,method = test_method, alternative = alternative)
 
     else:
 
@@ -243,7 +254,7 @@ def diff2group_bysample(
             number2 = adata_ccf[name2,peak].X.sum()
 
 
-            pvaluelist.append(DE_pvalue(number1,number2,total1,total2,method = test_method))
+            pvaluelist.append(DE_pvalue(number1,number2,total1,total2,method = test_method, alternative = alternative))
 
         return pvaluelist
 
@@ -256,7 +267,8 @@ def rank_peak_groups(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
-    method: _Method_rank_peak_groups = 'fisher_exact'
+    method: _Method_rank_peak_groups = 'fisher_exact',
+    alternative: _alternative_no = 'None'
 ) -> Optional[AnnData]:
 
     """\
@@ -281,11 +293,16 @@ def rank_peak_groups(
         `binomtest` uses binomial test,
         `binomtest2` uses binomial test but stands on a different hypothesis of `binomtest`,
         `fisher_exact` uses fisher exact test.
+    :param alternative: `['two-sided', 'greater','None']`. Default is `'None'`.
+        If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
+        For default (`'None'`), if groupby == "Index", it would be 'two-sided'. Otherwise, please use `'greater'`.
+    
 
 
     :Returns: 
         | **names** - structured `np.ndarray` (`.uns['rank_peaks_groups']`). Structured array is to be indexed by the group ID storing the peak names. Ordered according to scores.
         | **return pvalues** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
+        | **return logfoldchanges** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
         | **number** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells contian peaks (depending on the method).
         | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells contianing peaks (depending on the method).
         | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contianing peaks.
@@ -298,12 +315,20 @@ def rank_peak_groups(
     """
 
     if groupby == "Index":
-        _rank_peak_groups_bysample( adata_ccf = adata_ccf, groups = groups, 
-        reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method)
+        if alternative == 'None':
+            _rank_peak_groups_bysample( adata_ccf = adata_ccf, groups = groups, 
+            reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method, alternative = 'two-sided')
+        else:
+            _rank_peak_groups_bysample( adata_ccf = adata_ccf, groups = groups, 
+            reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method, alternative = alternative)
     else:
-        _rank_peak_groups_bygroup( adata_ccf = adata_ccf, groupby = groupby, groups = groups, 
-        reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method)
- 
+        if alternative == 'None':
+            _rank_peak_groups_bygroup( adata_ccf = adata_ccf, groupby = groupby, groups = groups, 
+            reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method, alternative = 'greater')
+        else:
+            _rank_peak_groups_bygroup( adata_ccf = adata_ccf, groupby = groupby, groups = groups, 
+            reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method, alternative = alternative)
+        
 
 def _rank_peak_groups_bygroup(
     adata_ccf: AnnData,
@@ -313,7 +338,8 @@ def _rank_peak_groups_bygroup(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
-    method: _Method_rank_peak_groups = None
+    method: _Method_rank_peak_groups = None,
+    alternative: _alternative = 'greater'
 ) -> Optional[AnnData]:
 
     avail_method = ['binomtest', 'binomtest2','fisher_exact']
@@ -323,6 +349,7 @@ def _rank_peak_groups_bygroup(
         raise ValueError(f'Correction method must be one of {avail_method}.')
 
     possible_group = list(adata_ccf.obs[groupby].unique())
+    possible_group.sort()
 
     if reference == None:
         reference = "rest"
@@ -363,6 +390,7 @@ def _rank_peak_groups_bygroup(
 
     finalresult_name = np.empty([n_peaks, len(group_list)], dtype='<U100')
     finalresult_pvalue = np.empty([n_peaks, len(group_list)], dtype=float)
+    finalresult_logfoldchanges = np.empty([n_peaks, len(group_list)], dtype=float)
     finalresult_number1 = np.empty([n_peaks, len(group_list)], dtype=int)
     finalresult_number2 = np.empty([n_peaks, len(group_list)], dtype=int)
     finalresult_total1 = np.empty([n_peaks, len(group_list)], dtype=int)
@@ -386,6 +414,7 @@ def _rank_peak_groups_bygroup(
         number2list = []
         total1list = []
         total2list = []
+        
 
 
         total1 = clusterdata.X.shape[0]
@@ -408,23 +437,26 @@ def _rank_peak_groups_bygroup(
             else:
                 raise ValueError("Please input a correct method: binomtest/binomtest2/fisher_exact.")
 
-            pvaluelist.append(DE_pvalue(number1,number2,total1,total2,method =  method))
+            pvaluelist.append(DE_pvalue(number1,number2,total1,total2,method =  method, alternative =alternative))
             number1list.append(number1)
             number2list.append(number2)
             total1list.append(total1)
             total2list.append(total2)
+            
 
         pvaluelistnp = np.array(pvaluelist)
         number1listnp = np.array(number1list)
         number2listnp = np.array(number2list)
         total1listnp = np.array(total1list)
         total2listnp = np.array(total2list)
+        logfoldchangenp = np.log2(((number1listnp / total1listnp) + 0.000001) / ((number2listnp / total2listnp) + 0.000001) )
 
 
         pvaluelistarg = pvaluelistnp.argsort()
 
         finalresult_name[:,i] = np.array(peak_list)[pvaluelistarg][:n_peaks]
         finalresult_pvalue[:,i] = pvaluelistnp[pvaluelistarg][:n_peaks]
+        finalresult_logfoldchanges[:,i] = logfoldchangenp[pvaluelistarg][:n_peaks]
         finalresult_number1[:,i] = number1listnp[pvaluelistarg][:n_peaks]
         finalresult_number2[:,i] = number2listnp[pvaluelistarg][:n_peaks]
         finalresult_total1[:,i] = total1listnp[pvaluelistarg][:n_peaks]
@@ -439,6 +471,7 @@ def _rank_peak_groups_bygroup(
 
     adata_ccf.uns[key_added]['names'] = np.rec.array(list(map(tuple, finalresult_name)), dtype=list(map(tuple, tempname)))
     adata_ccf.uns[key_added]['pvalues'] = np.rec.array(list(map(tuple, finalresult_pvalue)), dtype=list(map(tuple, temppvalue)))
+    adata_ccf.uns[key_added]['logfoldchanges'] = np.rec.array(list(map(tuple, finalresult_logfoldchanges)), dtype=list(map(tuple, temppvalue)))
     adata_ccf.uns[key_added]['number'] = np.rec.array(list(map(tuple, finalresult_number1)), dtype=list(map(tuple, tempnamenumber)))
     adata_ccf.uns[key_added]['number_rest'] = np.rec.array(list(map(tuple, finalresult_number2)), dtype=list(map(tuple, tempnamenumber)))
     adata_ccf.uns[key_added]['total'] = np.rec.array(list(map(tuple, finalresult_total1)), dtype=list(map(tuple, tempnamenumber)))
@@ -455,7 +488,8 @@ def _rank_peak_groups_bysample(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
-    method: _Method_rank_peak_groups = None
+    method: _Method_rank_peak_groups = None,
+    alternative: _alternative = 'greater'
 ) -> Optional[AnnData]:
 
     avail_method = ['binomtest', 'binomtest2','fisher_exact']
@@ -505,6 +539,7 @@ def _rank_peak_groups_bysample(
 
     finalresult_name = np.empty([n_peaks, len(group_list)], dtype='<U100')
     finalresult_pvalue = np.empty([n_peaks, len(group_list)], dtype=float)
+    finalresult_logfoldchanges = np.empty([n_peaks, len(group_list)], dtype=float)
     finalresult_number1 = np.empty([n_peaks, len(group_list)], dtype=int)
     finalresult_number2 = np.empty([n_peaks, len(group_list)], dtype=int)
     finalresult_total1 = np.empty([n_peaks, len(group_list)], dtype=int)
@@ -540,7 +575,7 @@ def _rank_peak_groups_bysample(
             number1 = adata_ccf[cluster,peak].X[0,0]
             number2 = adata_ccf[name2,peak].X.sum()
 
-            pvaluelist.append(DE_pvalue(number1,number2,total1,total2,method =  method))
+            pvaluelist.append(DE_pvalue(number1,number2,total1,total2,method =  method, alternative = alternative))
             number1list.append(number1)
             number2list.append(number2)
             total1list.append(total1)
@@ -551,11 +586,14 @@ def _rank_peak_groups_bysample(
         number2listnp = np.array(number2list)
         total1listnp = np.array(total1list)
         total2listnp = np.array(total2list)
+        logfoldchangenp = np.log2(((number1listnp / total1listnp) + 0.000001) / ((number2listnp / total2listnp) + 0.000001) )
+
 
 
         pvaluelistarg = pvaluelistnp.argsort()
 
         finalresult_name[:,i] = np.array(peak_list)[pvaluelistarg][:n_peaks]
+        finalresult_logfoldchanges[:,i] = logfoldchangenp[pvaluelistarg][:n_peaks]
         finalresult_pvalue[:,i] = pvaluelistnp[pvaluelistarg][:n_peaks]
         finalresult_number1[:,i] = number1listnp[pvaluelistarg][:n_peaks]
         finalresult_number2[:,i] = number2listnp[pvaluelistarg][:n_peaks]
@@ -571,6 +609,7 @@ def _rank_peak_groups_bysample(
 
     adata_ccf.uns[key_added]['names'] = np.rec.array(list(map(tuple, finalresult_name)), dtype=list(map(tuple, tempname)))
     adata_ccf.uns[key_added]['pvalues'] = np.rec.array(list(map(tuple, finalresult_pvalue)), dtype=list(map(tuple, temppvalue)))
+    adata_ccf.uns[key_added]['logfoldchanges'] = np.rec.array(list(map(tuple, finalresult_logfoldchanges)), dtype=list(map(tuple, temppvalue)))
     adata_ccf.uns[key_added]['number'] = np.rec.array(list(map(tuple, finalresult_number1)), dtype=list(map(tuple, tempnamenumber)))
     adata_ccf.uns[key_added]['number_rest'] = np.rec.array(list(map(tuple, finalresult_number2)), dtype=list(map(tuple, tempnamenumber)))
     adata_ccf.uns[key_added]['total'] = np.rec.array(list(map(tuple, finalresult_total1)), dtype=list(map(tuple, tempnamenumber)))

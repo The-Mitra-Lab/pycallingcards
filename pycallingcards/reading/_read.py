@@ -47,3 +47,24 @@ def combine_ccf(
     """
 
     return pd.concat(filelist).sort_values(by=name).reset_index(drop = True)
+
+def read_rna(
+    filename: str
+):
+
+    """\
+    Read RNA file which column index is sample names and row index is gene names.
+
+    :param filename: 
+        Path to RNA file.
+
+    :Returns:
+        pd.DataFrame for the RNA file.
+
+    :example:
+    >>> import pycallingcards as cc
+    >>> rna = cc.rd.read_rna("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/dmso_MF.csv")
+
+    """
+
+    return pd.read_csv("dmso.csv", index_col = 0)

@@ -3,9 +3,9 @@ numpy
 pandas
 numba 
 tqdm
-typing
 scipy
 scanpy
 appdirs
 sphinx-autoapi
 furo
+seaborn
