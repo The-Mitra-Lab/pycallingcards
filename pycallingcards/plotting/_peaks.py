@@ -174,6 +174,9 @@ def draw_area(
     
     if bins == None:
         bins = int(min(plt.rcParams['figure.dpi'] * figsize[0], (end - start + 2*extend))/4)
+    
+    bins = list(range(start - extend,end + extend,int((end - start + 2*extend)/bins)))
+ 
 
     
 
@@ -270,6 +273,7 @@ def whole_peaks(
     linewidth: float = 4,
     color: str = "black",
     added: int = 10000,
+    height_name: str = "Experiment Insertions",
     save: Union[bool,str] = False
 ):
 
@@ -292,6 +296,8 @@ def whole_peaks(
         The color of the plot, the same as color in plt.plot.
     :param added: Default is `10000`.
         Only valide when there is no reference provided. The max length(bp) added to the end of a chromosome shown.
+    :param height_name: Default is 'Experiment Insertions'.
+        The height of each peak. If `None`, it would all be the same height.
     :param save: Default is `False`.
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name would be given and the plot would be saved as png.
@@ -305,10 +311,11 @@ def whole_peaks(
 
     """
 
-
     sortlist = list(peak_data["Chr"].unique())
     sortlist.sort(key=_myFuncsorting)
     sortlist = np.array(sortlist)
+
+    
     
     if reference == "mm10":
         ref = np.array([195471971, 182113224, 160039680, 156508116, 151834684, 149736546, 145441459, 129401213, 124595110,  130694993, 
@@ -316,6 +323,7 @@ def whole_peaks(
         sortlist1 = np.array(['chr1', 'chr2', 'chr3', 'chr4', 'chr5', 'chr6', 'chr7', 'chr8', 'chr9', 'chr10',
                    'chr11', 'chr12', 'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chrX', 'chrY'])
         ref = ref[np.in1d(sortlist1, sortlist)]
+        sortlist = sortlist1[np.in1d(sortlist1, sortlist)]
         
     elif reference == "hg38":
         ref = np.array([248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973, 145138636, 138394717, 133797422,
@@ -325,9 +333,11 @@ def whole_peaks(
                     'chr11', 'chr12', 'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chr20', 
                     'chr21', 'chr22','chrX', 'chrY'])
         ref = ref[np.in1d(sortlist1, sortlist)]
+        sortlist = sortlist1[np.in1d(sortlist1, sortlist)]
         
     else:
         ref = []
+
         
         
         for chrom in range(len(sortlist)):
@@ -344,7 +354,10 @@ def whole_peaks(
         
         start = list(peak_data[peak_data["Chr"] == sortlist[chrom]]["Start"])
         end = list(peak_data[peak_data["Chr"] == sortlist[chrom]]["End"])
-        insertions = list(peak_data[peak_data["Chr"] == sortlist[chrom]]["Experiment Insertions"])
+        if height_name != None:
+            insertions = list(peak_data[peak_data["Chr"] == sortlist[chrom]][height_name])
+        else:
+            insertions = [1] * len(start)
 
         axis[chrom].plot([0, ref[chrom]],[0,0],color, linewidth = linewidth)
         axis[chrom].set_xlim([0, ref[chrom]])

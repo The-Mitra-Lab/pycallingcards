@@ -1,4 +1,4 @@
-"""Single-cell calling cards in Python"""
+"""Calling cards data analysis in Python"""
 
 from pycallingcards import reading as rd
 from pycallingcards import preprocessing as pp

@@ -5,6 +5,7 @@ import anndata as ad
 from scipy.sparse import csr_matrix
 from anndata import AnnData
 from typing import Union, Optional, List, Sequence, Iterable, Mapping, Literal, Tuple
+import tqdm
 
 _reference = Optional[Literal["hg38","mm10","yeast"]]
 
@@ -116,17 +117,31 @@ def makeAnndata(
     ccff = np.concatenate((ccff, ccf1[key].to_numpy().reshape((-1,1)),ccfbar.reshape((-1,1))), axis=1)
     
     
-    for chro in chrolist:
+    for chro in tqdm.tqdm(chrolist):
 
-        peaksfchr = peaksf[peaksf[:,0] == chro]
-        ccffchr = ccff[ccff[:,0] == chro]
+        peaksfchr = np.array(peaksf[peaksf[:,0] == chro])
+        ccffchr = np.array(ccff[ccff[:,0] == chro])
+        ccffchr = ccffchr[ccffchr[:, 1].argsort(),:]
 
         for i in range(len(peaksfchr)):
-
-            ptemp = ccffchr[(ccffchr[:,1]>= (peaksfchr[i,1] - length))  & (ccffchr[:,1]<= (peaksfchr[i,2] ))][:,3]
-
+            ptemp = []
+            start = 0
+            
+            for num in range(len(ccffchr)):
+                
+                if (ccffchr[num,1]>= (peaksfchr[i,1] - length))  and (ccffchr[num,1]<= (peaksfchr[i,2] )):
+                    start = 1
+                    
+                    ptemp.append(ccffchr[num,3])
+                else:
+                    if start == 1:
+                        ccffchr = ccffchr[num:,:]
+                        break
+            
             for j in ptemp:
                 cellpeaks[peaksfchr[i,4],j] += 1
+
+                
 
     peaks1 = peaks1.set_index(keys = "name")
     peaks1 = peaks1.loc[peak_name_unique]

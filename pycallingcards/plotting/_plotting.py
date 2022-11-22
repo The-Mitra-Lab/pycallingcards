@@ -6,7 +6,7 @@ from matplotlib.axes import Axes
 from matplotlib import rcParams, cm
 from matplotlib import pyplot as plt
 
-
+_rankby = Optional[Literal['pvalues', 'logfoldchange']]
 
 
 def rank_peak_groups(
@@ -15,6 +15,7 @@ def rank_peak_groups(
     n_peaks: int = 10,
     peak_symbols: Optional[str] = None,
     key: Optional[str] = 'rank_peak_groups',
+    rankby: _rankby = 'pvalues',
     fontsize: int = 8,
     ncols: int = 4,
     sharey: bool = True,
@@ -89,7 +90,7 @@ def rank_peak_groups(
     ymax = -np.Inf
     for count, group_name in enumerate(group_names):
         peak_names = adata_ccf.uns[key]['names'][group_name][:n_peaks]
-        pvalues = adata_ccf.uns[key]['pvalues'][group_name][:n_peaks]
+        pvalues = adata_ccf.uns[key][rankby][group_name][:n_peaks]
 
         # Setting up axis, calculating y bounds
         if sharey:
@@ -136,7 +137,7 @@ def rank_peak_groups(
 
         # print the 'score' label only on the first panel per row.
         if count % n_panels_x == 0:
-            ax.set_ylabel('pvalue')
+            ax.set_ylabel(rankby)
 
     if sharey is True:
         ymax += 0.3 * (ymax - ymin)

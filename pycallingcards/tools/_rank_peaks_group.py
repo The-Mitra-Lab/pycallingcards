@@ -3,11 +3,13 @@ from ast import Raise
 import numpy as np
 from anndata import AnnData
 from typing import Union, Optional, List,  Iterable,  Literal
+import tqdm
 
 
 _Method_rank_peak_groups = Optional[Literal['binomtest', 'binomtest2','fisher_exact']]
 _alternative = Optional[Literal['two-sided', 'greater']]
 _alternative_no = Optional[Literal['two-sided', 'greater','None']]
+_rankby = Optional[Literal['pvalues', 'logfoldchanges']]
 
 def DE_pvalue(
     number1: int,
@@ -267,6 +269,7 @@ def rank_peak_groups(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
+    rankby: _rankby = 'pvalues',
     method: _Method_rank_peak_groups = 'fisher_exact',
     alternative: _alternative_no = 'None'
 ) -> Optional[AnnData]:
@@ -289,6 +292,10 @@ def rank_peak_groups(
         Default includes all peaks.
     :param key_added:
         The key in `adata.uns` information is saved to.
+    :param rankby: ['pvalues', 'logfoldchanges']. Default is `'pvalues'`.
+        The list we rank by. 
+    :param copy: Default is `False`.
+        If copy
     :param  method: ["binomtest", "binomtest2","fisher_exact"]. Default is `fisher_exact`.
         `binomtest` uses binomial test,
         `binomtest2` uses binomial test but stands on a different hypothesis of `binomtest`,
@@ -317,17 +324,17 @@ def rank_peak_groups(
     if groupby == "Index":
         if alternative == 'None':
             _rank_peak_groups_bysample( adata_ccf = adata_ccf, groups = groups, 
-            reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method, alternative = 'two-sided')
+            reference = reference, n_peaks = n_peaks, key_added = key_added, copy = copy, rankby = rankby, method = method, alternative = 'two-sided')
         else:
             _rank_peak_groups_bysample( adata_ccf = adata_ccf, groups = groups, 
-            reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method, alternative = alternative)
+            reference = reference, n_peaks = n_peaks, key_added = key_added, copy = copy, rankby = rankby, method = method, alternative = alternative)
     else:
         if alternative == 'None':
             _rank_peak_groups_bygroup( adata_ccf = adata_ccf, groupby = groupby, groups = groups, 
-            reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method, alternative = 'greater')
+            reference = reference, n_peaks = n_peaks, key_added = key_added, copy = copy, rankby = rankby, method = method, alternative = 'greater')
         else:
             _rank_peak_groups_bygroup( adata_ccf = adata_ccf, groupby = groupby, groups = groups, 
-            reference = reference, n_peaks = n_peaks, key_added = key_added,copy = copy, method = method, alternative = alternative)
+            reference = reference, n_peaks = n_peaks, key_added = key_added, copy = copy, rankby = rankby, method = method, alternative = alternative)
         
 
 def _rank_peak_groups_bygroup(
@@ -338,6 +345,7 @@ def _rank_peak_groups_bygroup(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
+    rankby: _rankby = 'pvalues',
     method: _Method_rank_peak_groups = None,
     alternative: _alternative = 'greater'
 ) -> Optional[AnnData]:
@@ -399,7 +407,7 @@ def _rank_peak_groups_bygroup(
 
     i = 0
 
-    for cluster in group_list:
+    for cluster in tqdm.tqdm(group_list):
 
         if reference == "rest":
             clusterdata = adata_ccf[(adata_ccf.obs[[groupby]] == cluster)[groupby]]
@@ -452,15 +460,23 @@ def _rank_peak_groups_bygroup(
         logfoldchangenp = np.log2(((number1listnp / total1listnp) + 0.000001) / ((number2listnp / total2listnp) + 0.000001) )
 
 
-        pvaluelistarg = pvaluelistnp.argsort()
+        if rankby == 'pvalues':
+            rankarg = pvaluelistnp.argsort()
+        elif rankby == 'logfoldchanges':
+            rankarg = (-1*logfoldchangenp).argsort()
+        else:
+            raise ValueError(f'rankby method must be one of {_rankby}.')
 
-        finalresult_name[:,i] = np.array(peak_list)[pvaluelistarg][:n_peaks]
-        finalresult_pvalue[:,i] = pvaluelistnp[pvaluelistarg][:n_peaks]
-        finalresult_logfoldchanges[:,i] = logfoldchangenp[pvaluelistarg][:n_peaks]
-        finalresult_number1[:,i] = number1listnp[pvaluelistarg][:n_peaks]
-        finalresult_number2[:,i] = number2listnp[pvaluelistarg][:n_peaks]
-        finalresult_total1[:,i] = total1listnp[pvaluelistarg][:n_peaks]
-        finalresult_total2[:,i] = total2listnp[pvaluelistarg][:n_peaks]
+
+
+
+        finalresult_name[:,i] = np.array(peak_list)[rankarg][:n_peaks]
+        finalresult_pvalue[:,i] = pvaluelistnp[rankarg][:n_peaks]
+        finalresult_logfoldchanges[:,i] = logfoldchangenp[rankarg][:n_peaks]
+        finalresult_number1[:,i] = number1listnp[rankarg][:n_peaks]
+        finalresult_number2[:,i] = number2listnp[rankarg][:n_peaks]
+        finalresult_total1[:,i] = total1listnp[rankarg][:n_peaks]
+        finalresult_total2[:,i] = total2listnp[rankarg][:n_peaks]
 
         i += 1
 
@@ -477,7 +493,7 @@ def _rank_peak_groups_bygroup(
     adata_ccf.uns[key_added]['total'] = np.rec.array(list(map(tuple, finalresult_total1)), dtype=list(map(tuple, tempnamenumber)))
     adata_ccf.uns[key_added]['total_rest'] = np.rec.array(list(map(tuple, finalresult_total2)), dtype=list(map(tuple, tempnamenumber)))
 
-    return adata_ccf if copy else None
+    return adata_ccf if copy else None 
 
 
 
@@ -488,6 +504,7 @@ def _rank_peak_groups_bysample(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
+    rankby: _rankby = 'pvalues',
     method: _Method_rank_peak_groups = None,
     alternative: _alternative = 'greater'
 ) -> Optional[AnnData]:
@@ -548,7 +565,7 @@ def _rank_peak_groups_bysample(
 
     i = 0
 
-    for cluster in group_list:
+    for cluster in tqdm.tqdm(group_list):
 
         cluster1 = adata_ccf[cluster,:].X
 
@@ -588,17 +605,21 @@ def _rank_peak_groups_bysample(
         total2listnp = np.array(total2list)
         logfoldchangenp = np.log2(((number1listnp / total1listnp) + 0.000001) / ((number2listnp / total2listnp) + 0.000001) )
 
+        if rankby == 'pvalues':
+            rankarg = pvaluelistnp.argsort()
+        elif rankby == 'logfoldchanges':
+            rankarg = (-1*logfoldchangenp).argsort()
+        else:
+            raise ValueError(f'rankby method must be one of {_rankby}.')
 
-
-        pvaluelistarg = pvaluelistnp.argsort()
-
-        finalresult_name[:,i] = np.array(peak_list)[pvaluelistarg][:n_peaks]
-        finalresult_logfoldchanges[:,i] = logfoldchangenp[pvaluelistarg][:n_peaks]
-        finalresult_pvalue[:,i] = pvaluelistnp[pvaluelistarg][:n_peaks]
-        finalresult_number1[:,i] = number1listnp[pvaluelistarg][:n_peaks]
-        finalresult_number2[:,i] = number2listnp[pvaluelistarg][:n_peaks]
-        finalresult_total1[:,i] = total1listnp[pvaluelistarg][:n_peaks]
-        finalresult_total2[:,i] = total2listnp[pvaluelistarg][:n_peaks]
+   
+        finalresult_name[:,i] = np.array(peak_list)[rankarg][:n_peaks]
+        finalresult_logfoldchanges[:,i] = logfoldchangenp[rankarg][:n_peaks]
+        finalresult_pvalue[:,i] = pvaluelistnp[rankarg][:n_peaks]
+        finalresult_number1[:,i] = number1listnp[rankarg][:n_peaks]
+        finalresult_number2[:,i] = number2listnp[rankarg][:n_peaks]
+        finalresult_total1[:,i] = total1listnp[rankarg][:n_peaks]
+        finalresult_total2[:,i] = total2listnp[rankarg][:n_peaks]
 
         i += 1
 

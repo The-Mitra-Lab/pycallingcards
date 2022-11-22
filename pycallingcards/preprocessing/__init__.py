@@ -1,4 +1,4 @@
-"""Single-cell calling cards in Python"""
+"""Calling cards data analysis in Python"""
 
 from ._callpeaks import callpeaks
 from ._annotation import annotation, combine_annotation
