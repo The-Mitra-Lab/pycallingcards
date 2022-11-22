@@ -4,7 +4,8 @@
     <img src="./docs/pycallingcards_icon.png", width="350">
 </p>
 
-This a python package designed for single-cell calling cards data. It also provides efficient peak calling implementation for both bulk and single-cell calling cards data.
+Pycallingcards is a python package designed for both bulk and single-cell calling cards data based on `Anndata <https://anndata.readthedocs.io/en/latest/>`__ . 
+It includes peak calling, annotation, differential peak analysis, pair analysis with RNA and visualization.
 
 ## Documentation.
 
