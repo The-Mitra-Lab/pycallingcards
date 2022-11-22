@@ -8,4 +8,5 @@ scanpy
 appdirs
 sphinx-autoapi
 furo
+pybedtools
 seaborn
