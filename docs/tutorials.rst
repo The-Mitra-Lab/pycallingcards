@@ -11,10 +11,14 @@ Single-cell calling cards data without background.
 
 Single-cell calling cards data without background.
 
-`Brd4 bindings for Male/Female mouses bulk callingcards data <https://nbviewer.org/github/The-Mitra-Lab/pycallingcards_data/blob/main/Brd4_bulk.ipynb>`__ 
+`Brd4 bindings for Male/Female mouses bulk callingcards data <https://nbviewer.org/github/The-Mitra-Lab/pycallingcards_data/blob/main/bulk.ipynb>`__ 
 
 Bulk calling cards data without background.
 
 `SP1 bindings in Cre-driver mouse lines <https://nbviewer.org/github/The-Mitra-Lab/pycallingcards_data/blob/main/SP1_bulk.ipynb>`__ 
 
 Bulk calling cards data with background.
+
+`Interactive plotting <https://nbviewer.org/github/The-Mitra-Lab/pycallingcards_data/blob/main/interactive.ipynb>`__ 
+
+Example of Interactive plotting.

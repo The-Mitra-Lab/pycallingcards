@@ -8,3 +8,4 @@ from ._volcano import volcano_plot
 from ._heatmap_ccfrna import heatmap
 from ._dotplots import dotplot_bulk,dotplot_sc
 from ._Sankey import sankey
+from ._interactive import interactive
