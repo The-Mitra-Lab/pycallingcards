@@ -9,7 +9,7 @@ It includes peak calling, annotation, differential peak analysis, pair analysis 
 
 ## Documentation.
 
-Please check [**here**](https://pycallingcards.readthedocs.io/en/latest/installation.html) for detailed documentation.
+Please check [**here**](https://pycallingcards.readthedocs.io/en/latest/tutorials.html) for detailed documentation.
 
 ## Installation
 
