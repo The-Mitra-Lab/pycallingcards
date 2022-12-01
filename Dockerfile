@@ -21,4 +21,7 @@ RUN apt-get autoremove -y
 
 RUN python3.9 -m pip install --upgrade pip
 
+# this is to install d3blocks
+ENV SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
+
 RUN python3.9 -m pip install "git+https://github.com/cmatKhan/pycallingcards.git@raw_processing" --upgrade
