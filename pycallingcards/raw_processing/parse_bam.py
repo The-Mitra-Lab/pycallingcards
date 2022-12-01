@@ -87,6 +87,7 @@ def parse_bam(args: Namespace) -> None:
 					.add_read_info(
 						tagged_read,
 						status,
+						at.insert_length,
 						annotation_tags=at.annotation_tags,
 						record_barcode_qc=args.record_barcode_qc)
 				# write the read out to the appropriate tagged bamfile

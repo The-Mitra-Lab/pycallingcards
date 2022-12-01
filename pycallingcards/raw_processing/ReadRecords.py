@@ -51,7 +51,7 @@ class ReadRecords():
 		self._query_id = 0
 	
 	def add_read_info(self, tagged_read: dict, 
-	                  status: int, annotation_tags: list = [],
+	                  status: int, insert_offset=1, annotation_tags: list = [],
 					   record_barcode_qc: bool = True) -> None:
 		"""write records to both the raw qbed tmpfile and raw qc tmpfile. 
 		Note that these tempfiles will be destroyed when the object is destroyed.
@@ -62,6 +62,9 @@ class ReadRecords():
 			based on pre-defined quality metrics. A status of 0 is considered 
 			a pass. A status of greater than 0 is a read which fails 
 			at least 1 quality metric
+			insert_offset (int): number to add to tag XI value to calculate 
+			the end coordinate. For instance, if the start coord is the first 
+			T in TTAA, then the offset would be 4.
 			annotation_tags (list): List of strings. Values in list are tags to 
 			extract from tagged_read dictionary. Values of tag will be added to 
 			the annotation column of the qbed as a string delimited by '/'. 
@@ -80,7 +83,7 @@ class ReadRecords():
 				for x in annotation_tags)
 			qbed_record = {'chr': tagged_read['read'].reference_name,
 						   'start': tagged_read['read'].get_tag('XI'),
-						   'end': tagged_read['read'].get_tag('XI')+1,
+						   'end': tagged_read['read'].get_tag('XI')+insert_offset,
 						   'strand': '+' if tagged_read['read'].is_forward else '-',
 						   'annotation': annotation}
 			self._qbed_writer.writerow(qbed_record)
