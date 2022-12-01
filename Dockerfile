@@ -10,8 +10,9 @@ RUN  apt-get update && \
        dirmngr \
        wget \
 	   build-essential \
-       python3.9 \
+     python3.9-dev \
 	   python3-pip \
+     bedtools \
        git
 
 # Clean up
