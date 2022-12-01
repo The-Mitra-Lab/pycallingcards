@@ -11,11 +11,12 @@ __all__ = ['ReadRecords']
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
+
 class ReadRecords():
 	"""An object to write records from a tagged_read_dict to qbed file and 
 	qc files.
 	"""
-	def __init__(self,qbed_tmpfile,qc_tmpfile):
+	def __init__(self, qbed_tmpfile, qc_tmpfile):
 		"""_summary_
 
 		Args:

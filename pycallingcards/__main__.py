@@ -113,6 +113,7 @@ def parse_args()->Callable[[list],Namespace]:
 	# return the top level parser to be used in the main method below ----------
 	return parser
 
+
 def main(args=None)->None:
 	"""Entry point to pycallingcards"""
 
@@ -161,6 +162,7 @@ def main(args=None)->None:
 	# is set. see https://docs.python.org/3/library/argparse.html#parser-defaults
 	# scroll up from that point to see a usage example
 	args.func(args)
-	
+
+
 if __name__ == "__main__":
 	sys.exit(main())

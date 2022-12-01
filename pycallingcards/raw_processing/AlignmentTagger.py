@@ -2,7 +2,6 @@
 # pylint:disable=W0622,C0103
 # standard library
 import os
-import sys
 import logging
 # outside dependencies
 import pysam
@@ -12,6 +11,7 @@ from .BarcodeParser import BarcodeParser
 __all__ = ['AlignmentTagger']
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
+
 
 class AlignmentTagger(BarcodeParser):
 	"""Given an indexed fasta file (genome), id length and insertion length,
