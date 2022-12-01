@@ -19,6 +19,6 @@ RUN  apt-get update && \
 # Clean up
 RUN apt-get autoremove -y
 
-RUN python -m pip install --upgrade pip
+RUN python3.9 -m pip install --upgrade pip
 
-RUN python -m pip install "git+https://github.com/cmatKhan/pycallingcards.git@raw_processing" --upgrade
+RUN python3.9 -m pip install "git+https://github.com/cmatKhan/pycallingcards.git@raw_processing" --upgrade
