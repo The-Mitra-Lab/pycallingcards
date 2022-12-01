@@ -11,6 +11,7 @@ RUN  apt-get update && \
        wget \
 	   build-essential \
      python3.9-dev \
+     gcc \
 	   python3-pip \
      bedtools \
        git
@@ -18,6 +19,6 @@ RUN  apt-get update && \
 # Clean up
 RUN apt-get autoremove -y
 
-RUN pip install --upgrade pip
+RUN python -m pip install --upgrade pip
 
-RUN pip install "git+https://github.com/cmatKhan/pycallingcards.git@raw_processing" --upgrade
+RUN python -m pip install "git+https://github.com/cmatKhan/pycallingcards.git@raw_processing" --upgrade
