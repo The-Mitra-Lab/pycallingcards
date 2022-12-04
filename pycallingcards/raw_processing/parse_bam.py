@@ -97,7 +97,7 @@ def parse_bam(args: Namespace) -> None:
 					output_bam_dict['failing'].write(tagged_read['read'])
 		
 		logging.info("writing qBed...")
-		read_records.to_qbed(qbed_output)
+		read_records.to_qbed(qbed_output, args.tally)
 		if args.record_barcode_qc:
 			logging.info("writing qc...")
 			read_records.summarize_qc(qc_output)

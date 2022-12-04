@@ -106,7 +106,7 @@ class ReadRecords():
 			# increment query_id
 		self._query_id = self._query_id+1
 
-	def to_qbed(self, output: str = "") -> pd.DataFrame:
+	def to_qbed(self, output: str = "", barcode_qc: bool = True) -> pd.DataFrame:
 		"""_summary_
 
 		Returns:
@@ -130,14 +130,39 @@ class ReadRecords():
 			.size()\
 			.reset_index()\
 			.rename(columns={0:'depth'})\
-				[['chr', 'start', 'end', 'depth', 'strand', 'annotation']]
+			[['chr', 'start', 'end', 'depth', 'strand', 'annotation']]
 
 			if output:
 				if os.path.exists(output):
 					raise FileExistsError(f'{output} already exists -- cannot overwrite')
 				else:
 					df.to_csv(output, sep='\t', index=False, header=False)
-			
+				if barcode_qc:
+					annote_tally_df = df\
+						.groupby(['annotation'])\
+						.size()\
+						.reset_index()\
+						.rename(columns={0: 'tally'})\
+						[['annotation', 'tally']]
+					annote_tally_df\
+						.to_csv(
+							output.replace('.qbed', '_srt_tally.tsv'),
+							sep='\t',index=False)
+					multi_bc_sites = df\
+						.groupby(['chr', 'start', 'end', 'strand'])\
+						.size()\
+						.reset_index()\
+						.rename(columns={0: 'barcode_count_by_site'})\
+						.groupby(['barcode_count_by_site'])\
+						.size()\
+						.reset_index()\
+						.rename(columns={0: 'tally'})\
+						[['barcode_count_by_site','tally']]
+					multi_bc_sites\
+						.to_csv(
+							output.replace('.qbed', '_multi_srt_tally.tsv'),
+							sep='\t', index=False)
+
 			return df
 	
 	def summarize_qc(self, output: str = "") -> None:

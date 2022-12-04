@@ -100,6 +100,13 @@ def parse_args()->Callable[[list],Namespace]:
 		default = True,
 		type=bool,
 		required=False)
+	parse_bam_output.add_argument(
+		"-t",
+		"--tally",
+		help="tally srt and multi srt sites. this creates two additional qc summaries",
+		default = True,
+		type=bool,
+		required=False)
 	
 	parse_bam_settings = parse_bam_parser.add_argument_group('settings')
 	parse_bam_settings.add_argument(
