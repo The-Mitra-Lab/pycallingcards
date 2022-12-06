@@ -1,4 +1,3 @@
-from cmath import nan
 import numpy as np
 import pandas as pd
 import tqdm
@@ -6,13 +5,13 @@ from numba import jit
 from typing import Union, Optional, List, Sequence, Iterable, Mapping, Literal, Tuple
 
 
-_Peakcalling_Method = Optional[Literal["test","MACS2","Blockify"]]
-_reference = Optional[Literal["hg38","mm10","yeast"]]
-_PeaktestMethod = Optional[Literal["poisson","binomial"]]
+_Peakcalling_Method = Optional[Literal["CCcaller","ccf_tools","Blockify"]]
+_reference = Optional[Literal["hg38","mm10","sacCer3"]]
+_PeakCCcallerMethod = Optional[Literal["poisson","binomial"]]
 
 @jit(nopython=True)
-def _findinsertionslen2(Chrom, start, end, length = 3, startpoint = 0,totallength = 10000000):
-    # function to calculate the number of hops in the spcific area of chromosomes
+def _findinsertionslen2(Chrom, start, end, length = 3, startpoint = 0,totallength = 100000000):
+    # function to calculate the number of insertions in the spcific area of chromosomes
     
     count = 0
     initial = startpoint
@@ -31,25 +30,25 @@ def _findinsertionslen2(Chrom, start, end, length = 3, startpoint = 0,totallengt
 
 def _findinsertionslen(Chrom, start, end, length = 3):
     
-    # function to calculate the number of hops in the spcific area of chromosomes
+    # function to calculate the number of insertions in the spcific area of chromosomes
     return len(Chrom[(Chrom >= max(start-length,0)) & (Chrom <= end )])
 
 def _findinsertions(Chrom, start, end, length = 3):
 
-    # function returns of hops in the spcific area of chromosomes
+    # function returns of insertions in the spcific area of chromosomes
     return Chrom[(Chrom >= max(start-length,0)) & (Chrom <= end)]
 
-def _compute_cumulative_poisson(exp_hops_region,bg_hops_region,total_exp_hops,total_bg_hops,pseudocounts):
+def _compute_cumulative_poisson(exp_insertions_region,bg_insertions_region,total_exp_insertions,total_bg_insertions,pseudocounts):
     
     from scipy.stats import poisson
     
     # Calculating the probability under the hypothesis of possion distribution
-    if total_bg_hops >= total_exp_hops:
-        return(1-poisson.cdf((exp_hops_region+pseudocounts),bg_hops_region * (float(total_exp_hops)/float(total_bg_hops)) + pseudocounts))
+    if total_bg_insertions >= total_exp_insertions:
+        return(1-poisson.cdf((exp_insertions_region+pseudocounts),bg_insertions_region * (float(total_exp_insertions)/float(total_bg_insertions)) + pseudocounts))
     else:
-        return(1-poisson.cdf(((exp_hops_region *(float(total_bg_hops)/float(total_exp_hops)) )+pseudocounts),bg_hops_region + pseudocounts))
+        return(1-poisson.cdf(((exp_insertions_region *(float(total_bg_insertions)/float(total_exp_insertions)) )+pseudocounts),bg_insertions_region + pseudocounts))
 
-def _testCompare_bf2(
+def _CCcallerCompare_bf2(
     bound: list, 
     curChromnp: np.ndarray, 
     curframe: np.ndarray, 
@@ -59,15 +58,15 @@ def _testCompare_bf2(
     pseudocounts: float = 0.2, 
     pvalue_cutoff: float  = 0.00001, 
     chrom: str = None, 
-    test_method: _PeaktestMethod = "poisson", 
+    test_method: _PeakCCcallerMethod = "poisson", 
     record: bool = True) -> list:
     
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":  
-        from scipy.stats import binomtest
+        from scipy.stats import binomCCcaller
         
-    # test whether the potiential peaks are true peaks by comparing to other data
+    # CCcaller whether the potiential peaks are true peaks by comparing to other data
     
     startpointTTAA = 0
     
@@ -81,7 +80,7 @@ def _testCompare_bf2(
     
     for i in range(len(bound)):
         
-        # calculate the total number of hops in total
+        # calculate the total number of insertions in total
         TTAAnum, startpointTTAA = _findinsertionslen2(curframe, bound[i][0], bound[i][1], length, startpointTTAA ,totallengthcurframe) 
         boundnum = bound[i][2]
         
@@ -93,7 +92,7 @@ def _testCompare_bf2(
             if test_method == "poisson":
                 pvalue = 1-poisson.cdf(boundnum , lam)
             elif test_method == "binomial":
-                pvalue = binomtest(int(boundnum+pseudocounts), n=totallengthcurChromnp, 
+                pvalue = binomCCcaller(int(boundnum+pseudocounts), n=totallengthcurChromnp, 
                                    p=((TTAAnum+pseudocounts)/totallengthcurframe) , alternative='greater').pvalue
                 
         else:
@@ -112,7 +111,7 @@ def _testCompare_bf2(
             if test_method == "poisson":  
                 pvalue = 1-poisson.cdf(boundnum , lam)
             elif test_method == "binomial":
-                pvalue = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
+                pvalue = binomCCcaller(int(boundnum+pseudocounts), n=boundnumlam, 
                                    p=((TTAAnum+pseudocounts)/TTAAnumlam) , alternative='greater').pvalue
         
         if pvalue < pvalue_cutoff:
@@ -123,7 +122,7 @@ def _testCompare_bf2(
                 
     return boundnew
 
-def _testCompare2(
+def _CCcallerCompare2(
     bound: list, 
     curChromnp : np.ndarray,
     curbgframe: np.ndarray,
@@ -135,15 +134,15 @@ def _testCompare2(
     pvalue_cutoffbg: float, 
     pvalue_cutoffTTAA: float, 
     chrom: str, 
-    test_method: _PeaktestMethod, 
+    test_method: _PeakCCcallerMethod, 
     record: bool) -> list:
     
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":  
-        from scipy.stats import binomtest
+        from scipy.stats import binomCCcaller
     
-    # test whether the potiential peaks are true peaks by comparing to other data
+    # CCcaller whether the potiential peaks are true peaks by comparing to other data
     
     startbg = 0
     startTTAA = 0
@@ -173,7 +172,7 @@ def _testCompare2(
             lamTTAA = TTAAnum * scaleFactorTTAA +pseudocounts
             
             scaleFactorbg = totalcurChrom/totalcurbackground
-            lambg = TTAAnum * scaleFactorbg +pseudocounts
+            lambg = bgnum* scaleFactorbg +pseudocounts
             
             if test_method == "poisson":
                 
@@ -182,9 +181,9 @@ def _testCompare2(
                 
             elif test_method == "binomial":
                 
-                pvalueTTAA = binomtest(int(boundnum+pseudocounts), n=totalcurChrom, 
+                pvalueTTAA = binomCCcaller(int(boundnum+pseudocounts), n=totalcurChrom, 
                                    p=((TTAAnum+pseudocounts)/totalcurTTAA ) , alternative='greater').pvalue
-                pvaluebg = binomtest(int(boundnum+pseudocounts), n=totalcurChrom, 
+                pvaluebg = binomCCcaller(int(boundnum+pseudocounts), n=totalcurChrom, 
                                    p=((bgnum+pseudocounts)/totalcurbackground) , alternative='greater').pvalue
             
         else:
@@ -216,14 +215,14 @@ def _testCompare2(
             elif test_method == "binomial":
                 
 
-                pvalueTTAA = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
+                pvalueTTAA = binomCCcaller(int(boundnum+pseudocounts), n=boundnumlam, 
                                    p=((TTAAnum+pseudocounts)/TTAAnumlam ) , alternative='greater').pvalue
 
 
                 if bgnumlam == 0:
                     pvaluebg = 0
                 else:
-                    pvaluebg = binomtest(int(boundnum+pseudocounts), n=boundnumlam, 
+                    pvaluebg = binomCCcaller(int(boundnum+pseudocounts), n=boundnumlam, 
                                    p=((bgnum+pseudocounts)/bgnumlam) , alternative='greater').pvalue
    
         
@@ -236,7 +235,7 @@ def _testCompare2(
                 
     return boundnew
 
-def _test_bf2(
+def _CCcaller_bf2(
     expdata: pd.DataFrame, 
     TTAAframe: pd.DataFrame, 
     length: int, 
@@ -247,7 +246,7 @@ def _test_bf2(
     maxbetween: int = 2800,  
     lam_win_size: Optional[int] =None,  
     pseudocounts: float = 0.2, 
-    test_method: _PeaktestMethod = "poisson", 
+    test_method: _PeakCCcallerMethod = "poisson", 
     record: bool = False) -> pd.DataFrame:
     
 
@@ -312,18 +311,18 @@ def _test_bf2(
                     insertionbound = 0
 
         
-        boundnew = _testCompare_bf2(bound, curChromnp, curTTAAframe, length, lam_win_size,  boundnew,  pseudocounts, 
+        boundnew = _CCcallerCompare_bf2(bound, curChromnp, curTTAAframe, length, lam_win_size,  boundnew,  pseudocounts, 
                                   pvalue_cutoff, chrom,  test_method = test_method,record = record)
 
         
     if record:
-        return pd.DataFrame(boundnew, columns=["Chr","Start", "End", "Experiment Hops", "Reference Hops", "Expected Hops", "pvalue"])
+        return pd.DataFrame(boundnew, columns=["Chr","Start", "End", "Experiment Insertions", "Reference Insertions", "Expected Insertions", "pvalue"])
 
     else:
         #print(boundnew)
         return pd.DataFrame(boundnew, columns=["Chr","Start", "End"])
     
-def _test2(
+def _CCcaller2(
     expdata: pd.DataFrame, 
     backgroundframe: pd.DataFrame, 
     TTAAframe: pd.DataFrame, 
@@ -336,7 +335,7 @@ def _test2(
     maxbetween: int = 2800,  
     lam_win_size: Optional[int] =None,  
     pseudocounts: float = 0.2, 
-    test_method:  _PeaktestMethod = "poisson", 
+    test_method:  _PeakCCcallerMethod = "poisson", 
     record: bool = False)-> pd.DataFrame:
 
     # The chromosomes we need to consider
@@ -407,12 +406,12 @@ def _test2(
                     insertionbound = 0
 
                                
-        boundnew = _testCompare2(bound, curChromnp, curbackgroundframe, curTTAAframe, length, lam_win_size, boundnew, pseudocounts, pvalue_cutoffbg, pvalue_cutoffTTAA, chrom, test_method , record)
+        boundnew = _CCcallerCompare2(bound, curChromnp, curbackgroundframe, curTTAAframe, length, lam_win_size, boundnew, pseudocounts, pvalue_cutoffbg, pvalue_cutoffTTAA, chrom, test_method , record)
  
         
     if record:
-        return pd.DataFrame(boundnew, columns=["Chr","Start", "End", "Experiment Hops", 
-                                                   "Background Hops", "Reference Hops", "Expected Hops background", "Expected Hops Reference", 
+        return pd.DataFrame(boundnew, columns=["Chr","Start", "End", "Experiment Insertions", 
+                                                   "Background insertions", "Reference Insertions", "Expected Insertions background", "Expected Insertions Reference", 
                                                        "pvalue Background", "pvalue Reference"])
 
     else:
@@ -428,14 +427,14 @@ def _BlockifyCompare(
     pseudocounts: float, 
     pvalue_cutoff: float, 
     chrom: str, 
-    test_method:  _PeaktestMethod = "poisson", 
+    test_method:  _PeakCCcallerMethod = "poisson", 
     record: bool = True) -> list:
-# test whether the potiential peaks are true peaks by comparing to TTAAs
+# CCcaller whether the potiential peaks are true peaks by comparing to TTAAs
 
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":  
-        from scipy.stats import binomtest
+        from scipy.stats import binomCCcaller
     
     last = -1
     Chrnumtotal = 0
@@ -449,7 +448,7 @@ def _BlockifyCompare(
             pValue = 1-poisson.cdf(boundnum - 1, TTAAnum * scaleFactor+pseudocounts)
             
         elif test_method == "binomial":
-            pValue = binomtest(int(boundnum+pseudocounts), n=len(curChrom), 
+            pValue = binomCCcaller(int(boundnum+pseudocounts), n=len(curChrom), 
                                p=((TTAAnum+pseudocounts)/len(curframe) ) , alternative='greater').pvalue
         
 
@@ -467,7 +466,7 @@ def _BlockifyCompare(
                     pvalue = 1-poisson.cdf(Chrnumtotal - 1, TTAAnumtotal * scaleFactor+pseudocounts)
 
                 elif test_method == "binomial":
-                    pvalue = binomtest(int(Chrnumtotal+pseudocounts), n=len(curChrom), 
+                    pvalue = binomCCcaller(int(Chrnumtotal+pseudocounts), n=len(curChrom), 
                                        p=((TTAAnumtotal+pseudocounts)/len(curframe) ) , alternative='greater').pvalue
                     
                 boundnew.append([chrom, bound[last][0], bound[i-1][1], Chrnumtotal, TTAAnumtotal, TTAAnumtotal*scaleFactor+pseudocounts, pvalue])
@@ -487,7 +486,7 @@ def _BlockifyCompare(
                 pvalue = 1-poisson.cdf(Chrnumtotal - 1, TTAAnumtotal * scaleFactor+pseudocounts)
 
             elif test_method == "binomial":
-                pvalue = binomtest(int(Chrnumtotal+pseudocounts), n=len(curChrom), 
+                pvalue = binomCCcaller(int(Chrnumtotal+pseudocounts), n=len(curChrom), 
                                    p=((TTAAnumtotal+pseudocounts)/len(curframe) ) , alternative='greater').pvalue
 
             boundnew.append([chrom, bound[last][0], bound[i-1][1], Chrnumtotal, TTAAnumtotal, TTAAnumtotal*scaleFactor+pseudocounts, pvalue])
@@ -502,7 +501,7 @@ def _Blockify(
     length: int, 
     pvalue_cutoff: float = 0.0001, 
     pseudocounts: float = 0.2, 
-    test_method:  _PeaktestMethod = "poisson", 
+    test_method:  _PeakCCcallerMethod = "poisson", 
     record: bool = True) -> pd.DataFrame:
     
     # The chromosomes we need to consider
@@ -547,12 +546,12 @@ def _Blockify(
 
         
     if record:
-        return pd.DataFrame(boundnew, columns=["Chr","Start", "End", "Experiment Hops", "Reference Hops", "Expected Hops", "pvalue"])
+        return pd.DataFrame(boundnew, columns=["Chr","Start", "End", "Experiment Insertions", "Reference Insertions", "Expected Insertions", "pvalue"])
 
     else:
         return pd.DataFrame(boundnew, columns=["Chr","Start", "End"]) 
     
-def _callpeaksMACS2(
+def _callpeaksccf_tools(
     expdata: pd.DataFrame, 
     background: pd.DataFrame,  
     TTAAframe: pd.DataFrame, 
@@ -564,7 +563,7 @@ def _callpeaksMACS2(
     pvalue_cutoff: float = 0.01,
     record: bool = False) -> pd.DataFrame:
     
-    # function for MACS2 with background 
+    # function for ccf_tools with background 
     from scipy.stats import poisson
     
     # The chromosomes we need to consider
@@ -578,8 +577,8 @@ def _callpeaksMACS2(
     
     if record:
         center_list = []
-        num_exp_hops_list = []
-        num_bg_hops_list = []
+        num_exp_insertions_list = []
+        num_bg_insertions_list = []
         frac_exp_list = []
         tph_exp_list = []
         frac_bg_list = []
@@ -587,11 +586,11 @@ def _callpeaksMACS2(
         tph_bgs_list = []
         lambda_type_list =[]
         lambda_list = []
-        lambda_hop_list = []
+        lambda_insertion_list = []
         
         
-    total_experiment_hops = len(expdata)
-    total_background_hops = len(background)
+    total_experiment_insertions = len(expdata)
+    total_background_insertions = len(background)
     
 
     for chrom in tqdm.tqdm(chrm):
@@ -617,10 +616,10 @@ def _callpeaksMACS2(
         
         for window_start in range(0,int(max_pos+window_size),int(step_size)):
 
-            num_exp_hops = _findinsertionslen(curChromnp, window_start, window_start+window_size - 1, length)
-            if num_exp_hops > 1:
-                num_bg_hops = _findinsertionslen(curbackgroundframe, window_start, window_start+window_size - 1, length)
-                p = _compute_cumulative_poisson(num_exp_hops,num_bg_hops,total_experiment_hops,total_background_hops,pseudocounts)
+            num_exp_insertions = _findinsertionslen(curChromnp, window_start, window_start+window_size - 1, length)
+            if num_exp_insertions > 1:
+                num_bg_insertions = _findinsertionslen(curbackgroundframe, window_start, window_start+window_size - 1, length)
+                p = _compute_cumulative_poisson(num_exp_insertions,num_bg_insertions,total_experiment_insertions,total_background_insertions,pseudocounts)
             else:
                 p = 1
                 
@@ -651,47 +650,47 @@ def _callpeaksMACS2(
                     overlap = _findinsertions(curChromnp, sig_start, sig_end, length)
                     peak_center = np.median(overlap)
 
-                    #add number of experiment hops in peak to frame
-                    num_exp_hops = len(overlap)
+                    #add number of Experiment Insertions in peak to frame
+                    num_exp_insertions = len(overlap)
 
-                    #add number of background hops in peak to frame
-                    num_bg_hops = _findinsertionslen(curbackgroundframe, sig_start, sig_end, length)
+                    #add number of background insertions in peak to frame
+                    num_bg_insertions = _findinsertionslen(curbackgroundframe, sig_start, sig_end, length)
                     
                   
                     if record:
                         center_list.append(peak_center) #add peak center to frame
-                        num_exp_hops_list.append(num_exp_hops)
-                        #add fraction of experiment hops in peak to frame
-                        frac_exp_list.append(float(num_exp_hops)/total_experiment_hops)
-                        tph_exp_list.append(float(num_exp_hops)*100000/total_experiment_hops)
-                        num_bg_hops_list.append(num_bg_hops)
-                        frac_bg_list.append(float(num_bg_hops)/total_background_hops)
-                        tph_bg_list.append(float(num_bg_hops)*100000/total_background_hops)
+                        num_exp_insertions_list.append(num_exp_insertions)
+                        #add fraction of Experiment Insertions in peak to frame
+                        frac_exp_list.append(float(num_exp_insertions)/total_experiment_insertions)
+                        tph_exp_list.append(float(num_exp_insertions)*100000/total_experiment_insertions)
+                        num_bg_insertions_list.append(num_bg_insertions)
+                        frac_bg_list.append(float(num_bg_insertions)/total_background_insertions)
+                        tph_bg_list.append(float(num_bg_insertions)*100000/total_background_insertions)
                         
 
                     #find lambda and compute significance of peak
-                    if total_background_hops >= total_experiment_hops: #scale bg hops down
+                    if total_background_insertions >= total_experiment_insertions: #scale bg insertions down
                         #compute lambda bg
                         num_TTAAs = _findinsertionslen(curTTAAframe, sig_start, sig_end, length)
-                        lambda_bg = ((num_bg_hops*(float(total_experiment_hops)/total_background_hops))/max(num_TTAAs,1)) 
+                        lambda_bg = ((num_bg_insertions*(float(total_experiment_insertions)/total_background_insertions))/max(num_TTAAs,1)) 
 
 
                         #compute lambda 1k
-                        num_bg_hops_1k = _findinsertionslen(curbackgroundframe, peak_center-499, peak_center+500, length)
+                        num_bg_insertions_1k = _findinsertionslen(curbackgroundframe, peak_center-499, peak_center+500, length)
                         num_TTAAs_1k = _findinsertionslen(curTTAAframe, peak_center-499, peak_center+500, length)
-                        lambda_1k = (num_bg_hops_1k*(float(total_experiment_hops)/total_background_hops))/(max(num_TTAAs_1k,1))
+                        lambda_1k = (num_bg_insertions_1k*(float(total_experiment_insertions)/total_background_insertions))/(max(num_TTAAs_1k,1))
 
 
                         #compute lambda 5k
-                        num_bg_hops_5k = _findinsertionslen(curbackgroundframe, peak_center-2499, peak_center+2500, length)
+                        num_bg_insertions_5k = _findinsertionslen(curbackgroundframe, peak_center-2499, peak_center+2500, length)
                         num_TTAAs_5k = _findinsertionslen(curTTAAframe, peak_center-2499, peak_center+2500, length)
-                        lambda_5k = (num_bg_hops_5k*(float(total_experiment_hops)/total_background_hops))/(max(num_TTAAs_5k,1))
+                        lambda_5k = (num_bg_insertions_5k*(float(total_experiment_insertions)/total_background_insertions))/(max(num_TTAAs_5k,1))
 
 
                         #compute lambda 10k
-                        num_bg_hops_10k = _findinsertionslen(curbackgroundframe, peak_center-4999, peak_center+5000, length)
+                        num_bg_insertions_10k = _findinsertionslen(curbackgroundframe, peak_center-4999, peak_center+5000, length)
                         num_TTAAs_10k = _findinsertionslen(curTTAAframe, peak_center-4999, peak_center+5000, length)
-                        lambda_10k = (num_bg_hops_10k*(float(total_experiment_hops)/total_background_hops))/(max(num_TTAAs_10k,1))
+                        lambda_10k = (num_bg_insertions_10k*(float(total_experiment_insertions)/total_background_insertions))/(max(num_TTAAs_10k,1))
                         lambda_f = max([lambda_bg,lambda_1k,lambda_5k,lambda_10k])
 
 
@@ -702,47 +701,47 @@ def _callpeaksMACS2(
                         lambda_list.append(lambda_f)
                         #compute pvalue and record it
 
-                        pvalue = 1-poisson.cdf((num_exp_hops+pseudocounts),lambda_f*max(num_TTAAs,1)+pseudocounts)
+                        pvalue = 1-poisson.cdf((num_exp_insertions+pseudocounts),lambda_f*max(num_TTAAs,1)+pseudocounts)
                         pvalue_list.append(pvalue)
 
 
-                        tph_bgs = float(num_exp_hops)*100000/total_experiment_hops-float(num_bg_hops)*100000/total_background_hops
+                        tph_bgs = float(num_exp_insertions)*100000/total_experiment_insertions-float(num_bg_insertions)*100000/total_background_insertions
                         
                         if record:
                             lambda_type_list.append(list_of_l_names[index])
                             lambda_list.append(lambda_f)
                             tph_bgs_list.append(tph_bgs)
-                            lambda_hop_list.append(lambda_f*max(num_TTAAs,1))
+                            lambda_insertion_list.append(lambda_f*max(num_TTAAs,1))
 
 
                         index = [lambda_bg,lambda_1k,lambda_5k,lambda_10k].index(max([lambda_bg,lambda_1k,lambda_5k,lambda_10k]))
                         lambdatype = list_of_l_names[index]
                         #l = [pvalue,tph_bgs,lambda_f,lambdatype]
 
-                    else: #scale experiment hops down
+                    else: #scale Experiment Insertions down
                         
 
                         #compute lambda bg
                         num_TTAAs = _findinsertionslen(curTTAAframe, sig_start, sig_end, length)
-                        lambda_bg = (float(num_bg_hops)/max(num_TTAAs,1)) 
+                        lambda_bg = (float(num_bg_insertions)/max(num_TTAAs,1)) 
 
 
                         #compute lambda 1k
-                        num_bg_hops_1k = _findinsertionslen(curbackgroundframe, peak_center-499, peak_center+500, length)
+                        num_bg_insertions_1k = _findinsertionslen(curbackgroundframe, peak_center-499, peak_center+500, length)
                         num_TTAAs_1k = _findinsertionslen(curTTAAframe, peak_center-499, peak_center+500, length)
-                        lambda_1k = (float(num_bg_hops_1k)/(max(num_TTAAs_1k,1)))
+                        lambda_1k = (float(num_bg_insertions_1k)/(max(num_TTAAs_1k,1)))
 
 
                         #compute lambda 5k
-                        num_bg_hops_5k = _findinsertionslen(curbackgroundframe, peak_center-2499, peak_center+2500, length)
+                        num_bg_insertions_5k = _findinsertionslen(curbackgroundframe, peak_center-2499, peak_center+2500, length)
                         num_TTAAs_5k = _findinsertionslen(curTTAAframe, peak_center-2499, peak_center+2500, length)
-                        lambda_5k = (float(num_bg_hops_5k)/(max(num_TTAAs_5k,1)))
+                        lambda_5k = (float(num_bg_insertions_5k)/(max(num_TTAAs_5k,1)))
 
 
                         #compute lambda 10k
-                        num_bg_hops_10k = _findinsertionslen(curbackgroundframe, peak_center-4999, peak_center+5000, length)
+                        num_bg_insertions_10k = _findinsertionslen(curbackgroundframe, peak_center-4999, peak_center+5000, length)
                         num_TTAAs_10k = _findinsertionslen(curTTAAframe, peak_center-4999, peak_center+5000, length)
-                        lambda_10k = (float(num_bg_hops_10k)/(max(num_TTAAs_10k,1)))
+                        lambda_10k = (float(num_bg_insertions_10k)/(max(num_TTAAs_10k,1)))
                         lambda_f = max([lambda_bg,lambda_1k,lambda_5k,lambda_10k])
 
 
@@ -751,16 +750,16 @@ def _callpeaksMACS2(
                                                                                       lambda_1k,lambda_5k,lambda_10k]))
 
                         #compute pvalue and record it
-                        pvalue = 1-poisson.cdf(((float(total_background_hops)/total_experiment_hops)*num_exp_hops+ pseudocounts),lambda_f*max(num_TTAAs,1)+pseudocounts)
+                        pvalue = 1-poisson.cdf(((float(total_background_insertions)/total_experiment_insertions)*num_exp_insertions+ pseudocounts),lambda_f*max(num_TTAAs,1)+pseudocounts)
                         pvalue_list.append(pvalue)
 
-                        tph_bgs = float(num_exp_hops)*100000/total_experiment_hops -float(num_bg_hops)*100000/total_background_hops
+                        tph_bgs = float(num_exp_insertions)*100000/total_experiment_insertions -float(num_bg_insertions)*100000/total_background_insertions
 
                         if record:
                             lambda_type_list.append(list_of_l_names[index])
                             lambda_list.append(lambda_f)
                             tph_bgs_list.append(tph_bgs)
-                            lambda_hop_list.append(lambda_f*max(num_TTAAs,1))
+                            lambda_insertion_list.append(lambda_f*max(num_TTAAs,1))
 
 
                         index = [lambda_bg,lambda_1k,lambda_5k,lambda_10k].index(max([lambda_bg,
@@ -770,22 +769,22 @@ def _callpeaksMACS2(
                         
 
 
-                    #number of hops that are a user-defined distance from peak center
+                    #number of insertions that are a user-defined distance from peak center
                     sig_flag = 0
                         
 
     if record:
-        peaks_frame = pd.DataFrame(columns = ["Chr","Start","End","Center","Experiment Hops",
+        peaks_frame = pd.DataFrame(columns = ["Chr","Start","End","Center","Experiment Insertions",
                 "Fraction Experiment","TPH Experiment","Lambda Type",
                 "Lambda","Poisson pvalue"])
 
 
-        peaks_frame["Lambda Reference Hops"] = lambda_hop_list
+        peaks_frame["Lambda Reference Insertions"] = lambda_insertion_list
         peaks_frame["Center"] = center_list
-        peaks_frame["Experiment Hops"] = num_exp_hops_list 
+        peaks_frame["Experiment Insertions"] = num_exp_insertions_list 
         peaks_frame["Fraction Experiment"] = frac_exp_list 
         peaks_frame["TPH Experiment"] = tph_exp_list
-        peaks_frame["Reference Hops"] = num_bg_hops_list 
+        peaks_frame["Reference Insertions"] = num_bg_insertions_list 
         peaks_frame["Fraction background"] = frac_bg_list
         peaks_frame["TPH background"] = tph_bg_list
         peaks_frame["TPH background subtracted"] = tph_bgs_list
@@ -810,11 +809,11 @@ def _callpeaksMACS2(
     else:                    
         return peaks_frame[['Chr','Start','End']]
 
-def _callpeaksMACS2_bfnew2(
+def _callpeaksccf_tools_bfnew2(
     expdata: pd.DataFrame, 
     TTAAframe: pd.DataFrame, 
     length: int, 
-    min_hops: int = 3, 
+    min_insertions: int = 3, 
     extend: int = 200,
     window_size: int = 1000, 
     step_size: int = 500, 
@@ -822,14 +821,14 @@ def _callpeaksMACS2_bfnew2(
     pvalue_cutoff: float = 0.01,
     lam_win_size: Optional[int] = None,
     record: bool = False, 
-    test_method: _PeaktestMethod = "poisson",
+    test_method: _PeakCCcallerMethod = "poisson",
     multinumber = 100000000) -> pd.DataFrame:
     
     
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":  
-        from scipy.stats import binomtest
+        from scipy.stats import binomCCcaller
     
         
     # The chromosomes we need to consider
@@ -844,13 +843,13 @@ def _callpeaksMACS2_bfnew2(
     
     if record:
         center_list = []
-        num_exp_hops_list = []
+        num_exp_insertions_list = []
         frac_exp_list = []
         tph_exp_list = []
-        background_hops = []
-        expect_hops = []
+        background_insertions = []
+        expect_insertions = []
         
-    total_experiment_hops = len(expdata)
+    total_experiment_insertions = len(expdata)
     
     
     for chrom in tqdm.tqdm(chrm):
@@ -876,7 +875,7 @@ def _callpeaksMACS2_bfnew2(
         totalcurChrom = len(curChromnp)
         
         
-        starthops1 = 0
+        startinsertions1 = 0
         startTTAA1 = 0
       
 
@@ -884,27 +883,27 @@ def _callpeaksMACS2_bfnew2(
         
         if lam_win_size != None:
             
-            starthopslam1 = 0
+            startinsertionslam1 = 0
             startTTAAlam1 = 0
 
-            starthopslam2 = 0
+            startinsertionslam2 = 0
             startTTAAlam2 = 0
             
         if totalcurTTAA != 0:
 
             # caluclate the ratio for TTAA and background 
             if lam_win_size == None:
-                lambdacur = (totalcurChrom/totalcurTTAA) #expected ratio of hops per TTAA
+                lambdacur = (totalcurChrom/totalcurTTAA) #expected ratio of insertions per TTAA
 
             for window_start in range(curChrom[0],int(max_pos+2*window_size),step_size):
 
                 if sig_end >= window_start:
                     continue 
 
-                num_exp_hops, starthops1 = _findinsertionslen2(curChromnp, window_start, window_start+window_size - 1, 
-                                                              length, starthops1, totalcurChrom)
+                num_exp_insertions, startinsertions1 = _findinsertionslen2(curChromnp, window_start, window_start+window_size - 1, 
+                                                              length, startinsertions1, totalcurChrom)
                 
-                if num_exp_hops >= min_hops:
+                if num_exp_insertions >= min_insertions:
                     
                     num_TTAAs_window, startTTAA1 = _findinsertionslen2(curTTAAframe, window_start, window_start+window_size - 1, 
                                                                      length, startTTAA1, totalcurTTAA)
@@ -913,38 +912,38 @@ def _callpeaksMACS2_bfnew2(
                     if test_method == "poisson":
                         
                         if lam_win_size == None:
-                            pvalue = 1-poisson.cdf((num_exp_hops+pseudocounts),lambdacur*max(num_TTAAs_window,1)+pseudocounts)
+                            pvalue = 1-poisson.cdf((num_exp_insertions+pseudocounts),lambdacur*max(num_TTAAs_window,1)+pseudocounts)
                         else:
-                            num_TTAA_hops_lambda, startTTAAlam1 = _findinsertionslen2(curTTAAframe , 
+                            num_TTAA_insertions_lambda, startTTAAlam1 = _findinsertionslen2(curTTAAframe , 
                                                                                      window_start - int(lam_win_size/2) +1, 
                                                                                      window_start+window_size + int(lam_win_size/2) - 1, 
                                                                                      length, startTTAAlam1, totalcurTTAA)
                            
-                            num_exp_hops_lambda, starthopslam1 = _findinsertionslen2(curChromnp , 
+                            num_exp_insertions_lambda, startinsertionslam1 = _findinsertionslen2(curChromnp , 
                                                                                     window_start - int(lam_win_size/2) +1, 
                                                                                      window_start+window_size + int(lam_win_size/2) - 1, 
-                                                                                    length, starthopslam1, totalcurChrom)
+                                                                                    length, startinsertionslam1, totalcurChrom)
                     
                             
-                            pvalue = 1-poisson.cdf((num_exp_hops+pseudocounts),
-                                         float(num_exp_hops_lambda/num_TTAA_hops_lambda)*max(num_TTAAs_window,1)+pseudocounts)
+                            pvalue = 1-poisson.cdf((num_exp_insertions+pseudocounts),
+                                         float(num_exp_insertions_lambda/num_TTAA_insertions_lambda)*max(num_TTAAs_window,1)+pseudocounts)
                             
                     elif test_method == "binomial":
                         
                         if lam_win_size == None:
-                            pvalue = binomtest(int(num_exp_hops+pseudocounts), n=totalcurChrom, 
+                            pvalue = binomCCcaller(int(num_exp_insertions+pseudocounts), n=totalcurChrom, 
                                            p=((num_TTAAs_window+pseudocounts)/totalcurTTAA) , alternative='greater').pvalue
                         else:
-                            num_TTAA_hops_lambda, startTTAAlam1 = _findinsertionslen2(curTTAAframe , 
+                            num_TTAA_insertions_lambda, startTTAAlam1 = _findinsertionslen2(curTTAAframe , 
                                                                                      window_start - int(lam_win_size/2) +1, 
                                                                                      window_start+window_size + int(lam_win_size/2) - 1, 
                                                                                      length, startTTAAlam1, totalcurTTAA)
-                            num_exp_hops_lambda, starthopslam1 = _findinsertionslen2(curChromnp , 
+                            num_exp_insertions_lambda, startinsertionslam1 = _findinsertionslen2(curChromnp , 
                                                                                     window_start - int(lam_win_size/2) +1, 
                                                                                      window_start+window_size + int(lam_win_size/2) - 1, 
-                                                                                    length, starthopslam1, totalcurChrom)
-                            pvalue = binomtest(int(num_exp_hops+pseudocounts), n=num_exp_hops_lambda, 
-                                           p=((num_TTAAs_window+pseudocounts)/num_TTAA_hops_lambda) , alternative='greater').pvalue
+                                                                                    length, startinsertionslam1, totalcurChrom)
+                            pvalue = binomCCcaller(int(num_exp_insertions+pseudocounts), n=num_exp_insertions_lambda, 
+                                           p=((num_TTAAs_window+pseudocounts)/num_TTAA_insertions_lambda) , alternative='greater').pvalue
 
                 else:
                     pvalue = 1
@@ -978,7 +977,7 @@ def _callpeaksMACS2_bfnew2(
                         sig_start = overlap.min() - extend
                         sig_end = overlap.max() + length + extend
                         overlap = _findinsertions(curChromnp, sig_start, sig_end, length)
-                        num_exp_hops = len(overlap)
+                        num_exp_insertions = len(overlap)
                 
 
                         num_TTAAs_window, startTTAA2 = _findinsertionslen2(curTTAAframe, sig_start, sig_end, length, 
@@ -992,11 +991,11 @@ def _callpeaksMACS2_bfnew2(
                         if test_method == "poisson":
                             
                             if lam_win_size == None:
-                                pvalue_list.append(1-poisson.cdf((num_exp_hops+pseudocounts),lambdacur*max(num_TTAAs_window,1)+pseudocounts))
+                                pvalue_list.append(1-poisson.cdf((num_exp_insertions+pseudocounts),lambdacur*max(num_TTAAs_window,1)+pseudocounts))
                             else:
-                                num_exp_hops_lam_win_size, starthopslam2  = _findinsertionslen2(curChromnp, peak_center-(lam_win_size/2-1), 
+                                num_exp_insertions_lam_win_size, startinsertionslam2  = _findinsertionslen2(curChromnp, peak_center-(lam_win_size/2-1), 
                                                                               peak_center+(lam_win_size/2), length, 
-                                                                                starthopslam2 ,totalcurChrom)
+                                                                                startinsertionslam2 ,totalcurChrom)
                          
                                 
                                 num_TTAAs_lam_win_size , startTTAAlam2= _findinsertionslen2(curTTAAframe, peak_center-(lam_win_size/2-1), 
@@ -1004,25 +1003,25 @@ def _callpeaksMACS2_bfnew2(
                                                                             totalcurTTAA)
                                 
                            
-                                lambda_lam_win_size = float(num_exp_hops_lam_win_size)/(max(num_TTAAs_lam_win_size,1))
-                                pvalue_list.append(1-poisson.cdf((num_exp_hops+pseudocounts), lambda_lam_win_size*max(num_TTAAs_window,1)+pseudocounts))
+                                lambda_lam_win_size = float(num_exp_insertions_lam_win_size)/(max(num_TTAAs_lam_win_size,1))
+                                pvalue_list.append(1-poisson.cdf((num_exp_insertions+pseudocounts), lambda_lam_win_size*max(num_TTAAs_window,1)+pseudocounts))
                             
                         elif test_method == "binomial":
                             
                             if lam_win_size == None:
-                                pvalue_list.append(binomtest(int(num_exp_hops+pseudocounts), n=totalcurChrom, 
+                                pvalue_list.append(binomCCcaller(int(num_exp_insertions+pseudocounts), n=totalcurChrom, 
                                                p=((num_TTAAs_window+pseudocounts)/totalcurTTAA) , alternative='greater').pvalue)
                             else:
-                                num_exp_hops_lam_win_size, starthopslam2  = _findinsertionslen2(curChromnp, peak_center-(lam_win_size/2-1), 
+                                num_exp_insertions_lam_win_size, startinsertionslam2  = _findinsertionslen2(curChromnp, peak_center-(lam_win_size/2-1), 
                                                                               peak_center+(lam_win_size/2), length, 
-                                                                                starthopslam2 ,totalcurChrom)
+                                                                                startinsertionslam2 ,totalcurChrom)
                             
                                 
                             
                                 num_TTAAs_lam_win_size , startTTAAlam2= _findinsertionslen2(curTTAAframe, peak_center-(lam_win_size/2-1), 
                                                                            peak_center+(lam_win_size/2), length, startTTAAlam2,
                                                                             totalcurTTAA)
-                                pvalue_list.append(binomtest(int(num_exp_hops+pseudocounts), n=num_exp_hops_lam_win_size, 
+                                pvalue_list.append(binomCCcaller(int(num_exp_insertions+pseudocounts), n=num_exp_insertions_lam_win_size, 
                                                p=((num_TTAAs_window+pseudocounts)/num_TTAAs_lam_win_size) , alternative='greater').pvalue)
 
                         chr_list.append(chrom) #add chr to frame
@@ -1033,32 +1032,32 @@ def _callpeaksMACS2_bfnew2(
                         if record:
 
                             center_list.append(peak_center) #add peak center to frame
-                            num_exp_hops_list.append(num_exp_hops)
+                            num_exp_insertions_list.append(num_exp_insertions)
 
-                            #add fraction of experiment hops in peak to frame
-                            frac_exp_list.append(float(num_exp_hops)/total_experiment_hops)
-                            tph_exp_list.append(float(num_exp_hops)*multinumber/total_experiment_hops)
+                            #add fraction of Experiment Insertions in peak to frame
+                            frac_exp_list.append(float(num_exp_insertions)/total_experiment_insertions)
+                            tph_exp_list.append(float(num_exp_insertions)*multinumber/total_experiment_insertions)
                       
-                            background_hops.append(num_TTAAs_window)
+                            background_insertions.append(num_TTAAs_window)
                         
                             if lam_win_size == None:
-                                expect_hops.append(lambdacur*max(num_TTAAs_window,1)+pseudocounts)
+                                expect_insertions.append(lambdacur*max(num_TTAAs_window,1)+pseudocounts)
                             else:
-                                expect_hops.append(float(num_exp_hops_lam_win_size)/(max(num_TTAAs_lam_win_size,1))*max(num_TTAAs_window,1)+pseudocounts)
+                                expect_insertions.append(float(num_exp_insertions_lam_win_size)/(max(num_TTAAs_lam_win_size,1))*max(num_TTAAs_window,1)+pseudocounts)
 
                         sig_flag = 0
 
 
         if record:
-            peaks_frame = pd.DataFrame(columns = ["Chr","Start","End","Center","pvalue","Experiment Hops","Reference Hops",
+            peaks_frame = pd.DataFrame(columns = ["Chr","Start","End","Center","pvalue","Experiment Insertions","Reference Insertions",
                     "Fraction Experiment","TPH Experiment"])
 
             peaks_frame["Center"] = center_list
-            peaks_frame["Experiment Hops"] = num_exp_hops_list 
+            peaks_frame["Experiment Insertions"] = num_exp_insertions_list 
             peaks_frame["Fraction Experiment"] = frac_exp_list 
             peaks_frame["TPH Experiment"] = tph_exp_list
-            peaks_frame["Reference Hops"] = background_hops
-            peaks_frame["Expect Hops"] = expect_hops
+            peaks_frame["Reference Insertions"] = background_insertions
+            peaks_frame["Expect insertions"] = expect_insertions
 
         else:
             peaks_frame = pd.DataFrame(columns = ["Chr","Start","End","pvalue"])
@@ -1075,7 +1074,7 @@ def _callpeaksMACS2_bfnew2(
     else:                    
         return peaks_frame[['Chr','Start','End']]
 
-def _callpeaksMACS2new2(
+def _callpeaksccf_toolsnew2(
     expdata: pd.DataFrame, 
     background: pd.DataFrame,  
     TTAAframe: pd.DataFrame, 
@@ -1087,14 +1086,14 @@ def _callpeaksMACS2new2(
     window_size: int = 1000,
     step_size: int = 500,
     pseudocounts: float = 0.2,
-    test_method: _PeaktestMethod = "poisson",
-    min_hops: int = 3,
+    test_method: _PeakCCcallerMethod = "poisson",
+    min_insertions: int = 3,
     record: bool = False) -> pd.DataFrame:
     
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":  
-        from scipy.stats import binomtest
+        from scipy.stats import binomCCcaller
 
     multinumber = 100000000
     
@@ -1112,18 +1111,18 @@ def _callpeaksMACS2new2(
     if record:
         # create lists to record other information
         center_list = []
-        num_exp_hops_list = []
-        num_bg_hops_list = []
-        num_TTAA_hops_list = []
+        num_exp_insertions_list = []
+        num_bg_insertions_list = []
+        num_TTAA_insertions_list = []
         frac_exp_list = []
         tph_exp_list = []
         frac_bg_list = []
         tph_bg_list = []
         tph_bgs_list = []
         
-    # record total number of hops  
-    total_experiment_hops = len(expdata)
-    total_background_hops = len(background)
+    # record total number of insertions  
+    total_experiment_insertions = len(expdata)
+    total_background_insertions = len(background)
     
     # going from the first Chromosome to the last
     for chrom in tqdm.tqdm(chrm):
@@ -1154,14 +1153,14 @@ def _callpeaksMACS2new2(
         
         
         
-        # calculate the total number of hops
+        # calculate the total number of insertions
         totalcurChrom = len(curChromnp)
         
-        starthop1 = 0
+        startinsertion1 = 0
         startTTAA1 = 0
         startbg1 = 0
         
-        starthop2 = 0
+        startinsertion2 = 0
         startTTAA2 = 0
         startbg2 = 0
    
@@ -1169,53 +1168,53 @@ def _callpeaksMACS2new2(
         if lam_win_size == None:
         
         # caluclate the ratio for TTAA and background 
-            lambdacurTTAA = float(totalcurChrom/totalcurTTAA) #expected ratio of hops per TTAA
+            lambdacurTTAA = float(totalcurChrom/totalcurTTAA) #expected ratio of insertions per TTAA
             
         else:
             
             startTTAAlam1 = 0
             startbglam1 = 0
-            starthoplam = 0
+            startinsertionlam = 0
             
             startTTAAlam2 = 0
             startbglam2 = 0
-            starthoplam2 = 0
+            startinsertionlam2 = 0
 
         for window_start in range(curChromnp[0],int(max_pos+2*window_size),int(step_size)):
 
             if sig_end >= window_start:
                 continue 
 
-            num_exp_hops, starthop1 = _findinsertionslen2(curChromnp, window_start, window_start+window_size - 1, 
-                                                        length, starthop1, totalcurChrom)
+            num_exp_insertions, startinsertion1 = _findinsertionslen2(curChromnp, window_start, window_start+window_size - 1, 
+                                                        length, startinsertion1, totalcurChrom)
             
 
-            if num_exp_hops >= min_hops :
+            if num_exp_insertions >= min_insertions :
 
-                # find out the number of hops in the current window for backgound 
-                num_bg_hops, startbg1 = _findinsertionslen2(curbackgroundframe, window_start, 
+                # find out the number of insertions in the current window for backgound 
+                num_bg_insertions, startbg1 = _findinsertionslen2(curbackgroundframe, window_start, 
                                                            window_start+window_size - 1,length,
                                                            startbg1, totalcurbackground)
 
 
-                if num_bg_hops >0 :
+                if num_bg_insertions >0 :
 
                     if lam_win_size == None:
 
                         if test_method == "poisson":
-                            pvaluebg = _compute_cumulative_poisson(num_exp_hops,
-                                                                  num_bg_hops,totalcurChrom,
+                            pvaluebg = _compute_cumulative_poisson(num_exp_insertions,
+                                                                  num_bg_insertions,totalcurChrom,
                                                                   totalcurbackground,pseudocounts)
                         elif test_method == "binomial":
-                            pvaluebg = binomtest(int(num_exp_hops+pseudocounts), n=totalcurChrom, 
-                                               p=((num_bg_hops+pseudocounts)/totalcurbackground) , 
+                            pvaluebg = binomCCcaller(int(num_exp_insertions+pseudocounts), n=totalcurChrom, 
+                                               p=((num_bg_insertions+pseudocounts)/totalcurbackground) , 
                                                  alternative='greater').pvalue
                     else:
 
-                        num_exp_hops_lam, starthoplam =_findinsertionslen2(curChromnp, 
+                        num_exp_insertions_lam, startinsertionlam =_findinsertionslen2(curChromnp, 
                                                                 window_start - int(lam_win_size/2) +1,
                                                                     window_start+window_size + int(lam_win_size/2) - 1, 
-                                                                           length,starthoplam, totalcurChrom)
+                                                                           length,startinsertionlam, totalcurChrom)
                         
                         num_exp_bg_lam, startbglam1 = _findinsertionslen2(curbackgroundframe, 
                                                              window_start - int(lam_win_size/2) +1,
@@ -1223,21 +1222,21 @@ def _callpeaksMACS2new2(
                                                              length,startbglam1, totalcurbackground)
 
                         if test_method == "poisson":
-                            pvaluebg = _compute_cumulative_poisson(num_exp_hops,
-                                                                  num_bg_hops,num_exp_hops_lam,
+                            pvaluebg = _compute_cumulative_poisson(num_exp_insertions,
+                                                                  num_bg_insertions,num_exp_insertions_lam,
                                                                   num_exp_bg_lam,pseudocounts)
                         elif test_method == "binomial":
-                            pvaluebg = binomtest(int(num_exp_hops+pseudocounts), n=num_exp_hops_lam, 
-                                               p=((num_bg_hops+pseudocounts)/num_exp_bg_lam) , 
+                            pvaluebg = binomCCcaller(int(num_exp_insertions+pseudocounts), n=num_exp_insertions_lam, 
+                                               p=((num_bg_insertions+pseudocounts)/num_exp_bg_lam) , 
                                                  alternative='greater').pvalue
 
 
                 else:
                     if lam_win_size != None:
-                        num_exp_hops_lam, starthoplam =_findinsertionslen2(curChromnp, 
+                        num_exp_insertions_lam, startinsertionlam =_findinsertionslen2(curChromnp, 
                                                                 window_start - int(lam_win_size/2) +1,
                                                                     window_start+window_size + int(lam_win_size/2) - 1, 
-                                                                           length,starthoplam, totalcurChrom)
+                                                                           length,startinsertionlam, totalcurChrom)
                         
                         num_exp_bg_lam, startbglam1 = _findinsertionslen2(curbackgroundframe, 
                                                              window_start - int(lam_win_size/2) +1,
@@ -1249,33 +1248,33 @@ def _callpeaksMACS2new2(
                 # if it passes, then look at the TTAA:
                 if pvaluebg < pvalue_cutoff_background :
 
-                    num_TTAA_hops, startTTAA1 = _findinsertionslen2(curTTAAframe, window_start, 
+                    num_TTAA_insertions, startTTAA1 = _findinsertionslen2(curTTAAframe, window_start, 
                                                       window_start+window_size - 1, length,
                                                       startTTAA1, totalcurTTAA)
 
                     if lam_win_size == None:
 
                         if test_method == "poisson":
-                            pvalueTTAA = 1-poisson.cdf((num_exp_hops+pseudocounts),
-                                                       lambdacurTTAA*num_TTAA_hops+pseudocounts)
+                            pvalueTTAA = 1-poisson.cdf((num_exp_insertions+pseudocounts),
+                                                       lambdacurTTAA*num_TTAA_insertions+pseudocounts)
                         elif test_method == "binomial":
-                            pvalueTTAA = binomtest(int(num_exp_hops+pseudocounts), n=totalcurChrom, 
-                                               p=((num_TTAA_hops+pseudocounts)/totalcurTTAA) , 
+                            pvalueTTAA = binomCCcaller(int(num_exp_insertions+pseudocounts), n=totalcurChrom, 
+                                               p=((num_TTAA_insertions+pseudocounts)/totalcurTTAA) , 
                                                    alternative='greater').pvalue
                     else:
 
 
-                        num_TTAA_hops_lam, startTTAAlam1 = _findinsertionslen2(curTTAAframe, 
+                        num_TTAA_insertions_lam, startTTAAlam1 = _findinsertionslen2(curTTAAframe, 
                                                              window_start - int(lam_win_size/2) +1,
                                                              window_start+window_size + int(lam_win_size/2) - 1,
                                                              length, startTTAAlam1, totalcurTTAA)
                         if test_method == "poisson":
-                            pvalueTTAA = 1-poisson.cdf((num_exp_hops+pseudocounts),
-                                                       (num_exp_hops_lam/num_TTAA_hops_lam)*num_TTAA_hops+
+                            pvalueTTAA = 1-poisson.cdf((num_exp_insertions+pseudocounts),
+                                                       (num_exp_insertions_lam/num_TTAA_insertions_lam)*num_TTAA_insertions+
                                                        pseudocounts)
                         elif test_method == "binomial":
-                            pvalueTTAA = binomtest(int(num_exp_hops+pseudocounts), n=num_exp_hops_lam, 
-                                               p=((num_TTAA_hops+pseudocounts)/num_TTAA_hops_lam) , 
+                            pvalueTTAA = binomCCcaller(int(num_exp_insertions+pseudocounts), n=num_exp_insertions_lam, 
+                                               p=((num_TTAA_insertions+pseudocounts)/num_TTAA_insertions_lam) , 
                                                    alternative='greater').pvalue
 
                 else:
@@ -1313,12 +1312,12 @@ def _callpeaksMACS2new2(
                     sig_end = overlap.max() + 3 + extend
 
                     overlap = _findinsertions(curChromnp, sig_start, sig_end, length)
-                    num_exp_hops = len(overlap)
+                    num_exp_insertions = len(overlap)
 
-                    #add number of background hops in peak to frame
-                    num_TTAA_hops, startTTAA2 = _findinsertionslen2(curTTAAframe, sig_start, sig_end, 
+                    #add number of background insertions in peak to frame
+                    num_TTAA_insertions, startTTAA2 = _findinsertionslen2(curTTAAframe, sig_start, sig_end, 
                                                                       length, startTTAA2, totalcurTTAA)
-                    num_bg_hops, startbg2 = _findinsertionslen2(curbackgroundframe, sig_start, sig_end, 
+                    num_bg_insertions, startbg2 = _findinsertionslen2(curbackgroundframe, sig_start, sig_end, 
                                                      length, startbg2, totalcurbackground)
 
                     chr_list.append(chrom) #add chr to frame
@@ -1328,14 +1327,14 @@ def _callpeaksMACS2new2(
                     if record:
                     #add peak end to frame
                         center_list.append(peak_center) #add peak center to frame
-                        num_TTAA_hops_list.append(num_TTAA_hops)
-                        num_exp_hops_list.append(num_exp_hops)#add fraction of experiment hops in peak to frame
-                        frac_exp_list.append(float(num_exp_hops)/total_experiment_hops)
-                        tph_exp_list.append(float(num_exp_hops)*multinumber/total_experiment_hops)
-                        num_bg_hops_list.append(num_bg_hops)
-                        frac_bg_list.append(float(num_bg_hops)/total_background_hops)
-                        tph_bg_list.append(float(num_bg_hops)*multinumber/total_background_hops)
-                        tph_bgs = float(num_exp_hops)*multinumber/total_experiment_hops-float(num_bg_hops)*multinumber/total_background_hops
+                        num_TTAA_insertions_list.append(num_TTAA_insertions)
+                        num_exp_insertions_list.append(num_exp_insertions)#add fraction of Experiment Insertions in peak to frame
+                        frac_exp_list.append(float(num_exp_insertions)/total_experiment_insertions)
+                        tph_exp_list.append(float(num_exp_insertions)*multinumber/total_experiment_insertions)
+                        num_bg_insertions_list.append(num_bg_insertions)
+                        frac_bg_list.append(float(num_bg_insertions)/total_background_insertions)
+                        tph_bg_list.append(float(num_bg_insertions)*multinumber/total_background_insertions)
+                        tph_bgs = float(num_exp_insertions)*multinumber/total_experiment_insertions-float(num_bg_insertions)*multinumber/total_background_insertions
                         tph_bgs_list.append(tph_bgs)
 
                     # caluclate the final P value 
@@ -1344,10 +1343,10 @@ def _callpeaksMACS2new2(
 
                         if test_method == "poisson":
 
-                            pvalue_list_TTAA.append(1-poisson.cdf((num_exp_hops+pseudocounts),
-                                                                  lambdacurTTAA*num_TTAA_hops+pseudocounts))
-                            pvalue_list_background.append(_compute_cumulative_poisson(num_exp_hops,
-                                                                                     num_bg_hops,
+                            pvalue_list_TTAA.append(1-poisson.cdf((num_exp_insertions+pseudocounts),
+                                                                  lambdacurTTAA*num_TTAA_insertions+pseudocounts))
+                            pvalue_list_background.append(_compute_cumulative_poisson(num_exp_insertions,
+                                                                                     num_bg_insertions,
                                                                                      totalcurChrom,
                                                                                      totalcurbackground,
                                                                                      pseudocounts))
@@ -1355,20 +1354,20 @@ def _callpeaksMACS2new2(
 
                         elif test_method == "binomial":
 
-                            pvalue_list_TTAA.append(binomtest(int(num_exp_hops+pseudocounts), 
+                            pvalue_list_TTAA.append(binomCCcaller(int(num_exp_insertions+pseudocounts), 
                                                               n=totalcurChrom, 
-                                                              p=((num_TTAA_hops+pseudocounts)/totalcurTTAA) , 
+                                                              p=((num_TTAA_insertions+pseudocounts)/totalcurTTAA) , 
                                                               alternative='greater').pvalue)
-                            pvalue_list_background.append(binomtest(int(num_exp_hops+pseudocounts), 
+                            pvalue_list_background.append(binomCCcaller(int(num_exp_insertions+pseudocounts), 
                                                                 n=totalcurChrom, 
-                                                                p=((num_bg_hops+pseudocounts)/totalcurbackground) , 
+                                                                p=((num_bg_insertions+pseudocounts)/totalcurbackground) , 
                                                                 alternative='greater').pvalue)
                     else:
 
-                        num_exp_hops_lam , starthoplam2= _findinsertionslen2(curChromnp, 
+                        num_exp_insertions_lam , startinsertionlam2= _findinsertionslen2(curChromnp, 
                                                                            sig_start - int(lam_win_size/2) +1,
                                                                             sig_end + int(lam_win_size/2) - 1, 
-                                                                            length, starthoplam2, totalcurChrom)
+                                                                            length, startinsertionlam2, totalcurChrom)
 
                         num_exp_bg_lam, startbglam2 = _findinsertionslen2(curbackgroundframe, 
                                                              sig_start - int(lam_win_size/2) +1,
@@ -1382,46 +1381,46 @@ def _callpeaksMACS2new2(
 
                         if test_method == "poisson":
 
-                            pvalue_list_TTAA.append(1-poisson.cdf((num_exp_hops+pseudocounts),
-                                                                  (num_exp_hops_lam/num_exp_TTAA_lam)*num_TTAA_hops
+                            pvalue_list_TTAA.append(1-poisson.cdf((num_exp_insertions+pseudocounts),
+                                                                  (num_exp_insertions_lam/num_exp_TTAA_lam)*num_TTAA_insertions
                                                                   +pseudocounts))
-                            pvalue_list_background.append(_compute_cumulative_poisson(num_exp_hops,
-                                                                                     num_bg_hops,
-                                                                                     num_exp_hops_lam,
+                            pvalue_list_background.append(_compute_cumulative_poisson(num_exp_insertions,
+                                                                                     num_bg_insertions,
+                                                                                     num_exp_insertions_lam,
                                                                                      num_exp_bg_lam,
                                                                                      pseudocounts))
 
 
                         elif test_method == "binomial":
 
-                            pvalue_list_TTAA.append(binomtest(int(num_exp_hops+pseudocounts), 
-                                                              n=num_exp_hops_lam, 
-                                                              p=((num_TTAA_hops+pseudocounts)/num_exp_TTAA_lam) , 
+                            pvalue_list_TTAA.append(binomCCcaller(int(num_exp_insertions+pseudocounts), 
+                                                              n=num_exp_insertions_lam, 
+                                                              p=((num_TTAA_insertions+pseudocounts)/num_exp_TTAA_lam) , 
                                                               alternative='greater').pvalue)
                             if num_exp_bg_lam == 0:
                                 pvalue_list_background.append(0)
                             else:
-                                pvalue_list_background.append(binomtest(int(num_exp_hops+pseudocounts), 
-                                                                n=num_exp_hops_lam, 
-                                                                p=((num_bg_hops+pseudocounts)/num_exp_bg_lam) , 
+                                pvalue_list_background.append(binomCCcaller(int(num_exp_insertions+pseudocounts), 
+                                                                n=num_exp_insertions_lam, 
+                                                                p=((num_bg_insertions+pseudocounts)/num_exp_bg_lam) , 
                                                                 alternative='greater').pvalue)
 
 
 
-                    #number of hops that are a user-defined distance from peak center
+                    #number of insertions that are a user-defined distance from peak center
                     sig_flag = 0
 
 
     if record:
         peaks_frame = pd.DataFrame(columns = ["Chr","Start","End","Center",
-                                              "Experiment Hops","Background Hops","Reference Hops",
+                                              "Experiment Insertions","Background insertions","Reference Insertions",
                                               "pvalue Reference","pvalue Background"])
 
 
         peaks_frame["Center"] = center_list
-        peaks_frame["Experiment Hops"] = num_exp_hops_list 
-        peaks_frame["Background Hops"] = num_bg_hops_list 
-        peaks_frame["Reference Hops"] = num_TTAA_hops_list
+        peaks_frame["Experiment Insertions"] = num_exp_insertions_list 
+        peaks_frame["Background insertions"] = num_bg_insertions_list 
+        peaks_frame["Reference Insertions"] = num_TTAA_insertions_list
 
         peaks_frame["Fraction Experiment"] = frac_exp_list 
         peaks_frame["TPH Experiment"] = tph_exp_list
@@ -1473,21 +1472,21 @@ def _checkpvalue(number,name):
 
 def _check_test_method(method):
     if method != "poisson" and  method != "binomial" :
-        raise ValueError("Not valid a valid test method. Please input poisson or binomial.")
+        raise ValueError("Not valid a valid CCcaller method. Please input poisson or binomial.")
 
 def callpeaks(
     expdata: pd.DataFrame, 
     background: Optional[pd.DataFrame] = None, 
-    method: _Peakcalling_Method = "test", 
+    method: _Peakcalling_Method = "CCcaller", 
     reference: _reference = "hg38",
     pvalue_cutoff: float = 0.0001,  
     pvalue_cutoffbg: float = 0.0001, 
     pvalue_cutoffTTAA: float = 0.00001,
-    min_hops: int = 5, 
+    min_insertions: int = 5, 
     minlen: int = 0, 
     extend: int = 200, 
     maxbetween: int = 2000, 
-    test_method: _PeaktestMethod = "poisson",
+    test_method: _PeakCCcallerMethod = "poisson",
     window_size: int = 1500, 
     lam_win_size: Optional[int]  =100000, 
     step_size: int = 500, 
@@ -1504,13 +1503,13 @@ def callpeaks(
         pd.DataFrame with the first three columns as chromosome, start and end.
     :param background: Default is `None` for backgound free situation.
         pd.DataFrame with the first three columns as chromosome, start and end. 
-    :param method: Default method is `test`.
-        `test` is a method considering the maxdistance between hops in the data,
-        `MACS2` uses the idea adapted from [Zhang08]_ and
+    :param method: Default method is `'CCcaller'`.
+        `'CCcaller'` is a method considering the maxdistance between insertions in the data,
+        `'ccf_tools'` uses the idea adapted from [Zhang08]_ and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
-        `Blockify` uses the method from `here <https://Blockify.readthedocs.io/en/latest/pages/introduction.html>`__.
-    :param reference:  `['hg38','mm10','yeast']`. Default is `hg38`.
-        We currently have `hg38` for human data, `mm10` for mouse data and `yeast` for yeast data.
+        `'Blockify'` uses the method from `here <https://Blockify.readthedocs.io/en/laCCcaller/pages/introduction.html>`__.
+    :param reference:  `['hg38','mm10','sacCer3']`. Default is `'hg38'`.
+        We currently have `'hg38'` for human data, `'mm10'` for mouse data and `'sacCer3'` for yeast data.
     :param pvalue_cutoff: Default is 0.0001.
         The P-value cutoff for a backgound free situation. 
     :param pvalue_cutoffbg: Default is 0.0001.
@@ -1518,28 +1517,28 @@ def callpeaks(
     :param pvalue_cutoffTTAA: Default is 0.00001. 
         The P-value cutoff for reference data when backgound exists. 
         Note that pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg.
-    :param min_hops: Default is 5.
-        The number of minimal hops for each peak. 
+    :param min_insertions: Default is 5.
+        The number of minimal insertions for each peak. 
     :param minlen:  Default is 0.
-        Valid only for method = `test`. The minimal length for a peak without extend. 
+        Valid only for method = `'CCcaller'`. The minimal length for a peak without extend. 
     :param extend:  Default is 200.
-        Valid for method = `test` and `MACS2`. The length (bp) that peaks extend for both sides.
+        Valid for method = `'CCcaller'` and `'ccf_tools'`. The length (bp) that peaks extend for both sides.
     :param maxbetween: Default is 2000.
-        Valid only for method = `test`. The maximum length of nearby hops within one peak. 
-    :param test_method: `['poisson','binomial']`. Default is `poisson`.
-        The method for making hypothesis test. 
+        Valid only for method = `'CCcaller'`. The maximum length of nearby insertions within one peak. 
+    :param test_method: `['poisson','binomial']`. Default is `'poisson'`.
+        The method for making hypothesis CCcaller. 
     :param window_size: Default is 1500.
-        Valid only for method = `MACS2`. The length of window looking for. 
+        Valid only for method = `'ccf_tools'`. The length of window looking for. 
     :param lam_win_size: Default is 100000.
-        Valid for  method = `test` and `MACS2`. The length of peak area considered when performing a test.
+        Valid for  method = `'CCcaller'` and `'ccf_tools'`. The length of peak area considered when performing a CCcaller.
     :param step_size: Default is 500.
-        Valid only for `MACS2`. The length of each step. 
+        Valid only for `'ccf_tools'`. The length of each step. 
     :param pseudocounts: Default is 0.2.
-        Number for pseudocounts added for the pyhothesis test. 
+        Number for pseudocounts added for the pyhothesis CCcaller. 
     :param record:  Default is `True`.
         Controls if information is recorded.
         If `False`, the output would only have three columns: Chromosome, Start, End.
-    :param save: Default is `None`
+    :param save: Default is `None`.
         The file name for the file we saved. 
        
 
@@ -1547,28 +1546,28 @@ def callpeaks(
         | **Chr** - The chromosome of the peak. 
         | **Start** - The start point of the peak. 
         | **End** - The end point of the peak. 
-        | **Experiment Hops** - The total number of hops within a peak in the experiment data.
-        | **Reference Hops** - The total number of hops of within a peak in the reference data.
-        | **Background Hops** - The total number of hops within a peak in the experiment data.
-        | **Expected Hops** - The total number of expected hops under null hypothesis from the reference data (in a background free situation). 
-        | **Expected Hops background** - The total number of expected hops under null hypothesis from the background data (in a background situation).
-        | **Expected Hops Reference** - The total number of expected hops under null hypothesis from the reference data (in a background situation).
-        | **pvalue** - The pvalue we calculate from null hypothesis (in a background free situation or method = `Blockify`).
-        | **pvalue Reference** - The total number of hops of within a peak in the reference data (in a background situation).
-        | **pvalue Background** - The total number of hops of within a peak in the reference data (in a background situation).
-        | **Fraction Experiment** - The fraction of hops  in the experiment data.
-        | **TPH Experiment** - Transpositions per hundred million hops in the experiment data for mammalian and
-                               transpositions per hundred million hops in the experiment data for yeast.
-        | **Fraction Background** - The fraction of hops in the background data.
-        | **TPH Background** - Transpositions per hundred million hops in the background data for mammalian and
-                               transpositions per hundred million hops in the background data for yeast.
+        | **Experiment Insertions** - The total number of insertions within a peak in the experiment data.
+        | **Reference Insertions** - The total number of insertions of within a peak in the reference data.
+        | **Background insertions** - The total number of insertions within a peak in the experiment data.
+        | **Expected Insertions** - The total number of expected insertions under null hypothesis from the reference data (in a background free situation). 
+        | **Expected Insertions background** - The total number of expected insertions under null hypothesis from the background data (in a background situation).
+        | **Expected Insertions Reference** - The total number of expected insertions under null hypothesis from the reference data (in a background situation).
+        | **pvalue** - The pvalue we calculate from null hypothesis (in a background free situation or method = `'Blockify'`).
+        | **pvalue Reference** - The total number of insertions of within a peak in the reference data (in a background situation).
+        | **pvalue Background** - The total number of insertions of within a peak in the reference data (in a background situation).
+        | **Fraction Experiment** - The fraction of insertions  in the experiment data.
+        | **TPH Experiment** - Transpositions per hundred million insertions in the experiment data for mammalian and
+                               transpositions per hundred million insertions in the experiment data for sacCer3.
+        | **Fraction Background** - The fraction of insertions in the background data.
+        | **TPH Background** - Transpositions per hundred million insertions in the background data for mammalian and
+                               transpositions per hundred million insertions in the background data for sacCer3.
         | **TPH Background subtracted** - The difference between TPH Experiment and TPH Background.
 
    
     :Examples:
     >>> import pycallingcards as cc
     >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, lam_win_size = 1000000,  pseudocounts = 1, record = True)
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, pseudocounts = 1, record = True)
                   
     """
 
@@ -1582,9 +1581,9 @@ def callpeaks(
         
         length = 3
         
-        if method == "MACS2":
+        if method == "ccf_tools":
             
-            print("For the MACS2 method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_hops, record] would be utilized.")
+            print("For the ccf_tools method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized.")
             
             if reference == "hg38":
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
@@ -1604,30 +1603,30 @@ def callpeaks(
             
                 
             _check_test_method(test_method)
-            min_hops = _checkint(min_hops,"min_hops")
-            min_hops = max(min_hops,1)
+            min_insertions = _checkint(min_insertions,"min_insertions")
+            min_insertions = max(min_insertions,1)
         
             if save == None:
                 
-                return _callpeaksMACS2new2(expdata, background, TTAAframe, length, extend = extend, lam_win_size = lam_win_size,
+                return _callpeaksccf_toolsnew2(expdata, background, TTAAframe, length, extend = extend, lam_win_size = lam_win_size,
                       pvalue_cutoff_background =  pvalue_cutoffbg,  pvalue_cutoff_TTAA = pvalue_cutoffTTAA,
                       window_size = window_size, step_size = step_size, pseudocounts = pseudocounts,
-                      test_method= test_method, min_hops = min_hops, record = record).reset_index(drop = True)
+                      test_method= test_method, min_insertions = min_insertions, record = record).reset_index(drop = True)
             else:
                 
-                data = _callpeaksMACS2new2(expdata, background, TTAAframe, length, extend = extend, lam_win_size = lam_win_size,
+                data = _callpeaksccf_toolsnew2(expdata, background, TTAAframe, length, extend = extend, lam_win_size = lam_win_size,
                       pvalue_cutoff_background =  pvalue_cutoffbg,  pvalue_cutoff_TTAA = pvalue_cutoffTTAA,
                       window_size = window_size, step_size = step_size, pseudocounts = pseudocounts,
-                      test_method= test_method, min_hops = min_hops, record = record).reset_index(drop = True)
+                      test_method= test_method, min_insertions = min_insertions, record = record).reset_index(drop = True)
                 
                 data.to_csv(save,sep ="\t",header = None, index = None)
                 
                 return data
                 
         
-        elif method == "test":
+        elif method == "CCcaller":
             
-            print("For the test method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_hops, record] would be utilized.")
+            print("For the CCcaller method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_insertions, record] would be utilized.")
             
             if reference == "hg38":
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
@@ -1646,24 +1645,24 @@ def callpeaks(
             _check_test_method(test_method)
             
             minlen = _checkint(minlen,"minlen")
-            min_hops = _checkint(min_hops,"min_hops")
-            min_hops = max(min_hops,1)
+            min_insertions = _checkint(min_insertions,"min_insertions")
+            min_insertions = max(min_insertions,1)
             maxbetween = _checkint(maxbetween,"maxbetween")
             
             _check_test_method(test_method)
-            min_hops = _checkint(min_hops,"min_hops")
-            min_hops = max(min_hops,1)
+            min_insertions = _checkint(min_insertions,"min_insertions")
+            min_insertions = max(min_insertions,1)
             
             if save == None:
                 
-                return _test2(expdata, background, TTAAframe, length, pvalue_cutoffbg = pvalue_cutoffbg, 
-                        pvalue_cutoffTTAA = pvalue_cutoffTTAA,  mininser = min_hops, minlen = minlen,
+                return _CCcaller2(expdata, background, TTAAframe, length, pvalue_cutoffbg = pvalue_cutoffbg, 
+                        pvalue_cutoffTTAA = pvalue_cutoffTTAA,  mininser = min_insertions, minlen = minlen,
                         extend = extend, maxbetween = maxbetween,  lam_win_size = lam_win_size,  
                         pseudocounts = pseudocounts, test_method = test_method, record = record )
             else:
                 
-                data = _test2(expdata, background, TTAAframe, length, pvalue_cutoffbg = pvalue_cutoffbg, 
-                        pvalue_cutoffTTAA = pvalue_cutoffTTAA,  mininser = min_hops, minlen = minlen,
+                data = _CCcaller2(expdata, background, TTAAframe, length, pvalue_cutoffbg = pvalue_cutoffbg, 
+                        pvalue_cutoffTTAA = pvalue_cutoffTTAA,  mininser = min_insertions, minlen = minlen,
                         extend = extend, maxbetween = maxbetween,  lam_win_size = lam_win_size,  
                         pseudocounts = pseudocounts, test_method = test_method, record = record )
                 
@@ -1695,9 +1694,9 @@ def callpeaks(
                 
                 return data
         
-        if method == "MACS2_old":
+        if method == "ccf_tools_old":
             
-            print("For the MACS2 method with background, [expdata, background, reference, pvalue, lam_win_size, window_size, step_size,pseudocounts,  record] would be utilized.")
+            print("For the ccf_tools method with background, [expdata, background, reference, pvalue, lam_win_size, window_size, step_size,pseudocounts,  record] would be utilized.")
             
             if reference == "hg38":
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
@@ -1714,12 +1713,12 @@ def callpeaks(
             
             if save == None:
             
-                return _callpeaksMACS2(expdata, background, TTAAframe, length, window_size = window_size, 
+                return _callpeaksccf_tools(expdata, background, TTAAframe, length, window_size = window_size, 
                                       lam_win_size=lam_win_size, step_size = step_size,
                                   pseudocounts = pseudocounts ,pvalue_cutoff = pvalue_cutoff, record = record).reset_index(drop = True)
             else:
                 
-                data = _callpeaksMACS2(expdata, background, TTAAframe, length, window_size = window_size, 
+                data = _callpeaksccf_tools(expdata, background, TTAAframe, length, window_size = window_size, 
                                       lam_win_size=lam_win_size, step_size = step_size,
                                   pseudocounts = pseudocounts ,pvalue_cutoff = pvalue_cutoff, record = record).reset_index(drop = True)
                 
@@ -1735,9 +1734,9 @@ def callpeaks(
     if background == None:
             
         
-        if method == "MACS2":
+        if method == "ccf_tools":
             
-            print("For the MACS2 method without background, [expdata, reference, pvalue_cutoff, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_hops, record] would be utilized.")
+            print("For the ccf_tools method without background, [expdata, reference, pvalue_cutoff, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized.")
             
             if reference == "hg38":
                 
@@ -1751,7 +1750,7 @@ def callpeaks(
                 length = 3
                 multinumber = 100000000
                 
-            elif reference == "yeast":
+            elif reference == "sacCer3":
                 
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None,names=["Chr","Start","End","Reads"])
                 length = 0
@@ -1770,29 +1769,29 @@ def callpeaks(
             _checkint(pseudocounts,"pseudocounts")
 
             _check_test_method(test_method)
-            min_hops = _checkint(min_hops,"min_hops")
-            min_hops = max(min_hops,1)
+            min_insertions = _checkint(min_insertions,"min_insertions")
+            min_insertions = max(min_insertions,1)
         
             if save == None:
                 
-                return _callpeaksMACS2_bfnew2(expdata, TTAAframe, length, extend = extend, 
+                return _callpeaksccf_tools_bfnew2(expdata, TTAAframe, length, extend = extend, 
                       pvalue_cutoff =  pvalue_cutoff, window_size = window_size, 
                       lam_win_size = lam_win_size,  step_size = step_size, pseudocounts = pseudocounts,
-                      test_method= test_method, min_hops = min_hops, record = record, multinumber = multinumber).reset_index(drop = True)
+                      test_method= test_method, min_insertions = min_insertions, record = record, multinumber = multinumber).reset_index(drop = True)
             else:
                 
-                data = _callpeaksMACS2_bfnew2(expdata, TTAAframe, length, extend = extend, 
+                data = _callpeaksccf_tools_bfnew2(expdata, TTAAframe, length, extend = extend, 
                       pvalue_cutoff =  pvalue_cutoff, window_size = window_size, 
                       lam_win_size = lam_win_size,  step_size = step_size, pseudocounts = pseudocounts,
-                      test_method= test_method, min_hops = min_hops, record = record, multinumber = multinumber).reset_index(drop = True)
+                      test_method= test_method, min_insertions = min_insertions, record = record, multinumber = multinumber).reset_index(drop = True)
                 
                 data.to_csv(save,sep ="\t",header = None, index = None)
                 
                 return data
         
-        elif method == "test":
+        elif method == "CCcaller":
             
-            print("For the test method without background, [expdata, reference, pvalue_cutoff, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_hops, record] would be utilized.")
+            print("For the CCcaller method without background, [expdata, reference, pvalue_cutoff, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_insertions, record] would be utilized.")
             
             if reference == "hg38":
                 
@@ -1804,7 +1803,7 @@ def callpeaks(
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
                 length = 3
                 
-            elif reference == "yeast":
+            elif reference == "sacCer3":
                 
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None,names=["Chr","Start","End","Reads"])
                 length = 0
@@ -1821,23 +1820,23 @@ def callpeaks(
             _check_test_method(test_method)
             
             minlen = _checkint(minlen,"minlen")
-            min_hops = _checkint(min_hops,"min_hops")
-            min_hops = max(min_hops,1)
+            min_insertions = _checkint(min_insertions,"min_insertions")
+            min_insertions = max(min_insertions,1)
             maxbetween = _checkint(maxbetween,"maxbetween")
             
             _check_test_method(test_method)
-            min_hops = _checkint(min_hops,"min_hops")
-            min_hops = max(min_hops,1)
+            min_insertions = _checkint(min_insertions,"min_insertions")
+            min_insertions = max(min_insertions,1)
             
         
             if save == None:
                 
-                return _test_bf2(expdata, TTAAframe, length, pvalue_cutoff = pvalue_cutoff, mininser = min_hops, minlen = minlen,
+                return _CCcaller_bf2(expdata, TTAAframe, length, pvalue_cutoff = pvalue_cutoff, mininser = min_insertions, minlen = minlen,
                         extend = extend, maxbetween = maxbetween,  lam_win_size = lam_win_size,  
                         pseudocounts = pseudocounts, test_method = test_method, record = record )
             else:
                 
-                data = _test_bf2(expdata, TTAAframe, length, pvalue_cutoff = pvalue_cutoff, mininser = min_hops, minlen = minlen,
+                data = _CCcaller_bf2(expdata, TTAAframe, length, pvalue_cutoff = pvalue_cutoff, mininser = min_insertions, minlen = minlen,
                         extend = extend, maxbetween = maxbetween,  lam_win_size = lam_win_size,  
                         pseudocounts = pseudocounts, test_method = test_method, record = record )
                 
@@ -1859,7 +1858,7 @@ def callpeaks(
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",delimiter="\t",header=None,names=["Chr","Start","End"])
                 length = 3
                 
-            elif reference == "yeast":
+            elif reference == "sacCer3":
                 
                 TTAAframe = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",delimiter="\t",header=None,names=["Chr","Start","End","Reads"])
                 length = 0

@@ -16,9 +16,6 @@ import sys
 
 
 sys.path.insert(0, os.path.abspath("../"))
-#sys.path.insert(0, os.path.abspath("../pycallingcards/preprocessing"))
-#sys.path.insert(0, os.path.abspath("../pycallingcards/tools"))
-#sys.path.insert(0, os.path.abspath("../pycallingcards/plotting"))
 
 # -- Project information -----------------------------------------------------
 
@@ -34,12 +31,13 @@ author = 'Juanru Guo, Lucy Chen, Robi Mitra'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
 extensions = ['sphinx.ext.autodoc', 'autoapi.extension']
 
 pygments_style = "sphinx"
 pygments_dark_style = "monokai"
 autoapi_dirs = ['../pycallingcards']
-autoapi_options = ['members', 'special-members', 'inherited-members', 'imported-members']
+autoapi_options = ['members', 'inherited-members', 'imported-members']
 autoapi_template_dir = 'autoapi_templates'
 autodoc_mock_imports = ["numba", "anndata", "scanpy", "numpy", "matplotlib", "tqmd", "scipy", "pandas"]
 autodoc_typehints = 'none'
@@ -47,14 +45,13 @@ add_module_names = False
 autoapi_add_toctree_entry = False # disable default toc.
 autoapi_member_order = 'bysource'
 
-
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ["autoapi_templates/**/*"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -70,4 +67,4 @@ html_logo = "pycallingcards_icon.png"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']

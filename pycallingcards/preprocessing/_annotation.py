@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from typing import  Optional, Literal
 
-_reference2 = Optional[Literal["hg38","mm10"]]
+_reference2 = Optional[Literal["hg38","mm10","sacCer3"]]
 
 
 def combine_annotation(
@@ -63,9 +63,9 @@ def annotation(
     :param peaks_path: Default is `None`.
         The path to the peak data. 
         An external program would be used in this function so peak_path is perferred over peaks_frame.
-    :param reference:  Default is `hg38`.
+    :param reference:  Default is `'hg38'`.
         reference of the annoatation data.
-        Currently, `hg38` and `mm10` are provided only.
+        Currently, `'hg38'`, `'mm10'`, `'sacCer3'` are provided only.
     
     :param save_annotation:  Default is `None`.
         The path and name of the annotation results would be saved.
@@ -142,6 +142,25 @@ def annotation(
             response = request.urlretrieve( URL, filename)
 
         refGene_filename = pybedtools.BedTool(filename)
+
+    elif reference == "sacCer3":
+
+        import os 
+        from appdirs import user_cache_dir
+        PYCALLINGCARDS_CACHE_DIR = user_cache_dir("pycallingcards")
+
+        if not os.path.exists(PYCALLINGCARDS_CACHE_DIR):
+            os.makedirs(PYCALLINGCARDS_CACHE_DIR)
+
+        filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "refGene.sacCer3.Sorted.bed")
+        
+        if  os.path.exists(filename) == False:
+            from urllib import request
+            URL = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.sacCer3.Sorted.bed"
+            response = request.urlretrieve( URL, filename)
+
+        refGene_filename = pybedtools.BedTool(filename)
+
 
     temp_annotated_peaks = peaks_bed.closest(refGene_filename,D="ref",t="first",k=2)
     
