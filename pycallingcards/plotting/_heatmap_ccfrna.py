@@ -49,6 +49,7 @@ def heatmap(
 
         print("Please make sure that the samples in adata_ccf and rna are in the same order.")
 
+        rna = rna[~rna.index.duplicated(keep='first')]
         rna_list = list(rna.index)
         g = adata_ccf.var[['Gene Name1','Gene Name2']]
 

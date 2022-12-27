@@ -21,6 +21,7 @@ def dotplot_bulk(
     dotsize: float = 5,
     cmap : str= "Reds",
     title = "DE binding & RNA",
+    topspace = 0.977,
     save: bool = False
 ):
 
@@ -49,6 +50,8 @@ def dotplot_bulk(
         The colormap of the plot.    
     :param title: Default is `'DE binding & RNA'`.
         The title of the plot. 
+    :param topspace: Default is 0.977.
+        Parameter to control the title position.
     :param save: Default is `False`.
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name would be given and the plot would be saved as png.
@@ -157,7 +160,7 @@ def dotplot_bulk(
 
     plt.tight_layout()
     plt.suptitle(title)
-    fig.subplots_adjust(top=0.96)
+    fig.subplots_adjust(top=topspace)
 
 
     if save != False:
@@ -171,6 +174,7 @@ def dotplot_bulk(
 
 
 
+
 def dotplot_sc(
     adata_ccf: AnnData,
     adata: AnnData,
@@ -180,6 +184,7 @@ def dotplot_sc(
     size: int = 1,
     cmap: str = "Reds",
     title = "DE binding & RNA",
+    topspace = 0.977,
     save: bool = False
 ):
 
@@ -203,6 +208,8 @@ def dotplot_sc(
         The colormap of the plot. 
     :param title: Default is `'DE binding & RNA'`.
         The title of the plot. 
+    :param topspace: Default is 0.977.
+        Parameter to control the title position.
     :param save: Default is `False`.
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name would be given and the plot would be saved as png.
@@ -277,7 +284,7 @@ def dotplot_sc(
 
     ax[num].set_xticklabels(clusterlist,rotation=90)
     plt.suptitle(title,size = 15*size)
-    fig.subplots_adjust(top=0.977)
+    fig.subplots_adjust(top=topspace)
 
 
     if save != False:

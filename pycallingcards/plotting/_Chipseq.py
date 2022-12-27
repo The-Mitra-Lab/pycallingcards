@@ -77,6 +77,7 @@ def signal_plot(
     figsize: Tuple[int, int] = (8,6),
     fontsize: int = 10,
     color: str = "red",
+    textbelow: float = 0,
     title: str = 'Log2(FC) Chip-seq Signal',
     save: bool= False
 ):
@@ -137,15 +138,17 @@ def signal_plot(
                         np.log2(signalmtx[np.argsort(signalmtx,axis = 0)[int(peak_number*(alpha/2))],range(0,100)]+1), alpha=0.2, color = color)
 
     axis.get_xaxis().set_visible(False)
-    axis.text(0 , 0, "-"+str(before)+"bp", fontsize=fontsize)
-    axis.text(before*0.9 , 0, "Center", fontsize=fontsize)
-    axis.text((after+before)*0.9 , 0, str(after)+"bp", fontsize=fontsize)
+    axis.text(0 , textbelow, "-"+str(before)+"bp", fontsize=fontsize)
+    axis.text(before*0.9 , textbelow, "Center", fontsize=fontsize)
+    axis.text((after+before)*0.9 , textbelow, str(after)+"bp", fontsize=fontsize)
     axis.set_title(title, fontsize=fontsize*1.6)
 
     if save != False:
         if save == True:
             save = 'Chipseq_signal_plot.png'
         figure.savefig(save, bbox_inches='tight')
+
+
 
 
 def signal_heatmap(
@@ -158,6 +161,8 @@ def signal_heatmap(
     colormap: str = "Reds",
     pad: float= 0.03,
     belowlength: float = 0,
+    colormap_vmin: float = 0,
+    colormap_vmax: float = 5,
     title: str = 'Log2(FC) Chip-seq Signal Heatmap',
     save: bool= False
 ):
@@ -184,6 +189,10 @@ def signal_heatmap(
         Control the distance between plot and the colormap.
     :param belowlength: Default is `0`.
         Control the distance between plot and the text below.
+    :param colormap_vmin: Default is `0`.
+        vmin value of the colormap.
+    :param colormap_vmax: Default is `0`.
+        vmax value of the colormap.
     :param title: Default is `'Log2(FC) Chip-seq Signal Heatmap'`.
         The title of the plot. 
     :param save: Default is `False`.
@@ -205,15 +214,17 @@ def signal_heatmap(
 
 
     figure, axis = plt.subplots(figsize=figsize)
+    
         
-    cf = axis.pcolormesh(np.log2(signalmtx[np.argsort(np.nanmean(signalmtx,axis = 1)),:]+1),cmap = colormap)
+    cf = axis.pcolormesh(np.log2(signalmtx[np.argsort(np.nanmean(signalmtx,axis = 1)),:]+1),cmap = colormap, vmin=colormap_vmin, vmax=colormap_vmax)
     axis.get_yaxis().set_visible(False) 
     axis.get_xaxis().set_visible(False)
     axis.text(0 , -belowlength-10*fontsize, "-"+str(before)+"bp", fontsize=fontsize)
     axis.text(nbins*0.41 , -belowlength-10*fontsize, "Center", fontsize=fontsize)
     axis.text(nbins*0.81 , -belowlength-10*fontsize, str(after)+"bp", fontsize=fontsize)
     axis.set_title(title, fontsize=fontsize)
-
+    
+   
     cbar = figure.colorbar(cf, location='bottom', pad=pad)
     cbar.ax.tick_params(labelsize=fontsize*1.3) 
 

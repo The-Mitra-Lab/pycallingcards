@@ -10,3 +10,9 @@ sphinx-autoapi
 furo
 pybedtools
 seaborn
+os
+re
+sys
+json
+time
+requests

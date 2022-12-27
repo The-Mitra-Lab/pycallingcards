@@ -34,6 +34,7 @@ def draw_area(
     title: Optional[str] = None,
     example_length: int = 10000,
     peak_line: int = 1,
+    font_size: int = 1,
     save: Union[bool,str] = False):
 
     """\
@@ -94,6 +95,8 @@ def draw_area(
         The length of example.
     :param peak_line: Default is 1.
         The total number of peak lines. 
+    :param font_size: Default is `10`.
+        The relative font of the words on the plot.
     :param save: Default is `False`. 
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name would be given and the plot would be saved as png.
@@ -223,13 +226,13 @@ def draw_area(
     for i in range(len(p1)):
 
         axis[2].plot([p1[i,1],p1[i,2]], [ -1* (pnumber % peak_line) + 0.15,  -1* (pnumber % peak_line )+ 0.15], linewidth=10, c =color_peak)
-        axis[2].text((p1[i,2]+extend/40),  -1*  (pnumber % peak_line )+ 0.15 , p1[i,0]+"_"+str(p1[i,1])+"_"+str(p1[i,2]),fontsize=14)
+        axis[2].text((p1[i,2]+extend/40),  -1*  (pnumber % peak_line )+ 0.15 , p1[i,0]+"_"+str(p1[i,1])+"_"+str(p1[i,2]),fontsize=14*font_size)
         pnumber += 1
 
     for i in range(len(r1)):
 
         axis[2].plot([max(r1[i,1],start - extend) ,min(r1[i,2],end + extend)], [1+i,1+i], linewidth=5, c = color_genes)
-        axis[2].text(min(r1[i,2]+extend/40,end + extend), 1+i, r1[i,3]+", "+r1[i,4], fontsize=12)
+        axis[2].text(min(r1[i,2]+extend/40,end + extend), 1+i, r1[i,3]+", "+r1[i,4], fontsize=12*font_size)
 
         if r1[i,5] == "-":
             axis[2].annotate("",xytext=( min(r1[i,2],end + extend), 1+i), xy=( max(r1[i,1],start - extend), 1+i),  xycoords='data', va="center", ha="center",
@@ -242,13 +245,13 @@ def draw_area(
     axis[2].axis('off')
 
     if title!= None:
-        figure.suptitle(title, fontsize=16)
+        figure.suptitle(title, fontsize=16*font_size)
 
     if example_length != None:
         axis[2].plot([end+extend-example_length-example_length/5, end+extend-example_length/5], [-1-peak_line,-1-peak_line], linewidth=2, c = "k")
         axis[2].plot([end+extend-example_length-example_length/5, end+extend-example_length-example_length/5], [-1-peak_line,-0.6-peak_line], linewidth=2, c = "k")
         axis[2].plot([end+extend-example_length/5, end+extend-example_length/5], [-1-peak_line,-0.6-peak_line], linewidth=2, c = "k")
-        axis[2].text(end+extend, -1-peak_line, str(example_length)+"bp", fontsize=12)
+        axis[2].text(end+extend, -1-peak_line, str(example_length)+"bp", fontsize=12*font_size)
 
     if save != False:
         if save == True:

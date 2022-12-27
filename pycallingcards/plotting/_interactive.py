@@ -6,7 +6,7 @@ from typing import Union, Optional, List, Sequence, Iterable, Literal, Tuple
 _rankby = Optional[Literal['pvalues', 'logfoldchanges']]
 
 
-fig = go.Figure()
+
 
 
 def interactive(
@@ -37,6 +37,7 @@ def interactive(
     
     add = 0
             
+    fig = go.Figure()
 
     for i in range(len(data)):
         

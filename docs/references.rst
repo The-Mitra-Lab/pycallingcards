@@ -29,6 +29,6 @@ References
    *A viral toolkit for recording transcription factor–DNA interactions in live mouse tissues*,
    `PNAS <https://doi.org/10.1073/pnas.1918241117>`__.
 
-
-
-
+.. [Heinz10] Heinz *et al.* (2010),
+   *Simple Combinations of Lineage-Determining Transcription Factors Prime cis-Regulatory Elements Required for Macrophage and B Cell Identities*,
+   `Molecular Cell <https://www.cell.com/molecular-cell/fulltext/S1097-2765(10)00366-7?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS1097276510003667%3Fshowall%3Dtrue#%20>`__.
