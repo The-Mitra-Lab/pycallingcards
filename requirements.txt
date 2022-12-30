@@ -10,3 +10,4 @@ sphinx-autoapi
 furo
 pybedtools
 seaborn
+pyBigWig
