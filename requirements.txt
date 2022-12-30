@@ -20,3 +20,4 @@ sphinx_copybutton
 sphinx_design
 sphinxext.opengraph
 sphinx-hoverxref
+pydata-sphinx-theme
