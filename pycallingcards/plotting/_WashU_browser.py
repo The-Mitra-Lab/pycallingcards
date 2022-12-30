@@ -34,15 +34,17 @@ def qbed_to_bedgraph(expdata,number = 4):
 
 class BrowserHelperClient(object):
     _base_url_protocol = "https"
-    _base_url_host = "10.20.127.22"
-    _base_url_port = 10981
+    _base_url_host = "companion.epigenomegateway.org"
+    _base_url_port = 22
     _base_url = ""
+    _request_verify = True
 
     def __init__(self):
         self._base_url = self.make_url()
 
     def update_url(self):
         self._base_url = self.make_url()
+        self._request_verify = self._base_url_host == "companion.epigenomegateway.org"
 
     def make_url(self):
         port = ":%s" % self._base_url_port
@@ -72,7 +74,7 @@ class BrowserHelperClient(object):
 
         surl = self._base_url + "/file_upload"
 
-        response = requests.post(surl, files=files, data={"assembly": assembly}, verify=False)
+        response = requests.post(surl, files=files, data={"assembly": assembly}, verify=self._request_verify)
 
         assert response.status_code == 200
         task_id = response.text
@@ -80,7 +82,7 @@ class BrowserHelperClient(object):
 
     def retrieve_simple(self, task_id):
         surl = self._base_url + "/retrieve?list_id=" + task_id
-        response = requests.get(surl, verify=False)
+        response = requests.get(surl, verify=self._request_verify)
         res = json.loads(response.text)[0]
         # print(res)
         return res
@@ -108,12 +110,14 @@ def WashU_browser_url(
     qbed: dict = {},
     bed: dict = {},
     genome: _reference2 = 'hg38',
-    dirc: str = 'WashU_cashe',
+    dirc: str = 'WashU_cache',
     remove: bool =  False
     ):
     
     """\
-    Display qbed/ccf, bed data in `WashU Epigenome Browser <http://epigenomegateway.wustl.edu/browser/>`
+    Display qbed/ccf, bed data in `WashU Epigenome Browser <http://epigenomegateway.wustl.edu/browser/>`.
+
+
     :param qbed: Default is blank.
         A dictionary for input qbed/ccf data key as the name to display and value is the path or data of the file. Prefer path.
     :param bed: Default is blank.
@@ -125,19 +129,23 @@ def WashU_browser_url(
         The dirctory for all the cache files.
     :param remove: Default is `False`.
         Weather to remove the dirc or not.
+
+    :example:
+    >>> import pycallingcards as cc
+    >>> SP1_P10 = cc.datasets.SP1_Cre_data(data="SP1_P10")
+    >>> SP1_P28 = cc.datasets.SP1_Cre_data(data="SP1_P28")
+    >>> cc.rd.combine_qbed([SP1_P10,SP1_P28])
+    >>> peak_data = cc.pp.callpeaks(SP1,  method = "CCcaller", reference = "mm10", pvalue_cutoffbg = 0.1, maxbetween = 1800,
+                  pvalue_cutoffTTAA = 0.001, lam_win_size = None,  pseudocounts = 0.1, record = True, save = "peak1.bed")
+    >>> qbed = {"SP1":SP1}
+    >>> bed = {'PEAK1':peak_data}
+    >>> 
         
     """
 
     bhc = BrowserHelperClient()
 
-    # TODO Remember to set it to False
-    if False:
-        bhc.set_base_url_host("localhost")
-        bhc.set_base_url_port("10981")
-        bhc.set_base_url_protocol("https")
-
     burl = bhc.make_url()
-    print(burl)
 
     file = {}
 
@@ -155,25 +163,26 @@ def WashU_browser_url(
     for key in qbed_keys:
         if type(qbed[key]) == str:
 
-            file[key] = qbed[key]
+            file[key+".qbed"] = qbed[key]
+            
 
             expdata = pd.read_csv(qbed[key], sep = "\t",  header = None, names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
 
             expdatagraph = qbed_to_bedgraph(expdata,number = number)
             randomnum = str(random.random())
             expdatagraph.to_csv(dirc+"/"+randomnum+".bedgraph",sep ="\t",header = None, index = None)
-            file[key+'density'] = dirc+"/"+randomnum+".bedgraph"
+            file[key+'.bedgraph'] = dirc+"/"+randomnum+".bedgraph"
 
         elif type(qbed[key]) == pd.DataFrame:
 
             randomnum = str(random.random())
             qbed[key].to_csv(dirc+"/"+randomnum+".qbed",sep ="\t",header = None, index = None)
-            file[key] = dirc+"/"+randomnum+".qbed"
+            file[key+".qbed"] = dirc+"/"+randomnum+".qbed"
 
             expdatagraph = qbed_to_bedgraph(qbed[key],number = number)
             randomnum = str(random.random())
             expdatagraph.to_csv(dirc+"/"+randomnum+".bedgraph",sep ="\t",header = None, index = None)
-            file[key+'density'] = dirc+"/"+randomnum+".bedgraph"
+            file[key+'.bedgraph'] = dirc+"/"+randomnum+".bedgraph"
 
         else:
             raise ValueError('Please input correct form of ' +key + " in qbed")
@@ -186,22 +195,22 @@ def WashU_browser_url(
 
         if type(bed[key]) == str:
 
-            file[key] = bed[key]
+            file[key+".bed"] = bed[key]
 
         elif type(bed[key]) == pd.DataFrame:
 
             randomnum = str(random.random())
             bed[key].to_csv(dirc+"/"+randomnum+".bed",sep ="\t",header = None, index = None)
-            file[key] = dirc+"/"+randomnum+".bed"
+            file[key+".bed"] = dirc+"/"+randomnum+".bed"
 
         else:
             raise ValueError('Please input correct form of ' +key + " in bed")
             
-    print("All bed addressed")
+    print("All bed addressed")  
     print("Uploading files")
 
-
     gburl = bhc.simple_request(file, assembly=genome)
+    print("Please click the following link to see the data on WashU Epigenome Browser directly.")
     print(gburl)
     
     if remove:

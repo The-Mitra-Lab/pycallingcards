@@ -19,7 +19,7 @@ def call_motif(
     ):
 
     """\
-    Call motif by `HOMER <http://homer.ucsd.edu/homer/>`__ [Heinz10]_.
+    Call motif by `HOMER <http://homer.ucsd.edu/homer/>` and :cite:`heinz2010simple`.
     Please make sure HOMER is installed along with the genome data.
 
     :param peaks_path: Default is `None`.

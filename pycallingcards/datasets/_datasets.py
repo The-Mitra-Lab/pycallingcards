@@ -18,13 +18,17 @@ def mousecortex_data(
 
 
     """\
-    Mouse cortex single-cell calling cards  data [Moudgil20]_.
+    Mouse cortex single-cell calling cards  data :cite:`moudgil2020self`.
 
     :param data: `['ccf','barcodes','RNA','CCF']`. 
         `ccf` reads the ccf file.
         `barcodes` reads the barcodes file.
         | `RNA` reads the RNA anndata.
         | `CCF` reads the CCF anndata.
+
+    :example:
+    >>> import pycallingcards as cc
+    >>> data = cc.datasets.mousecortex_data(data='ccf')
 
     """
 
@@ -64,14 +68,16 @@ def SP1_K562HCT116_data(
 
     """\
     Transcription factor SP1 is added to both K562 and HCT-116 cell lines seperately. 
-    Wild-type single-cell calling cards is data also recorded in mixed K562 and HCT-116 cell lines [Moudgil20]_.
+    Wild-type single-cell calling cards is data also recorded in mixed K562 and HCT-116 cell lines :cite:`moudgil2020self`.
 
     :param data: `['HCT116_SP1_ccf','K562_SP1_ccf','HCT116_brd4_ccf','K562_brd4_ccf','barcodes']`.
         `experience_ccf` reads the ccf file for the combined data for K562 and HCT-116 cell lines.
         | `background_ccf` reads the ccf file for the data for mixed K562 and HCT-116 cell lines.
         | `barcodes` reads the barcode file for the combined data for K562 and HCT-116 cell lines.
 
-
+    :example:
+    >>> import pycallingcards as cc
+    >>> data = cc.datasets.SP1_K562HCT116_data(data='HCT116_SP1_ccf')
     """
 
     if data == "HCT116_brd4_ccf":
@@ -111,13 +117,15 @@ def mouse_brd4_data(
 
 
     """\
-    Bulk Brd4 bindings for both male and female mice [Kfoury21]_.
+    Bulk Brd4 bindings for both male and female mice :cite:`kfoury2021brd4`.
 
     :param data: `['Female_Brd4','Male_Brd4','RNA']`. 
         | `Female_Brd4` reads the ccf file for the bulk Brd4 binding data for female mouse .
         | `Male_Brd4` reads the ccf file for the bulk Brd4 binding data for male mouse.
 
-
+    :example:
+    >>> import pycallingcards as cc
+    >>> data = cc.datasets.mouse_brd4_data(data='Female_Brd4')
     """
 
     if data == "Female_Brd4":
@@ -147,14 +155,16 @@ def SP1_Cre_data(
 
 
     """\
-    Bulk SP1 bindings for both P10 and P28 cohort in Cre-driver mouse lines [Cammack19]_.
+    Bulk SP1 bindings for both P10 and P28 cohort in Cre-driver mouse lines :cite:`cammack2020viral`.
 
     :param data: `['SP1_P10','SP1_P28','background']`.
         `SP1_P10` reads the ccf file for P10 cohert.
         | `SP1_P28` reads the ccf file for P28 cohert.
         | `background` reads the ccf file for backgound.
 
-
+    :example:
+    >>> import pycallingcards as cc
+    >>> data = cc.datasets.SP1_Cre_data(data='SP1_P10')
     """
 
     if data == "SP1_P10":
