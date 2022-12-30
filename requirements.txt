@@ -12,3 +12,4 @@ pybedtools
 seaborn
 pyBigWig
 d3blocks
+myst_parser
