@@ -4,8 +4,8 @@ import numpy as np
 
 def sankey(
     result: pd.DataFrame,
-    peakToGene: list[str,str,str] = ['Peak','Gene','Pvalue_peak'],
-    geneToCluster: list[str,str,str] = ['Gene','Cluster','Score_gene'],
+    peakToGene: list = ['Peak','Gene','Pvalue_peak'],
+    geneToCluster: list= ['Gene','Cluster','Score_gene'],
     figsize: list = [1500,1500],
     path: str = 'sankey.html'
 ):
