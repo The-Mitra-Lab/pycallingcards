@@ -19,4 +19,4 @@ sphinx_autodoc_typehints
 sphinx_copybutton
 sphinx_design
 sphinxext.opengraph
-hoverxref
+sphinx-hoverxref
