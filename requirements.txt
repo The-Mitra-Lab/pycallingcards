@@ -11,3 +11,4 @@ furo
 pybedtools
 seaborn
 pyBigWig
+d3blocks
