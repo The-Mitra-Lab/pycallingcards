@@ -6,7 +6,7 @@ tqdm
 scipy
 scanpy
 appdirs
-sphinx>=6.0.0
+sphinx
 furo
 pybedtools
 seaborn
