@@ -15,3 +15,7 @@ d3blocks
 myst_parser
 sphinxcontrib-bibtex
 nbsphinx
+sphinx_autodoc_typehints
+sphinx_copybutton
+sphinx_design
+sphinxext.opengraph
