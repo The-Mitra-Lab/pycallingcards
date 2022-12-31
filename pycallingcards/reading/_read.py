@@ -29,7 +29,7 @@ def combine_qbed(
     ) -> pd.DataFrame:
 
     """\
-    Read .qbed file.
+    Combine .qbed file.
 
     :param filelist: 
         List containing all the pd.DataFrames need to be combined.
@@ -77,7 +77,7 @@ def save_qbed(
     ):
 
     """\
-    Read .qbed file.
+    Save .qbed file.
 
     :param file: 
         pd.Dataframe of the file
@@ -101,7 +101,7 @@ def save_bed(
     ):
 
     """\
-    Read .qbed file.
+    Save.bed file.
 
     :param file: 
         pd.Dataframe of the file
