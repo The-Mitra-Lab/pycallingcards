@@ -139,7 +139,7 @@ def WashU_browser_url(
                   pvalue_cutoffTTAA = 0.001, lam_win_size = None,  pseudocounts = 0.1, record = True, save = "peak1.bed")
     >>> qbed = {"SP1":SP1}
     >>> bed = {'PEAK1':peak_data}
-    >>> 
+    >>> cc.pl.WashU_browser_url(qbed,bed,genome = "mm10")
         
     """
 

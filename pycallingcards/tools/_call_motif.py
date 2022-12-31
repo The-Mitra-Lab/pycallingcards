@@ -37,7 +37,7 @@ def call_motif(
     :param save_homer:  Default is `None`.
         The path and name of the annotation results would be saved.
         If 'None' it would be saved to "Homerresult/peaks_name"
-    :param size:  Default is `800`.
+    :param size:  Default is `1000`.
         The size of the region for motif finding.
         This is one of the most important parameters and also a source of confusion for many.  
         If you wish to find motifs using your peaks using their exact sizes, use the option "-size given").  
@@ -49,6 +49,15 @@ def call_motif(
         Specifies the length of motifs to be found. 
     :param num_cores: Default is `3`.
         Number of CPUs to use.
+
+    :Examples:
+    >>> import pycallingcards as cc
+    >>> HCT116_SP1 = cc.datasets.SP1_K562HCT116_data(data="HCT116_SP1_ccf")
+    >>> HCT116_brd4 = cc.datasets.SP1_K562HCT116_data(data="HCT116_brd4_ccf")
+    >>> peak_data_HCT116 = cc.pp.callpeaks(HCT116_SP1, HCT116_brd4, method = "ccf_tools", reference = "hg38",  window_size = 2000, step_size = 500,
+            pvalue_cutoffTTAA = 0.001, pvalue_cutoffbg = 0.1, lam_win_size = None,  pseudocounts = 0.1, record = True, save = "peak_HCT116_test.bed")
+    >>> cc.tl.call_motif("peak_HCT116_test.bed",reference ="hg38",save_homer = "Homer/peak_HCT116_test", homer_path = "/ref/rmlab/software/homer/bin")
+    
     
     """
         
