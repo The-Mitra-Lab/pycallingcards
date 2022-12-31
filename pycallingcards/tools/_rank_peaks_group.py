@@ -47,7 +47,7 @@ def DE_pvalue(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.tl.DE_pvalue(10,456,261,491)
+    >>> cc.tl.DE_pvalue(10,456,261,491)
 
     """
 
@@ -109,7 +109,7 @@ def diff2group_bygroup(
         binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
     :param alternative: `['two-sided', 'greater']`. Default is `'greater'`.
-        If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
+        If it has two clusters, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
 
 
     :return:
@@ -118,8 +118,8 @@ def diff2group_bygroup(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mousecortex_CCF()
-    >>> cc.tl.diff2group_bygroup(adata_ccf, 'Neuron_Excit_L5_Mixed','Astrocyte','chr2_28188592_28188996')
+    >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
+    >>> cc.tl.diff2group_bygroup(adata_ccf, 'cluster', 'Neuron_Excit_L5_Mixed','Astrocyte','chr2_28188592_28188996')
     """
 
     if peakname != None:
@@ -206,13 +206,17 @@ def diff2group_bysample(
         binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
     :param alternative: `['two-sided', 'greater']`. Default is `'greater'`.
-        If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
+        If it has two samples, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
     
 
 
     :return:
         Pvalue for the specific hypothesis.
 
+    :example:
+    >>> import pycallingcards as cc
+    >>> adata_ccf = cc.datasets.mouse_brd4_data(data="CCF")
+    >>> cc.tl.diff2group_bysample(adata_ccf,'F6_Brd4','M6_Brd4','chr1_4196845_4200095','fisher_exact')
 
     """
 
@@ -318,7 +322,7 @@ def rank_peak_groups(
     :example:
     >>> import pycallingcards as cc
     >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
-    >>> cc.tl.rank_peak_groups(adata_ccf,groupby,method = 'binomtest',key_added = 'binomtest')
+    >>> cc.tl.rank_peak_groups(adata_ccf,'cluster',method = 'binomtest',key_added = 'binomtest')
     """
 
     if groupby == "Index":

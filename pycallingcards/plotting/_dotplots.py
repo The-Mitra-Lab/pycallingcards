@@ -59,7 +59,21 @@ def dotplot_bulk(
 
     :example:
     >>> import pycallingcards as cc
-    >>> cc.pl.dotplot(adata_ccf,rna,selected_list = list(result["Peak"]), num_list = [3,3])
+    >>> adata_ccf = cc.datasets.mouse_brd4_data(data = "CCF")
+    >>> rna = cc.datasets.mouse_brd4_data(data = "RNA")
+    >>> cc.pl.dotplot_bulk(adata_ccf,rna,
+                   selected_list = ['chr1_72823300_72830641', 'chr1_174913218_174921560',
+                    'chr4_68545354_68551370', 'chr5_13001870_13004057',
+                    'chr5_13124523_13131816', 'chr5_13276480_13283561',
+                    'chr5_16764617_16770523', 'chr5_17080322_17085124',
+                    'chr7_55291506_55293906', 'chr7_56523379_56528437',
+                    'chr8_102778665_102784309', 'chr10_57783900_57788071',
+                    'chr11_46057069_46059464', 'chr12_56507583_56514677',
+                    'chr14_88460574_88466755', 'chr14_88898126_88902522',
+                    'chr15_11743635_11745457', 'chr15_11781285_11785784',
+                    'chr15_11823522_11836910', 'chr19_59158212_59161670',
+                    'chrY_1241882_1246464', 'chrY_1282449_1287505'] ,
+                   num_list = [3,3],figsize = [12,8])
     """
 
 
@@ -217,6 +231,18 @@ def dotplot_sc(
 
     :example:
     >>> import pycallingcards as cc
+    >>> import pycallingcards as cc
+    >>> import pycallingcards as cc
+    >>> import scanpy as sc
+    >>> adata_ccf = sc.read("Mouse-Cortex_CCF.h5ad")
+    >>> adata = cc.datasets.mousecortex_data(data="RNA")
+    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000, pvalue_cutoff = 0.01,
+                lam_win_size = 1000000,  pseudocounts = 1, record = True)
+    >>> peak_annotation = cc.pp.annotation(peak_data, reference = "mm10")
+    >>> peak_annotation = cc.pp.combine_annotation(peak_data,peak_annotation)
+    >>> sc.tl.rank_genes_groups(adata,'cluster')
+    >>> result = cc.tl.pair_peak_gene_sc(adata_ccf,adata,peak_annotation)
     >>> cc.pl.dotplot_sc(adata_ccf,adata,result)
     
     """

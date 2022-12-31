@@ -52,14 +52,8 @@ def volcano_plot(
      
     :example:
     >>> import pycallingcards as cc
-    >>> exp_ccf = cc.datasets.SP1_K562HCT116_data(data = "experience_ccf")
-    >>> bg_ccf = cc.datasets.SP1_K562HCT116_data(data = "background_ccf")
-    >>> peak_data = cc.pp.callpeaks(exp_ccf, bg_ccf, method = "MACS2", reference = "hg38", pvalue_cutoffbg = 0.0001, window_size = 2000, step_size = 500,
-                  pvalue_cutoffTTAA = 0.0000001, lam_win_size = None)
-    >>> # If "https://www.encodeproject.org/files/ENCFF205TXT/@@download/ENCFF205TXT.bigWig" could not work, please download it and read the local path.
-    >>> mtx = cc.pl. calculate_signal(peak_data,"https://www.encodeproject.org/files/ENCFF205TXT/@@download/ENCFF205TXT.bigWig")
-    >>> cc.pl.signal_heatmap(mtx)
-
+    >>> adata_ccf = cc.datasets.mouse_brd4_data(data = "CCF")
+    >>> cc.pl.volcano_plot(adata_ccf,figsize = (6,10),labelright = (5,220),labelleft = (-9,220))
     """
 
 

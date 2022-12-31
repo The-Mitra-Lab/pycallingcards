@@ -14,7 +14,7 @@ def rank_peak_groups(
     groups: Union[str, Sequence[str]] = None,
     n_peaks: int = 10,
     peak_symbols: Optional[str] = None,
-    key: Optional[str] = 'rank_peak_groups',
+    key: Optional[str] = 'binomtest',
     rankby: _rankby = 'pvalues',
     fontsize: int = 8,
     ncols: int = 4,
@@ -34,7 +34,7 @@ def rank_peak_groups(
         Number of peaks that appear in the returned tables.
     :param peak_symbols: Default is `None`.
          Key for field in .var that stores peak symbols if you do not want to use .var_names.
-    :param key: Default is `rank_peak_groups`.
+    :param key: Default is `'binomtest'`.
         Key for the name of the cluster.
     :param fontsize: Default is 8.
         Fontsize for peak names.
@@ -53,9 +53,8 @@ def rank_peak_groups(
     :example:
     >>> import pycallingcards as cc
     >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
-    >>> cc.pl.rank_peaks_groups(adata_ccf)
+    >>> cc.pl.rank_peak_groups(adata_ccf,key = 'binomtest')
 
-    :See also: `tl.rank_peaks_groups`
     """
 
     import matplotlib as mpl

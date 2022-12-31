@@ -43,8 +43,9 @@ def calculate_signal(
     >>> bg_ccf = cc.datasets.SP1_K562HCT116_data(data = 'HCT116_brd4_ccf')
     >>> peak_data = cc.pp.callpeaks(exp_ccf, bg_ccf, method = 'ccf_tools', reference = 'hg38', pvalue_cutoffbg = 0.0001, window_size = 2000, step_size = 500,
               pvalue_cutoffTTAA = 0.0000001, lam_win_size = None)
-    >>> # If "https://www.encodeproject.org/files/ENCFF205TXT/@@download/ENCFF205TXT.bigWig" could not work, please download it and read the local path.
-    >>> mtx = cc.pl. calculate_signal(peak_data,"https://www.encodeproject.org/files/ENCFF205TXT/@@download/ENCFF205TXT.bigWig")
+    >>> # If "https://www.encodeproject.org/files/ENCFF587ZMX/@@download/ENCFF587ZMX.bigWig" could not work, please download it and read the local path.
+    >>> mtx = cc.pl.calculate_signal(peak_data,"https://www.encodeproject.org/files/ENCFF587ZMX/@@download/ENCFF587ZMX.bigWig")
+
 
 
     """
@@ -116,9 +117,9 @@ def signal_plot(
     >>> bg_ccf = cc.datasets.SP1_K562HCT116_data(data = 'HCT116_brd4_ccf')
     >>> peak_data = cc.pp.callpeaks(exp_ccf, bg_ccf, method = 'ccf_tools', reference = 'hg38', pvalue_cutoffbg = 0.0001, window_size = 2000, step_size = 500,
               pvalue_cutoffTTAA = 0.0000001, lam_win_size = None)
-    >>> # If "https://www.encodeproject.org/files/ENCFF205TXT/@@download/ENCFF205TXT.bigWig" could not work, please download it and read the local path.
-    >>> mtx = cc.pl. calculate_signal(peak_data,"https://www.encodeproject.org/files/ENCFF205TXT/@@download/ENCFF205TXT.bigWig")
-    >>> cc.pl.signal_plot(mtx, alpha = 0.2)
+    >>> # If "https://www.encodeproject.org/files/ENCFF587ZMX/@@download/ENCFF587ZMX.bigWig" could not work, please download it and read the local path.
+    >>> mtx = cc.pl.calculate_signal(peak_data,"https://www.encodeproject.org/files/ENCFF587ZMX/@@download/ENCFF587ZMX.bigWig")
+    >>> cc.pl.signal_plot(mtx, alpha = 0.05)
 
 
     """
@@ -202,13 +203,13 @@ def signal_heatmap(
      
     :example:
     >>> import pycallingcards as cc
-     >>> exp_ccf = cc.datasets.SP1_K562HCT116_data(data = 'HCT116_SP1_ccf')
+    >>> exp_ccf = cc.datasets.SP1_K562HCT116_data(data = 'HCT116_SP1_ccf')
     >>> bg_ccf = cc.datasets.SP1_K562HCT116_data(data = 'HCT116_brd4_ccf')
     >>> peak_data = cc.pp.callpeaks(exp_ccf, bg_ccf, method = 'ccf_tools', reference = 'hg38', pvalue_cutoffbg = 0.0001, window_size = 2000, step_size = 500,
               pvalue_cutoffTTAA = 0.0000001, lam_win_size = None)
-    >>> # If "https://www.encodeproject.org/files/ENCFF205TXT/@@download/ENCFF205TXT.bigWig" could not work, please download it and read the local path.
-    >>> mtx = cc.pl. calculate_signal(peak_data,"https://www.encodeproject.org/files/ENCFF205TXT/@@download/ENCFF205TXT.bigWig")
-    >>> cc.pl.signal_heatmap(mtx)
+    >>> # If "https://www.encodeproject.org/files/ENCFF587ZMX/@@download/ENCFF587ZMX.bigWig" could not work, please download it and read the local path.
+    >>> mtx = cc.pl.calculate_signal(peak_data,"https://www.encodeproject.org/files/ENCFF587ZMX/@@download/ENCFF587ZMX.bigWig")
+    >>> cc.pl.signal_heatmap(mtx, pad = 0.035)
 
     """
 

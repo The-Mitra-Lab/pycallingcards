@@ -48,8 +48,17 @@ def pair_peak_gene_sc(
 
     :example:
     >>> import pycallingcards as cc
-    >>> cc.tl.pair_peak_gene(adata_ccf,adata,peak_annotation,score_cutoff = 10, pvalue_cutoff = 0.005)
-
+    >>> import scanpy as sc
+    >>> adata_ccf = sc.read("Mouse-Cortex_CCF.h5ad")
+    >>> adata = cc.datasets.mousecortex_data(data="RNA")
+    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000, pvalue_cutoff = 0.01,
+                lam_win_size = 1000000,  pseudocounts = 1, record = True)
+    >>> peak_annotation = cc.pp.annotation(peak_data, reference = "mm10")
+    >>> peak_annotation = cc.pp.combine_annotation(peak_data,peak_annotation)
+    >>> sc.tl.rank_genes_groups(adata,'cluster')
+    >>> cc.tl.pair_peak_gene_sc(adata_ccf,adata,peak_annotation)
+    
     """
 
 
@@ -123,8 +132,8 @@ def pair_peak_gene_bulk(
 
     :example:
     >>> import pycallingcards as cc
-    >>> cc.tl.pair_peak_gene_bulk(adata_ccf,"desq.csv")
-
+    >>> adata_ccf = cc.datasets.mouse_brd4_data(data="CCF")
+    >>> cc.tl.pair_peak_gene_bulk(adata_ccf,"https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/deseq_MF.csv")
     """
     
     if type(deresult) == str:

@@ -109,7 +109,7 @@ def SP1_K562HCT116_data(
         avail_data = ['HCT116_SP1_ccf','K562_SP1_ccf','HCT116_brd4_ccf','K562_brd4_ccf','barcodes']
         raise ValueError(f'data must be one of {avail_data}.')
             
-_mouse_brd4 = Optional[Literal['Female_Brd4','Male_Brd4','RNA']]
+_mouse_brd4 = Optional[Literal['Female_Brd4','Male_Brd4','RNA','CCF']]
 
 def mouse_brd4_data(
     data = _mouse_brd4
@@ -122,6 +122,8 @@ def mouse_brd4_data(
     :param data: `['Female_Brd4','Male_Brd4','RNA']`. 
         | `Female_Brd4` reads the ccf file for the bulk Brd4 binding data for female mouse .
         | `Male_Brd4` reads the ccf file for the bulk Brd4 binding data for male mouse.
+        | `RNA` reads the normalized RNA data.
+        | `CCF` reads the anndata object.
 
     :example:
     >>> import pycallingcards as cc
@@ -142,9 +144,15 @@ def mouse_brd4_data(
         ccf_data = pd.read_csv("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/dmso_MF.csv", index_col = 0)
         return ccf_data
 
+    if data == "CCF":
+        filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "Brd4_bindings_bulk.h5ad")
+        url = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/Brd4_bindings_bulk.h5ad"
+        adata = sc.read(filename, backup_url=url)
+        return adata
+
 
     else:
-        avail_data = ['Female_Brd4','Male_Brd4','RNA']
+        avail_data = ['Female_Brd4','Male_Brd4','RNA','CCF']
         raise ValueError(f'data must be one of {avail_data}.')
             
 _Cre = Optional[Literal["SP1_P10","SP1_P28","background"]]

@@ -108,7 +108,6 @@ def draw_area(
     >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10", record = True)
     >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
-    >>> cc.pl.rank_peaks_groups(adata_ccf)
     >>> cc.pl.draw_area("chr12",50102917,50124960,400000,peak_data,ccf_data,"mm10",adata_ccf,"Neuron_Excit",'cluster',figsize = (30,6),peak_line = 4,color = "red")
 
     """
@@ -309,7 +308,7 @@ def whole_peaks(
     :example:
     >>> import pycallingcards as cc
     >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10", record = True)
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10", record = True)
     >>> cc.pl.whole_peaks(peak_data)
 
     """

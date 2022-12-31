@@ -40,6 +40,12 @@ def heatmap(
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name would be given and the plot would be saved as png.
 
+    :example:
+    >>> import pycallingcards as cc
+    >>> adata_ccf = cc.datasets.mouse_brd4_data(data = "CCF")
+    >>> rna = cc.datasets.mouse_brd4_data(data = "RNA")
+    >>> cc.pl.heatmap(adata_ccf,rna, rnalabels = ["Female1", "Female2", "Female3","Male1", "Male2","Male3"])
+
     """
 
     sns.set(rc={'figure.figsize':figsize})
