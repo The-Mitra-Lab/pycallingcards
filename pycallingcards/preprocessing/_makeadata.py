@@ -54,7 +54,11 @@ def makeAnndata(
 
    
     :Example:
-    Please check [here](https://pycallingcards.readthedocs.io/en/latest/tutorials/notebooks/Mouse_cortex_Example.html).
+    >>> import pycallingcards as cc
+    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  record = True)
+    >>> barcodes = cc.datasets.mousecortex_data(data="barcodes")
+    >>> adata_ccf = cc.pp.makeAnndata(ccf_data, peak_data, barcodes)
 
 
     """
@@ -182,8 +186,7 @@ def adata_insertions(
         pd.DataFrame with paired genes and peaks for different groups.
 
     :example:
-    >>> import pycallingcards as cc
-    >>> cc.tl.pair_peak_gene(adata_ccf,adata,peak_annotation,score_cutoff = 10, pvalue_cutoff = 0.005)
+    Please check `here <https://pycallingcards.readthedocs.io/en/latest/tutorials/notebooks/Mouse_cortex_Example.html>`__.
 
     """
 

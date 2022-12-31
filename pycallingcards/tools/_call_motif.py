@@ -19,7 +19,7 @@ def call_motif(
     ):
 
     """\
-    Call motif by `HOMER <http://homer.ucsd.edu/homer/>` and :cite:`heinz2010simple`.
+    Call motif by `HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>`__ and :cite:`heinz2010simple`.
     Please make sure HOMER is installed along with the genome data.
 
     :param peaks_path: Default is `None`.
@@ -45,7 +45,7 @@ def call_motif(
     :param homer_path: Default is `None`.
         Default uses the default path for Homer.
     :param motif_length: Default is `None`.
-        Default uses the default Motif length for HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>.
+        Default uses the default Motif length for `HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>`__.
         Specifies the length of motifs to be found. 
     :param num_cores: Default is `3`.
         Number of CPUs to use.

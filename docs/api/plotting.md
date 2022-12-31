@@ -26,6 +26,7 @@ import pycallingcards as cc
    plotting.heatmap
    plotting.dotplot_bulk
    plotting.dotplot_sc
+   plotting.WashU_browser_url
    plotting.sankey
 
 ```

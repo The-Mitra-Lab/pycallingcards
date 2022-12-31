@@ -1507,7 +1507,7 @@ def callpeaks(
         `'CCcaller'` is a method considering the maxdistance between insertions in the data,
         `'ccf_tools'` uses the idea adapted from :cite:`zhang2008model` and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
-        `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://Blockify.readthedocs.io/en/laCCcaller/pages/introduction.html>`__.
+        `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://blockify.readthedocs.io/en/latest/>`__.
     :param reference:  `['hg38','mm10','sacCer3']`. Default is `'hg38'`.
         We currently have `'hg38'` for human data, `'mm10'` for mouse data and `'sacCer3'` for yeast data.
     :param pvalue_cutoff: Default is 0.0001.
