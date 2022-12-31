@@ -4,7 +4,7 @@ Welcome to **Pycallingcards**!
 
 **Pycallingcards** is a package for calling cards data analysis developed and maintained by [Mitra Lab](http://genetics.wustl.edu/rmlab/) at Washington University in St. Louis. 
 
-Calling cards is a sequencing technology to assay TF binding which could be done in vitro and in vivo in both bulk and single-cell level. To know more about calling cards technology, please check [Moudgil et al](https://www.sciencedirect.com/science/article/pii/S009286742030814X?via%3Dihub) and [Wang et al](http://genetics.wustl.edu/rmlab/files/2012/09/Calling-Cards-for-DNA-binding.pdf).
+Calling cards is a sequencing technology to assay TF binding which could be done in vitro and in vivo at both bulk and single-cell level. To know more about calling cards technology, please check [Moudgil et al](https://www.sciencedirect.com/science/article/pii/S009286742030814X?via%3Dihub) and [Wang et al](http://genetics.wustl.edu/rmlab/files/2012/09/Calling-Cards-for-DNA-binding.pdf).
 
 
 Pycallingcards is composed of five different part: datasets, reading (rd), preprocessing (pp), tools (tl) and plotting (pl). 

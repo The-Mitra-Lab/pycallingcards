@@ -54,11 +54,8 @@ def makeAnndata(
 
    
     :Example:
-    >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  record = True)
-    >>> barcodes = cc.datasets.mousecortex_data(data="barcodes")
-    >>> adata_ccf = cc.pp.makeAnndata(ccf_data, peak_data, barcodes)
+    Please check [here](https://pycallingcards.readthedocs.io/en/latest/tutorials/notebooks/Mouse_cortex_Example.html).
+
 
     """
     if reference == "hg38" or reference == "mm10":

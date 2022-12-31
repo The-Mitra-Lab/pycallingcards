@@ -86,7 +86,7 @@ def annotation(
     :Example:
     >>> import pycallingcards as cc
     >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10", record = True)
+    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10", record = True)
     >>> peak_annotation = cc.pp.annotation(peak_data, reference = "mm10")
     
     """
