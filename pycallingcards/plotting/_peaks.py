@@ -102,8 +102,7 @@ def draw_area(
         If `True`, a default name would be given and the plot would be saved as png.
 
 
-    :Example:
-    --------
+    :example:
     >>> import pycallingcards as cc
     >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10", record = True)

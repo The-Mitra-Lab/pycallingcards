@@ -28,7 +28,6 @@ def sankey(
 
     :example:
     >>> import pycallingcards as cc
-    >>> import pycallingcards as cc
     >>> import scanpy as sc
     >>> adata_ccf = sc.read("Mouse-Cortex_CCF.h5ad")
     >>> adata = cc.datasets.mousecortex_data(data="RNA")
