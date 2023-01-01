@@ -21,7 +21,7 @@ For single-cell calling cards anaysis, Pycallingcards interacts with [Scanpy](ht
 
 ## Documentation.
 
-Please check [**here**](https://pycallingcards.readthedocs.io/en/latest/tutorials.html) for detailed documentation.
+Please check [**here**](https://pycallingcards.readthedocs.io/en/latest/) for detailed documentation.
 
 ## Installation
 
