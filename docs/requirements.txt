@@ -13,7 +13,6 @@ pyBigWig
 d3blocks
 # doc
 sphinx
-pydata-sphinx-theme
 myst_parser
 sphinxcontrib-bibtex
 nbsphinx
@@ -22,4 +21,4 @@ sphinx_copybutton
 sphinx_design
 sphinxext.opengraph
 sphinx-hoverxref
-pydata-sphinx-theme
+furo
