@@ -1,6 +1,6 @@
 """Calling cards data analysis in Python"""
 
-from ._callpeaks import callpeaks
 from ._annotation import annotation, combine_annotation
-from ._makeadata import makeAnndata, adata_insertions
+from ._callpeaks import callpeaks
 from ._filterpeaks import filter_peaks
+from ._makeadata import adata_insertions, makeAnndata

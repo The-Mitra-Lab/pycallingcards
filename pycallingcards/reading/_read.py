@@ -1,14 +1,14 @@
-import pandas as pd
 from typing import List
 
-def read_qbed(
-    filename: str
-    ) -> pd.DataFrame:
+import pandas as pd
+
+
+def read_qbed(filename: str) -> pd.DataFrame:
 
     """\
     Read .qbed file.
 
-    :param filename: 
+    :param filename:
         Path to the qbed file.
 
     :Returns:
@@ -18,22 +18,25 @@ def read_qbed(
     >>> import pycallingcards as cc
     >>> qbed = cc.rd.read_qbed("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt")
 
-       
+
     """
 
-    return pd.read_csv(filename, sep = "\t",  header = None, names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
+    return pd.read_csv(
+        filename,
+        sep="\t",
+        header=None,
+        names=["Chr", "Start", "End", "Reads", "Direction", "Barcodes"],
+    )
 
-def combine_qbed(
-    filelist: list, 
-    name: List = ["Chr", "Start"]
-    ) -> pd.DataFrame:
+
+def combine_qbed(filelist: list, name: List = ["Chr", "Start"]) -> pd.DataFrame:
 
     """\
     Combine .qbed file.
 
-    :param filelist: 
+    :param filelist:
         List containing all the pd.DataFrames need to be combined.
-    :param name: 
+    :param name:
         Name of the first two colums. Default is ["Chr", "Start"].
 
     :Returns:
@@ -46,16 +49,15 @@ def combine_qbed(
     >>> qbed = cc.rd.combine_qbed([P10,P28])
     """
 
-    return pd.concat(filelist).sort_values(by=name).reset_index(drop = True)
+    return pd.concat(filelist).sort_values(by=name).reset_index(drop=True)
 
-def read_rna(
-    filename: str
-):
+
+def read_rna(filename: str):
 
     """\
     Read RNA file which column index is sample names and row index is gene names.
 
-    :param filename: 
+    :param filename:
         Path to RNA file.
 
     :Returns:
@@ -67,19 +69,15 @@ def read_rna(
 
     """
 
-    return pd.read_csv("dmso.csv", index_col = 0)
+    return pd.read_csv("dmso.csv", index_col=0)
 
 
-
-def save_qbed(
-    file: pd.DataFrame,
-    path: str
-    ):
+def save_qbed(file: pd.DataFrame, path: str):
 
     """\
     Save .qbed file.
 
-    :param file: 
+    :param file:
         pd.Dataframe of the file
     :param path:
         Path to the qbed file.
@@ -89,21 +87,18 @@ def save_qbed(
     >>> qbed = cc.rd.read_qbed("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt")
     >>> qbed = cc.rd.save_qbed(qbed,"SP1_P10.txt")
 
-       
+
     """
 
-    file.to_csv(path,sep ="\t",header = None, index = None)
+    file.to_csv(path, sep="\t", header=None, index=None)
 
 
-def save_bed(
-    file: pd.DataFrame,
-    path: str
-    ):
+def save_bed(file: pd.DataFrame, path: str):
 
     """\
     Save.bed file.
 
-    :param file: 
+    :param file:
         pd.Dataframe of the file
     :param path:
         Path to the bed file.
@@ -113,7 +108,7 @@ def save_bed(
     >>> SP1 = cc.rd.read_qbed("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P10.txt")
     >>> bed = cc.pp.callpeaks(SP1,  method = "CCcaller", reference = "mm10")
     >>> qbed = cc.rd.save_bed(bed,"SP1.bed")
-       
+
     """
 
-    file.to_csv(path,sep ="\t",header = None, index = None)
+    file.to_csv(path, sep="\t", header=None, index=None)

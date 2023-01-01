@@ -1,12 +1,14 @@
+from typing import Iterable, List, Literal, Optional, Sequence, Tuple, Union
+
 import numpy as np
 import pandas as pd
 from anndata import AnnData
-from typing import Union, Optional, List, Sequence, Iterable, Literal, Tuple
-from matplotlib.axes import Axes
-from matplotlib import rcParams, cm
+from matplotlib import cm
 from matplotlib import pyplot as plt
+from matplotlib import rcParams
+from matplotlib.axes import Axes
 
-_rankby = Optional[Literal['pvalues', 'logfoldchange']]
+_rankby = Optional[Literal["pvalues", "logfoldchange"]]
 
 
 def rank_peak_groups(
@@ -14,13 +16,13 @@ def rank_peak_groups(
     groups: Union[str, Sequence[str]] = None,
     n_peaks: int = 10,
     peak_symbols: Optional[str] = None,
-    key: Optional[str] = 'binomtest',
-    rankby: _rankby = 'pvalues',
+    key: Optional[str] = "binomtest",
+    rankby: _rankby = "pvalues",
     fontsize: int = 8,
     ncols: int = 4,
     sharey: bool = True,
     show: Optional[bool] = True,
-    save: Union[bool,str] = False
+    save: Union[bool, str] = False,
 ):
 
     """\
@@ -44,7 +46,7 @@ def rank_peak_groups(
         Controls if the y-axis of each panels should be shared. By passing
         `sharey=False`, each panel has its own y-axis range.
     :param show: Default is `True`
-        Controls if the plot shows or not. 
+        Controls if the plot shows or not.
     :param save: Default is `False`.
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name would be given and the plot would be saved as png.
@@ -58,6 +60,7 @@ def rank_peak_groups(
     """
 
     import matplotlib as mpl
+
     mpl.rc_file_defaults()
 
     n_panels_per_row = ncols
@@ -67,8 +70,8 @@ def rank_peak_groups(
             f"this plot. Received n_peaks={n_peaks}."
         )
 
-    reference = str(adata_ccf.uns[key]['params']['reference'])
-    group_names = adata_ccf.uns[key]['names'].dtype.names if groups is None else groups
+    reference = str(adata_ccf.uns[key]["params"]["reference"])
+    group_names = adata_ccf.uns[key]["names"].dtype.names if groups is None else groups
     # one panel for each group
     # set up the figure
     n_panels_x = min(n_panels_per_row, len(group_names))
@@ -78,8 +81,8 @@ def rank_peak_groups(
 
     fig = plt.figure(
         figsize=(
-            n_panels_x * rcParams['figure.figsize'][0],
-            n_panels_y * rcParams['figure.figsize'][1],
+            n_panels_x * rcParams["figure.figsize"][0],
+            n_panels_y * rcParams["figure.figsize"][1],
         )
     )
     gs = gridspec.GridSpec(nrows=n_panels_y, ncols=n_panels_x, wspace=0.22, hspace=0.3)
@@ -88,7 +91,7 @@ def rank_peak_groups(
     ymin = np.Inf
     ymax = -np.Inf
     for count, group_name in enumerate(group_names):
-        peak_names = adata_ccf.uns[key]['names'][group_name][:n_peaks]
+        peak_names = adata_ccf.uns[key]["names"][group_name][:n_peaks]
         pvalues = adata_ccf.uns[key][rankby][group_name][:n_peaks]
 
         # Setting up axis, calculating y bounds
@@ -113,7 +116,7 @@ def rank_peak_groups(
 
         # Mapping to peak_symbols
         if peak_symbols is not None:
-            if adata_ccf.raw is not None and adata_ccf.uns[key]['params']['use_raw']:
+            if adata_ccf.raw is not None and adata_ccf.uns[key]["params"]["use_raw"]:
                 peak_names = adata_ccf.raw.var[peak_symbols][peak_names]
             else:
                 peak_names = adata_ccf.var[peak_symbols][peak_names]
@@ -124,15 +127,15 @@ def rank_peak_groups(
                 ig,
                 pvalues[ig],
                 peak_name,
-                rotation='vertical',
-                verticalalignment='bottom',
-                horizontalalignment='center',
+                rotation="vertical",
+                verticalalignment="bottom",
+                horizontalalignment="center",
                 fontsize=fontsize,
             )
 
-        ax.set_title('{} vs. {}'.format(group_name, reference))
+        ax.set_title("{} vs. {}".format(group_name, reference))
         if count >= n_panels_x * (n_panels_y - 1):
-            ax.set_xlabel('ranking')
+            ax.set_xlabel("ranking")
 
         # print the 'score' label only on the first panel per row.
         if count % n_panels_x == 0:
@@ -144,12 +147,12 @@ def rank_peak_groups(
 
     if save != False:
         if save == True:
-            save = f"rank_peak_groups_{adata_ccf.uns[key]['params']['groupby']}" + '.png'
-        plt.savefig(save, bbox_inches='tight')
-        
+            save = (
+                f"rank_peak_groups_{adata_ccf.uns[key]['params']['groupby']}" + ".png"
+            )
+        plt.savefig(save, bbox_inches="tight")
+
     if show:
         plt.show()
 
-    plt.close() 
-
-
+    plt.close()

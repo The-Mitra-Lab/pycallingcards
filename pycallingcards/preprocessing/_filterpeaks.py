@@ -1,7 +1,9 @@
+from typing import Iterable, List, Literal, Mapping, Optional, Sequence, Tuple, Union
+
 import numpy as np
-from anndata import AnnData
-from typing import Union, Optional, List, Sequence, Iterable, Mapping, Literal, Tuple
 import scanpy as sc
+from anndata import AnnData
+
 
 def filter_peaks(
     data: AnnData,
@@ -37,28 +39,32 @@ def filter_peaks(
     :param inplace: Default is `True`.
         Perform computation inplace or return result.
     :param copy: Default is `False`.
-        Whether to modify copied input object. 
-        
-        
+        Whether to modify copied input object.
+
+
     :Returns:
-    
+
     Returns the following arrays or directly subsets
     and annotates the data matrix.
 
     | **peak_subset** - Boolean index mask that does filtering. `True` means that the
         peak is kept. `False` means the peak is removed.
     | **number_per_peak** - Depending on what the tresholded was(`counts` or `cells`), the array stores
-        `n_counts` or `n_cells` per peak, respectively.   
-        
+        `n_counts` or `n_cells` per peak, respectively.
+
     :Example:
     >>> import pycallingcards as cc
     >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
     >>> cc.pp.filter_peaks(adata_ccf, min_counts=1)
- 
+
     """
 
-
-    return  sc.pp.filter_genes(data = data, min_counts=min_counts, min_cells=min_cells, max_counts=max_counts, 
-                                max_cells=max_cells, inplace=inplace, copy=copy)
-
-
+    return sc.pp.filter_genes(
+        data=data,
+        min_counts=min_counts,
+        min_cells=min_cells,
+        max_counts=max_counts,
+        max_cells=max_cells,
+        inplace=inplace,
+        copy=copy,
+    )

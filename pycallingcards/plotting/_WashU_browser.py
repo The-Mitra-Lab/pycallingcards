@@ -1,17 +1,18 @@
-import os
 import json
+import os
+import random
 import time
-import requests
+from typing import Literal, Optional
+
 import numpy as np
 import pandas as pd
-import random
+import requests
+
+_reference2 = Optional[Literal["hg38", "mm10", "sacCer3"]]
 
 
-from typing import  Optional, Literal
-_reference2 = Optional[Literal["hg38","mm10","sacCer3"]]
+def qbed_to_bedgraph(expdata, number=4):
 
-def qbed_to_bedgraph(expdata,number = 4):
-    
     chrm = list(expdata["Chr"].unique())
 
     chrnew = []
@@ -21,12 +22,12 @@ def qbed_to_bedgraph(expdata,number = 4):
     number = 4
 
     for chrom in chrm:
-        curChrom = list(expdata[expdata["Chr"] == chrom]["Start"]) 
-        start,counts = np.unique(curChrom, return_counts=True)
+        curChrom = list(expdata[expdata["Chr"] == chrom]["Start"])
+        start, counts = np.unique(curChrom, return_counts=True)
 
         chrnew = chrnew + [chrom] * len(start)
         startnew = startnew + (list(start))
-        endnew = endnew + list(start+number)
+        endnew = endnew + list(start + number)
         count = count + list(counts)
 
     return pd.DataFrame(list(zip(chrnew, startnew, endnew, count)))
@@ -74,7 +75,9 @@ class BrowserHelperClient(object):
 
         surl = self._base_url + "/file_upload"
 
-        response = requests.post(surl, files=files, data={"assembly": assembly}, verify=self._request_verify)
+        response = requests.post(
+            surl, files=files, data={"assembly": assembly}, verify=self._request_verify
+        )
 
         assert response.status_code == 200
         task_id = response.text
@@ -109,11 +112,11 @@ class BrowserHelperClient(object):
 def WashU_browser_url(
     qbed: dict = {},
     bed: dict = {},
-    genome: _reference2 = 'hg38',
-    dirc: str = 'WashU_cache',
-    remove: bool =  False
-    ):
-    
+    genome: _reference2 = "hg38",
+    dirc: str = "WashU_cache",
+    remove: bool = False,
+):
+
     """\
     Display qbed/ccf, bed data in `WashU Epigenome Browser <http://epigenomegateway.wustl.edu/browser/>`.
 
@@ -140,7 +143,7 @@ def WashU_browser_url(
     >>> qbed = {"SP1":SP1}
     >>> bed = {'PEAK1':peak_data}
     >>> cc.pl.WashU_browser_url(qbed,bed,genome = "mm10")
-        
+
     """
 
     bhc = BrowserHelperClient()
@@ -151,42 +154,52 @@ def WashU_browser_url(
 
     if genome == "hg38" or genome == "mm10":
         number = 4
-    elif genome == "sacCer3" :
+    elif genome == "sacCer3":
         number = 1
     else:
-        raise ValueError('Please input correct genome')
+        raise ValueError("Please input correct genome")
 
     if not os.path.exists(dirc):
-        os.system('mkdir '+ dirc)
+        os.system("mkdir " + dirc)
 
     qbed_keys = list(qbed.keys())
     for key in qbed_keys:
         if type(qbed[key]) == str:
 
-            file[key+".qbed"] = qbed[key]
-            
+            file[key + ".qbed"] = qbed[key]
 
-            expdata = pd.read_csv(qbed[key], sep = "\t",  header = None, names =  ["Chr", "Start", "End", "Reads", "Direction", "Barcodes"])
+            expdata = pd.read_csv(
+                qbed[key],
+                sep="\t",
+                header=None,
+                names=["Chr", "Start", "End", "Reads", "Direction", "Barcodes"],
+            )
 
-            expdatagraph = qbed_to_bedgraph(expdata,number = number)
+            expdatagraph = qbed_to_bedgraph(expdata, number=number)
             randomnum = str(random.random())
-            expdatagraph.to_csv(dirc+"/"+randomnum+".bedgraph",sep ="\t",header = None, index = None)
-            file[key+'.bedgraph'] = dirc+"/"+randomnum+".bedgraph"
+            expdatagraph.to_csv(
+                dirc + "/" + randomnum + ".bedgraph", sep="\t", header=None, index=None
+            )
+            file[key + ".bedgraph"] = dirc + "/" + randomnum + ".bedgraph"
 
         elif type(qbed[key]) == pd.DataFrame:
 
             randomnum = str(random.random())
-            qbed[key].to_csv(dirc+"/"+randomnum+".qbed",sep ="\t",header = None, index = None)
-            file[key+".qbed"] = dirc+"/"+randomnum+".qbed"
+            qbed[key].to_csv(
+                dirc + "/" + randomnum + ".qbed", sep="\t", header=None, index=None
+            )
+            file[key + ".qbed"] = dirc + "/" + randomnum + ".qbed"
 
-            expdatagraph = qbed_to_bedgraph(qbed[key],number = number)
+            expdatagraph = qbed_to_bedgraph(qbed[key], number=number)
             randomnum = str(random.random())
-            expdatagraph.to_csv(dirc+"/"+randomnum+".bedgraph",sep ="\t",header = None, index = None)
-            file[key+'.bedgraph'] = dirc+"/"+randomnum+".bedgraph"
+            expdatagraph.to_csv(
+                dirc + "/" + randomnum + ".bedgraph", sep="\t", header=None, index=None
+            )
+            file[key + ".bedgraph"] = dirc + "/" + randomnum + ".bedgraph"
 
         else:
-            raise ValueError('Please input correct form of ' +key + " in qbed")
-            
+            raise ValueError("Please input correct form of " + key + " in qbed")
+
     print("All qbed addressed")
 
     bed_keys = list(bed.keys())
@@ -195,23 +208,27 @@ def WashU_browser_url(
 
         if type(bed[key]) == str:
 
-            file[key+".bed"] = bed[key]
+            file[key + ".bed"] = bed[key]
 
         elif type(bed[key]) == pd.DataFrame:
 
             randomnum = str(random.random())
-            bed[key].to_csv(dirc+"/"+randomnum+".bed",sep ="\t",header = None, index = None)
-            file[key+".bed"] = dirc+"/"+randomnum+".bed"
+            bed[key].to_csv(
+                dirc + "/" + randomnum + ".bed", sep="\t", header=None, index=None
+            )
+            file[key + ".bed"] = dirc + "/" + randomnum + ".bed"
 
         else:
-            raise ValueError('Please input correct form of ' +key + " in bed")
-            
-    print("All bed addressed")  
+            raise ValueError("Please input correct form of " + key + " in bed")
+
+    print("All bed addressed")
     print("Uploading files")
 
     gburl = bhc.simple_request(file, assembly=genome)
-    print("Please click the following link to see the data on WashU Epigenome Browser directly.")
+    print(
+        "Please click the following link to see the data on WashU Epigenome Browser directly."
+    )
     print(gburl)
-    
+
     if remove:
-        os.system('rm -r '+dirc)
+        os.system("rm -r " + dirc)

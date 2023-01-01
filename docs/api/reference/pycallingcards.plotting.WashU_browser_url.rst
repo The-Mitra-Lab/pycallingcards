@@ -1,5 +1,5 @@
 ﻿pycallingcards.plotting.WashU\_browser\_url
-==================================
+===========================================
 
 .. currentmodule:: pycallingcards.plotting
 
