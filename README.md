@@ -1,7 +1,7 @@
 ## Pycallingcards
 
 <p align="center">
-    <img src="./docs/pycallingcards_icon.png", width="350">
+    <img src="./docs/_static/logo.png", width="350">
 </p>
 
 **Pycallingcards** is a package for calling cards data analysis developed and maintained by [Mitra Lab](http://genetics.wustl.edu/rmlab/) at Washington University in St. Louis. 
