@@ -118,7 +118,7 @@ def WashU_browser_url(
 ):
 
     """\
-    Display qbed/ccf, bed data in `WashU Epigenome Browser <http://epigenomegateway.wustl.edu/browser/>` cite:`li2019washu`.
+    Display qbed/ccf, bed data in `WashU Epigenome Browser <http://epigenomegateway.wustl.edu/browser/>`__ :cite:`li2019washu`.
 
 
     :param qbed: Default is blank.

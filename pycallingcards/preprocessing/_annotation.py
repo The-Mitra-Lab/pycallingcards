@@ -55,7 +55,7 @@ def annotation(
 ) -> pd.DataFrame:
 
     """\
-    Annotate the peak data by `bedtools <https://bedtools.readthedocs.io/en/latest/index.html>`__ [Quinlan10]_.
+    Annotate the peak data by `bedtools <https://bedtools.readthedocs.io/en/latest/index.html>`__ :cite:`quinlan2010bedtools`.
 
     :param peaks_frame: Default is `None`.
         pd.DataFrame with the first three columns as chromosome, start and end.
