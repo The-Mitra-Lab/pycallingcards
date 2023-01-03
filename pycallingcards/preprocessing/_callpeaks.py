@@ -33,13 +33,11 @@ def _findinsertionslen2(
 
 
 def _findinsertionslen(Chrom, start, end, length=3):
-
     # function to calculate the number of insertions in the spcific area of chromosomes
     return len(Chrom[(Chrom >= max(start - length, 0)) & (Chrom <= end)])
 
 
 def _findinsertions(Chrom, start, end, length=3):
-
     # function returns of insertions in the spcific area of chromosomes
     return Chrom[(Chrom >= max(start - length, 0)) & (Chrom <= end)]
 
@@ -51,7 +49,6 @@ def _compute_cumulative_poisson(
     total_bg_insertions,
     pseudocounts,
 ):
-
     from scipy.stats import poisson
 
     # Calculating the probability under the hypothesis of possion distribution
@@ -88,7 +85,6 @@ def _CCcallerCompare_bf2(
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = True,
 ) -> list:
-
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
@@ -191,7 +187,6 @@ def _CCcallerCompare2(
     test_method: _PeakCCcallerMethod,
     record: bool,
 ) -> list:
-
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
@@ -207,7 +202,6 @@ def _CCcallerCompare2(
     totalcurTTAA = len(curTTAAframenp)
 
     if lam_win_size != None:
-
         startbglam = 0
         startTTAAlam = 0
         startboundlam = 0
@@ -351,7 +345,6 @@ def _CCcaller_bf2(
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = False,
 ) -> pd.DataFrame:
-
     # The chromosomes we need to consider
     chrm = list(expdata["Chr"].unique())
 
@@ -476,7 +469,6 @@ def _CCcaller2(
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = False,
 ) -> pd.DataFrame:
-
     # The chromosomes we need to consider
     chrm = list(expdata["Chr"].unique())
 
@@ -719,7 +711,6 @@ def _Blockify(
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = True,
 ) -> pd.DataFrame:
-
     # The chromosomes we need to consider
     chrm = list(expdata["Chr"].unique())
 
@@ -806,7 +797,6 @@ def _callpeaksccf_tools(
     pvalue_cutoff: float = 0.01,
     record: bool = False,
 ) -> pd.DataFrame:
-
     # function for ccf_tools with background
     from scipy.stats import poisson
 
@@ -1191,7 +1181,6 @@ def _callpeaksccf_tools_bfnew2(
     test_method: _PeakCCcallerMethod = "poisson",
     multinumber=100000000,
 ) -> pd.DataFrame:
-
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
@@ -1244,7 +1233,6 @@ def _callpeaksccf_tools_bfnew2(
         startTTAA2 = 0
 
         if lam_win_size != None:
-
             startinsertionslam1 = 0
             startTTAAlam1 = 0
 
@@ -1608,7 +1596,6 @@ def _callpeaksccf_toolsnew2(
     min_insertions: int = 3,
     record: bool = False,
 ) -> pd.DataFrame:
-
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
@@ -2131,7 +2118,6 @@ def _callpeaksccf_toolsnew2(
 
 
 def _checkint(number, name):
-
     try:
         number = int(number)
     except:
@@ -2143,7 +2129,6 @@ def _checkint(number, name):
 
 
 def _checkpvalue(number, name):
-
     try:
         number = float(number)
     except:
@@ -2178,10 +2163,11 @@ def callpeaks(
     lam_win_size: Optional[int] = 100000,
     step_size: int = 500,
     pseudocounts: float = 0.2,
+    min_length: int = None,
+    max_length: int = None,
     record: bool = True,
     save: Optional[str] = None,
 ) -> pd.DataFrame:
-
     """\
     Call peaks from ccf data.
 
@@ -2221,6 +2207,10 @@ def callpeaks(
         Valid only for `'ccf_tools'`. The length of each step.
     :param pseudocounts: Default is 0.2.
         Number for pseudocounts added for the pyhothesis CCcaller.
+    :param min_length: Default is None.
+        minimum length of peak, valid for Blockify.
+    :param max_length: Default is None.
+        maximum length of peak, valid for Blockify.
     :param record:  Default is `True`.
         Controls if information is recorded.
         If `False`, the output would only have three columns: Chromosome, Start, End.
@@ -2429,7 +2419,7 @@ def callpeaks(
         elif method == "Blockify":
 
             print(
-                "For the Blockify method with background, [expdata, background, pvalue_cutoff, pseudocounts, test_method,  record] would be utilized."
+                "For the Blockify method with background, [expdata, background, pvalue_cutoff, pseudocounts, test_method, min_length, min_length, record] would be utilized."
             )
 
             if type(record) != bool:
@@ -2441,7 +2431,7 @@ def callpeaks(
 
             if save == None:
 
-                return _Blockify(
+                data = _Blockify(
                     expdata,
                     background,
                     length,
@@ -2450,6 +2440,15 @@ def callpeaks(
                     test_method=test_method,
                     record=record,
                 )
+
+                if max_length != None:
+                    data = data[data["End"] - data["Start"] <= max_length]
+
+                if min_length != None:
+                    data = data[data["End"] - data["Start"] >= min_length]
+
+                return data
+
             else:
 
                 data = _Blockify(
@@ -2461,6 +2460,12 @@ def callpeaks(
                     test_method=test_method,
                     record=record,
                 )
+
+                if max_length != None:
+                    data = data[data["End"] - data["Start"] <= max_length]
+
+                if min_length != None:
+                    data = data[data["End"] - data["Start"] >= min_length]
 
                 data.to_csv(save, sep="\t", header=None, index=None)
 
@@ -2770,7 +2775,7 @@ def callpeaks(
 
             if save == None:
 
-                return _Blockify(
+                data = _Blockify(
                     expdata,
                     TTAAframe,
                     length,
@@ -2779,6 +2784,15 @@ def callpeaks(
                     test_method=test_method,
                     record=record,
                 )
+
+                if max_length != None:
+                    data = data[data["End"] - data["Start"] <= max_length]
+
+                if min_length != None:
+                    data = data[data["End"] - data["Start"] >= min_length]
+
+                return data
+
             else:
 
                 data = _Blockify(
@@ -2790,6 +2804,12 @@ def callpeaks(
                     test_method=test_method,
                     record=record,
                 )
+
+                if max_length != None:
+                    data = data[data["End"] - data["Start"] <= max_length]
+
+                if min_length != None:
+                    data = data[data["End"] - data["Start"] >= min_length]
 
                 data.to_csv(save, sep="\t", header=None, index=None)
 
