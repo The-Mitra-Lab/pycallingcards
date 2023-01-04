@@ -17,6 +17,7 @@ def call_motif(
     homer_path: str = None,
     motif_length: int = None,
     num_cores: int = 3,
+    denovo: bool = False,
 ):
 
     """\
@@ -50,6 +51,8 @@ def call_motif(
         Specifies the length of motifs to be found.
     :param num_cores: Default is `3`.
         Number of CPUs to use.
+    :param deno: Default is `False`.
+        Weather to call denovo modif.
 
     :Examples:
     >>> import pycallingcards as cc
@@ -104,7 +107,7 @@ def call_motif(
             + reference
             + " "
             + save_homer
-            + " -nomotif -size "
+            + " -size "
             + str(size)
             + " "
         )
@@ -118,7 +121,7 @@ def call_motif(
             + reference
             + " "
             + save_homer
-            + " -nomotif -size "
+            + " -size "
             + str(size)
             + " "
         )
@@ -130,6 +133,9 @@ def call_motif(
     if num_cores != None:
         if type(num_cores) == int:
             cmd = cmd + "-p " + str(num_cores)
+
+    if denovo == False:
+        cmd = cmd + " -nomotif"
 
     os.system(cmd)
 
