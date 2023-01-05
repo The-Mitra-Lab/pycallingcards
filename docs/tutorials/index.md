@@ -62,3 +62,17 @@ notebooks/SP1_bulk
 
 
 <span style=" font-size: 0.8em;"> In this tutorial, we will call peaks, make annotation, do differential peak analysis.
+
+### Yeast calling cards data
+
+```{toctree}
+:maxdepth: 1
+
+notebooks/yeast
+
+```
+
+<span style=" font-size: 0.8em;"> This is a transcription factor TYE7 bindings in yeast by single-cell(sc) calling cards techenology. The data is from [Shively CA, PNAS. (2020)](https://www.pnas.org/doi/10.1073/pnas.1818015116?url_ver=Z39.88-2003&rfr_id=ori:rid:crossref.org&rfr_dat=cr_pub%20%200pubmed) and could be download from [GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE134427).
+
+
+<span style=" font-size: 0.8em;"> In this tutorial, we will call peaks, make annotation, do differential peak analysis.

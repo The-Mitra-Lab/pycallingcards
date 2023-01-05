@@ -19,7 +19,6 @@ def qbed_to_bedgraph(expdata, number=4):
     startnew = []
     endnew = []
     count = []
-    number = 4
 
     for chrom in chrm:
         curChrom = list(expdata[expdata["Chr"] == chrom]["Start"])

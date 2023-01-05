@@ -7,7 +7,7 @@ import tqdm
 from anndata import AnnData
 from scipy.sparse import csr_matrix, lil_matrix
 
-_reference = Optional[Literal["hg38", "mm10", "yeast"]]
+_reference = Optional[Literal["hg38", "mm10", "sacCer3"]]
 
 
 def _myFuncsorting(e):
@@ -35,7 +35,7 @@ def makeAnndata(
         pd.DataFrame with first three columnsas chromosome, start and end. Other information is contained after these.
     :param barcodes:
         pd.DataFrame or a list of all barcodes.
-    :param reference: `['hg38','mm10','yeast']`. Default is `hg38`.
+    :param reference: `['hg38','mm10','sacCer3']`. Default is `hg38`.
         This information is only used to calculate the length of one insertion.
         `hg38` and `mm10` are the same. Default is `hg38`.
     :param key: Default is  `Barcodes`.
@@ -65,7 +65,7 @@ def makeAnndata(
     """
     if reference == "hg38" or reference == "mm10":
         length = 3
-    elif reference == "yeast":
+    elif reference == "sacCer3":
         length = 0
 
     if type(barcodes) == list:
@@ -88,7 +88,10 @@ def makeAnndata(
     for number in list(peaks1["name"]):
         if number not in peak_name_unique:
             peak_name_unique.append(number)
-    peak_name_unique.sort(key=_myFuncsorting)
+    if reference != "sacCer3":
+        peak_name_unique.sort(key=_myFuncsorting)
+    else:
+        peak_name_unique.sort()
 
     peak_name_dict = {}
     for i in range(len(peak_name_unique)):

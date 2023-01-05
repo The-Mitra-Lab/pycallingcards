@@ -33,11 +33,13 @@ def _findinsertionslen2(
 
 
 def _findinsertionslen(Chrom, start, end, length=3):
+
     # function to calculate the number of insertions in the spcific area of chromosomes
     return len(Chrom[(Chrom >= max(start - length, 0)) & (Chrom <= end)])
 
 
 def _findinsertions(Chrom, start, end, length=3):
+
     # function returns of insertions in the spcific area of chromosomes
     return Chrom[(Chrom >= max(start - length, 0)) & (Chrom <= end)]
 
@@ -49,6 +51,7 @@ def _compute_cumulative_poisson(
     total_bg_insertions,
     pseudocounts,
 ):
+
     from scipy.stats import poisson
 
     # Calculating the probability under the hypothesis of possion distribution
@@ -85,6 +88,7 @@ def _CCcallerCompare_bf2(
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = True,
 ) -> list:
+
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
@@ -187,6 +191,7 @@ def _CCcallerCompare2(
     test_method: _PeakCCcallerMethod,
     record: bool,
 ) -> list:
+
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
@@ -202,6 +207,7 @@ def _CCcallerCompare2(
     totalcurTTAA = len(curTTAAframenp)
 
     if lam_win_size != None:
+
         startbglam = 0
         startTTAAlam = 0
         startboundlam = 0
@@ -345,6 +351,7 @@ def _CCcaller_bf2(
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = False,
 ) -> pd.DataFrame:
+
     # The chromosomes we need to consider
     chrm = list(expdata["Chr"].unique())
 
@@ -469,6 +476,7 @@ def _CCcaller2(
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = False,
 ) -> pd.DataFrame:
+
     # The chromosomes we need to consider
     chrm = list(expdata["Chr"].unique())
 
@@ -711,6 +719,7 @@ def _Blockify(
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = True,
 ) -> pd.DataFrame:
+
     # The chromosomes we need to consider
     chrm = list(expdata["Chr"].unique())
 
@@ -797,6 +806,7 @@ def _callpeaksccf_tools(
     pvalue_cutoff: float = 0.01,
     record: bool = False,
 ) -> pd.DataFrame:
+
     # function for ccf_tools with background
     from scipy.stats import poisson
 
@@ -1181,6 +1191,7 @@ def _callpeaksccf_tools_bfnew2(
     test_method: _PeakCCcallerMethod = "poisson",
     multinumber=100000000,
 ) -> pd.DataFrame:
+
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
@@ -1233,6 +1244,7 @@ def _callpeaksccf_tools_bfnew2(
         startTTAA2 = 0
 
         if lam_win_size != None:
+
             startinsertionslam1 = 0
             startTTAAlam1 = 0
 
@@ -1543,36 +1555,36 @@ def _callpeaksccf_tools_bfnew2(
 
                         sig_flag = 0
 
-        if record:
-            peaks_frame = pd.DataFrame(
-                columns=[
-                    "Chr",
-                    "Start",
-                    "End",
-                    "Center",
-                    "pvalue",
-                    "Experiment Insertions",
-                    "Reference Insertions",
-                    "Fraction Experiment",
-                    "TPH Experiment",
-                ]
-            )
+    if record:
+        peaks_frame = pd.DataFrame(
+            columns=[
+                "Chr",
+                "Start",
+                "End",
+                "Center",
+                "pvalue",
+                "Experiment Insertions",
+                "Reference Insertions",
+                "Fraction Experiment",
+                "TPH Experiment",
+            ]
+        )
 
-            peaks_frame["Center"] = center_list
-            peaks_frame["Experiment Insertions"] = num_exp_insertions_list
-            peaks_frame["Fraction Experiment"] = frac_exp_list
-            peaks_frame["TPH Experiment"] = tph_exp_list
-            peaks_frame["Reference Insertions"] = background_insertions
-            peaks_frame["Expect insertions"] = expect_insertions
+        peaks_frame["Center"] = center_list
+        peaks_frame["Experiment Insertions"] = num_exp_insertions_list
+        peaks_frame["Fraction Experiment"] = frac_exp_list
+        peaks_frame["TPH Experiment"] = tph_exp_list
+        peaks_frame["Reference Insertions"] = background_insertions
+        peaks_frame["Expect insertions"] = expect_insertions
 
-        else:
-            peaks_frame = pd.DataFrame(columns=["Chr", "Start", "End", "pvalue"])
+    else:
+        peaks_frame = pd.DataFrame(columns=["Chr", "Start", "End", "pvalue"])
 
-        peaks_frame["Chr"] = chr_list
-        peaks_frame["Start"] = start_list
-        peaks_frame["End"] = end_list
-        peaks_frame["pvalue"] = pvalue_list
-        peaks_frame = peaks_frame[peaks_frame["pvalue"] <= pvalue_cutoff]
+    peaks_frame["Chr"] = chr_list
+    peaks_frame["Start"] = start_list
+    peaks_frame["End"] = end_list
+    peaks_frame["pvalue"] = pvalue_list
+    peaks_frame = peaks_frame[peaks_frame["pvalue"] <= pvalue_cutoff]
 
     if record:
         return peaks_frame
@@ -1596,6 +1608,7 @@ def _callpeaksccf_toolsnew2(
     min_insertions: int = 3,
     record: bool = False,
 ) -> pd.DataFrame:
+
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
@@ -2118,6 +2131,7 @@ def _callpeaksccf_toolsnew2(
 
 
 def _checkint(number, name):
+
     try:
         number = int(number)
     except:
@@ -2129,6 +2143,7 @@ def _checkint(number, name):
 
 
 def _checkpvalue(number, name):
+
     try:
         number = float(number)
     except:
@@ -2168,6 +2183,7 @@ def callpeaks(
     record: bool = True,
     save: Optional[str] = None,
 ) -> pd.DataFrame:
+
     """\
     Call peaks from ccf data.
 
@@ -2576,7 +2592,7 @@ def callpeaks(
                     names=["Chr", "Start", "End", "Reads"],
                 )
                 length = 0
-                multinumber = 100000
+                multinumber = 10000000
 
             else:
                 raise ValueError("Not valid reference.")
