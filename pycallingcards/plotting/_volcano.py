@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 
 def volcano_plot(
-    adata_ccf: AnnData,
+    adata_cc: AnnData,
     figsize: Tuple[int, int] = (10, 6),
     font_size: int = 1,
     pvalue_cutoff: float = 0.01,
@@ -51,13 +51,13 @@ def volcano_plot(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mouse_brd4_data(data = "CCF")
-    >>> cc.pl.volcano_plot(adata_ccf,figsize = (6,10),labelright = (5,220),labelleft = (-9,220))
+    >>> adata_cc = cc.datasets.mouse_brd4_data(data = "CC")
+    >>> cc.pl.volcano_plot(adata_cc,figsize = (6,10),labelright = (5,220),labelleft = (-9,220))
     """
 
-    label = list(adata_ccf.obs.index)
-    pva = -np.log10(np.array(adata_ccf.uns["fisher_exact"]["pvalues"].tolist())[:, 1])
-    fc = np.array(adata_ccf.uns["fisher_exact"]["logfoldchanges"].tolist())[:, 1]
+    label = list(adata_cc.obs.index)
+    pva = -np.log10(np.array(adata_cc.uns["fisher_exact"]["pvalues"].tolist())[:, 1])
+    fc = np.array(adata_cc.uns["fisher_exact"]["logfoldchanges"].tolist())[:, 1]
 
     sns.set_theme()
     figure, axis = plt.subplots(1, 1, figsize=figsize)

@@ -30,15 +30,15 @@ def sankey(
     :example:
     >>> import pycallingcards as cc
     >>> import scanpy as sc
-    >>> adata_ccf = sc.read("Mouse-Cortex_CCF.h5ad")
+    >>> adata_cc = cc.datasets.mousecortex_data(data="CC")
     >>> adata = cc.datasets.mousecortex_data(data="RNA")
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000, pvalue_cutoff = 0.01,
+    >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.callpeaks(qbed_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000, pvalue_cutoff = 0.01,
                 lam_win_size = 1000000,  pseudocounts = 1, record = True)
     >>> peak_annotation = cc.pp.annotation(peak_data, reference = "mm10")
     >>> peak_annotation = cc.pp.combine_annotation(peak_data,peak_annotation)
     >>> sc.tl.rank_genes_groups(adata,'cluster')
-    >>> result = cc.tl.pair_peak_gene_sc(adata_ccf,adata,peak_annotation)
+    >>> result = cc.tl.pair_peak_gene_sc(adata_cc,adata,peak_annotation)
     >>> cc.pl.sankey(result)
 
     """

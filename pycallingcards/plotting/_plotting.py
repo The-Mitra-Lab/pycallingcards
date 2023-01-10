@@ -12,7 +12,7 @@ _rankby = Optional[Literal["pvalues", "logfoldchange"]]
 
 
 def rank_peak_groups(
-    adata_ccf: AnnData,
+    adata_cc: AnnData,
     groups: Union[str, Sequence[str]] = None,
     n_peaks: int = 10,
     peak_symbols: Optional[str] = None,
@@ -28,7 +28,7 @@ def rank_peak_groups(
     """\
     Plot ranking of peaks.
 
-    :param adata_ccf:
+    :param adata_cc:
         Annotated data matrix.
     :param groups: Default is `None`.
         The groups used to show the peak ranking.
@@ -54,8 +54,8 @@ def rank_peak_groups(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
-    >>> cc.pl.rank_peak_groups(adata_ccf,key = 'binomtest')
+    >>> adata_cc = cc.datasets.mousecortex_data(data="CC")
+    >>> cc.pl.rank_peak_groups(adata_cc,key = 'binomtest')
 
     """
 
@@ -70,8 +70,8 @@ def rank_peak_groups(
             f"this plot. Received n_peaks={n_peaks}."
         )
 
-    reference = str(adata_ccf.uns[key]["params"]["reference"])
-    group_names = adata_ccf.uns[key]["names"].dtype.names if groups is None else groups
+    reference = str(adata_cc.uns[key]["params"]["reference"])
+    group_names = adata_cc.uns[key]["names"].dtype.names if groups is None else groups
     # one panel for each group
     # set up the figure
     n_panels_x = min(n_panels_per_row, len(group_names))
@@ -91,8 +91,8 @@ def rank_peak_groups(
     ymin = np.Inf
     ymax = -np.Inf
     for count, group_name in enumerate(group_names):
-        peak_names = adata_ccf.uns[key]["names"][group_name][:n_peaks]
-        pvalues = adata_ccf.uns[key][rankby][group_name][:n_peaks]
+        peak_names = adata_cc.uns[key]["names"][group_name][:n_peaks]
+        pvalues = adata_cc.uns[key][rankby][group_name][:n_peaks]
 
         # Setting up axis, calculating y bounds
         if sharey:
@@ -116,10 +116,10 @@ def rank_peak_groups(
 
         # Mapping to peak_symbols
         if peak_symbols is not None:
-            if adata_ccf.raw is not None and adata_ccf.uns[key]["params"]["use_raw"]:
-                peak_names = adata_ccf.raw.var[peak_symbols][peak_names]
+            if adata_cc.raw is not None and adata_cc.uns[key]["params"]["use_raw"]:
+                peak_names = adata_cc.raw.var[peak_symbols][peak_names]
             else:
-                peak_names = adata_ccf.var[peak_symbols][peak_names]
+                peak_names = adata_cc.var[peak_symbols][peak_names]
 
         # Making labels
         for ig, peak_name in enumerate(peak_names):
@@ -147,9 +147,7 @@ def rank_peak_groups(
 
     if save != False:
         if save == True:
-            save = (
-                f"rank_peak_groups_{adata_ccf.uns[key]['params']['groupby']}" + ".png"
-            )
+            save = f"rank_peak_groups_{adata_cc.uns[key]['params']['groupby']}" + ".png"
         plt.savefig(save, bbox_inches="tight")
 
     if show:

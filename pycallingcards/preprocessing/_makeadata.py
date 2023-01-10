@@ -18,7 +18,7 @@ def _myFuncsorting(e):
 
 
 def makeAnndata(
-    ccf: pd.DataFrame,
+    qbed: pd.DataFrame,
     peaks: pd.DataFrame,
     barcodes: Union[pd.DataFrame, List],
     reference: _reference = "hg38",
@@ -28,7 +28,7 @@ def makeAnndata(
     """\
     Make cell(sample) by using peak anndata for calling cards.
 
-    :param ccf:
+    :param qbed:
         pd.DataFrame the first five with columns as chromosome, start, end, reads number, diretion and barcodes.
         Chromosome, start, end and barcodes are the actual information needed.
     :param peaks:
@@ -39,7 +39,7 @@ def makeAnndata(
         This information is only used to calculate the length of one insertion.
         `hg38` and `mm10` are the same. Default is `hg38`.
     :param key: Default is  `Barcodes`.
-        The name of the column in ccf file containing the barcodes information.
+        The name of the column in qbed file containing the barcodes information.
 
 
 
@@ -56,7 +56,7 @@ def makeAnndata(
 
     :Example:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> ccf_data = cc.datasets.mousecortex_data(data="qbed")
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  record = True)
     >>> barcodes = cc.datasets.mousecortex_data(data="barcodes")
     >>> adata_ccf = cc.pp.makeAnndata(ccf_data, peak_data, barcodes)
@@ -108,7 +108,7 @@ def makeAnndata(
     for i in range(len(peaksf)):
         peaksf[i, 4] = peak_name_dict[peaksf[i, 3]]
 
-    ccf1 = ccf.copy()
+    ccf1 = qbed.copy()
 
     if key == None:
         key = "Barcodes"

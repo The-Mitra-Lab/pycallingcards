@@ -29,6 +29,30 @@ def read_qbed(filename: str) -> pd.DataFrame:
     )
 
 
+def read_barbodes(filename: str) -> pd.DataFrame:
+
+    """\
+    Read 'barcodes.csv' (single-cell calling cards) file.
+
+    :param filename:
+        Path to the barcode file.
+
+    :Returns:
+        pd.DataFrame for the barcodes file.
+
+    :example:
+    >>> import pycallingcards as cc
+    >>> qbed = cc.rd.read_barbodes("https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/Mouse-Cortex-scCC_barcodes.csv")
+
+
+    """
+
+    return pd.read_csv(
+        filename,
+        sep="\t",
+    )
+
+
 def combine_qbed(filelist: list, name: List = ["Chr", "Start"]) -> pd.DataFrame:
 
     """\

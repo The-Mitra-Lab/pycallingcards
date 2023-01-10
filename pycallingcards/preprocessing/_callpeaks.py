@@ -5,7 +5,7 @@ import pandas as pd
 import tqdm
 from numba import jit
 
-_Peakcalling_Method = Optional[Literal["CCcaller", "ccf_tools", "Blockify"]]
+_Peakcalling_Method = Optional[Literal["CCcaller", "cc_tools", "Blockify"]]
 _reference = Optional[Literal["hg38", "mm10", "sacCer3"]]
 _PeakCCcallerMethod = Optional[Literal["poisson", "binomial"]]
 
@@ -794,7 +794,7 @@ def _Blockify(
         return pd.DataFrame(boundnew, columns=["Chr", "Start", "End"])
 
 
-def _callpeaksccf_tools(
+def _callpeakscc_tools(
     expdata: pd.DataFrame,
     background: pd.DataFrame,
     TTAAframe: pd.DataFrame,
@@ -807,7 +807,7 @@ def _callpeaksccf_tools(
     record: bool = False,
 ) -> pd.DataFrame:
 
-    # function for ccf_tools with background
+    # function for cc_tools with background
     from scipy.stats import poisson
 
     # The chromosomes we need to consider
@@ -1176,7 +1176,7 @@ def _callpeaksccf_tools(
         return peaks_frame[["Chr", "Start", "End"]]
 
 
-def _callpeaksccf_tools_bfnew2(
+def _callpeakscc_tools_bfnew2(
     expdata: pd.DataFrame,
     TTAAframe: pd.DataFrame,
     length: int,
@@ -1592,7 +1592,7 @@ def _callpeaksccf_tools_bfnew2(
         return peaks_frame[["Chr", "Start", "End"]]
 
 
-def _callpeaksccf_toolsnew2(
+def _callpeakscc_toolsnew2(
     expdata: pd.DataFrame,
     background: pd.DataFrame,
     TTAAframe: pd.DataFrame,
@@ -2185,7 +2185,7 @@ def callpeaks(
 ) -> pd.DataFrame:
 
     """\
-    Call peaks from ccf data.
+    Call peaks from qbed data.
 
     :param expdata:
         pd.DataFrame with the first three columns as chromosome, start and end.
@@ -2193,7 +2193,7 @@ def callpeaks(
         pd.DataFrame with the first three columns as chromosome, start and end.
     :param method: Default method is `'CCcaller'`.
         `'CCcaller'` is a method considering the maxdistance between insertions in the data,
-        `'ccf_tools'` uses the idea adapted from :cite:`zhang2008model` and
+        `'cc_tools'` uses the idea adapted from :cite:`zhang2008model` and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
         `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://blockify.readthedocs.io/en/latest/>`__.
     :param reference:  `['hg38','mm10','sacCer3']`. Default is `'hg38'`.
@@ -2210,17 +2210,17 @@ def callpeaks(
     :param minlen:  Default is 0.
         Valid only for method = `'CCcaller'`. The minimal length for a peak without extend.
     :param extend:  Default is 200.
-        Valid for method = `'CCcaller'` and `'ccf_tools'`. The length (bp) that peaks extend for both sides.
+        Valid for method = `'CCcaller'` and `'cc_tools'`. The length (bp) that peaks extend for both sides.
     :param maxbetween: Default is 2000.
         Valid only for method = `'CCcaller'`. The maximum length of nearby insertions within one peak.
     :param test_method: `['poisson','binomial']`. Default is `'poisson'`.
         The method for making hypothesis CCcaller.
     :param window_size: Default is 1500.
-        Valid only for method = `'ccf_tools'`. The length of window looking for.
+        Valid only for method = `'cc_tools'`. The length of window looking for.
     :param lam_win_size: Default is 100000.
-        Valid for  method = `'CCcaller'` and `'ccf_tools'`. The length of peak area considered when performing a CCcaller.
+        Valid for  method = `'CCcaller'` and `'cc_tools'`. The length of peak area considered when performing a CCcaller.
     :param step_size: Default is 500.
-        Valid only for `'ccf_tools'`. The length of each step.
+        Valid only for `'cc_tools'`. The length of each step.
     :param pseudocounts: Default is 0.2.
         Number for pseudocounts added for the pyhothesis CCcaller.
     :param min_length: Default is None.
@@ -2258,8 +2258,8 @@ def callpeaks(
 
     :Examples:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, pseudocounts = 1, record = True)
+    >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.callpeaks(qbed_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, pseudocounts = 1, record = True)
 
     """
 
@@ -2273,10 +2273,10 @@ def callpeaks(
 
         length = 3
 
-        if method == "ccf_tools":
+        if method == "cc_tools":
 
             print(
-                "For the ccf_tools method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
+                "For the cc_tools method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
             )
 
             if reference == "hg38":
@@ -2311,7 +2311,7 @@ def callpeaks(
 
             if save == None:
 
-                return _callpeaksccf_toolsnew2(
+                return _callpeakscc_toolsnew2(
                     expdata,
                     background,
                     TTAAframe,
@@ -2329,7 +2329,7 @@ def callpeaks(
                 ).reset_index(drop=True)
             else:
 
-                data = _callpeaksccf_toolsnew2(
+                data = _callpeakscc_toolsnew2(
                     expdata,
                     background,
                     TTAAframe,
@@ -2487,10 +2487,10 @@ def callpeaks(
 
                 return data
 
-        if method == "ccf_tools_old":
+        if method == "cc_tools_old":
 
             print(
-                "For the ccf_tools method with background, [expdata, background, reference, pvalue, lam_win_size, window_size, step_size,pseudocounts,  record] would be utilized."
+                "For the cc_tools method with background, [expdata, background, reference, pvalue, lam_win_size, window_size, step_size,pseudocounts,  record] would be utilized."
             )
 
             if reference == "hg38":
@@ -2518,7 +2518,7 @@ def callpeaks(
 
             if save == None:
 
-                return _callpeaksccf_tools(
+                return _callpeakscc_tools(
                     expdata,
                     background,
                     TTAAframe,
@@ -2532,7 +2532,7 @@ def callpeaks(
                 ).reset_index(drop=True)
             else:
 
-                data = _callpeaksccf_tools(
+                data = _callpeakscc_tools(
                     expdata,
                     background,
                     TTAAframe,
@@ -2555,10 +2555,10 @@ def callpeaks(
 
     if background == None:
 
-        if method == "ccf_tools":
+        if method == "cc_tools":
 
             print(
-                "For the ccf_tools method without background, [expdata, reference, pvalue_cutoff, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
+                "For the cc_tools method without background, [expdata, reference, pvalue_cutoff, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
             )
 
             if reference == "hg38":
@@ -2612,7 +2612,7 @@ def callpeaks(
 
             if save == None:
 
-                return _callpeaksccf_tools_bfnew2(
+                return _callpeakscc_tools_bfnew2(
                     expdata,
                     TTAAframe,
                     length,
@@ -2629,7 +2629,7 @@ def callpeaks(
                 ).reset_index(drop=True)
             else:
 
-                data = _callpeaksccf_tools_bfnew2(
+                data = _callpeakscc_tools_bfnew2(
                     expdata,
                     TTAAframe,
                     length,

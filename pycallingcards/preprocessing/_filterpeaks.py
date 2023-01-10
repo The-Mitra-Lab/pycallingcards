@@ -54,7 +54,7 @@ def filter_peaks(
 
     :Example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
+    >>> adata_ccf = cc.datasets.mousecortex_data(data="CC")
     >>> cc.pp.filter_peaks(adata_ccf, min_counts=1)
 
     """

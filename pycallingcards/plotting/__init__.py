@@ -3,7 +3,7 @@
 
 from ._Chipseq import calculate_signal, signal_heatmap, signal_plot
 from ._dotplots import dotplot_bulk, dotplot_sc
-from ._heatmap_ccfrna import heatmap
+from ._heatmap_ccrna import heatmap
 from ._peaks import draw_area, whole_peaks
 from ._plotting import rank_peak_groups
 from ._Sankey import sankey

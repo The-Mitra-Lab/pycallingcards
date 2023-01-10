@@ -28,7 +28,7 @@ def draw_area(
     plotsize: list = [1, 1, 2],
     bins: Optional[int] = None,
     color: _draw_area_color = "red",
-    color_ccf: str = None,
+    color_cc: str = None,
     color_peak: str = None,
     color_genes: str = None,
     title: Optional[str] = None,
@@ -58,11 +58,11 @@ def draw_area(
     :param peaks:
         pd.Dataframe of peaks
     :param insertions:
-        pd.Datadrame of ccf
+        pd.Datadrame of qbed
     :param reference:
         `'hg38'`, `'mm10'`, `'sacCer3'` or pd.DataFrame of the reference data.
     :param background: Default is `None`.
-        pd.DataFrame of ccf or None.
+        pd.DataFrame of qbed or None.
     :param adata: Default is `None`.
         Input along with `name` and `key`.
         It would only show the insertions when the `key` of adata is `name`.
@@ -83,9 +83,9 @@ def draw_area(
         The bins of histogram. I would automatically calculate if None.
     :param color:  `['blue','red','green','pruple']`. Default is `red`.
         The color of the plot.
-        If `color` is not a valid color, `color_ccf`, `color_peak`, `color_genes` should be utilized.
-    :param color_ccf: Default is `None`.
-        The color of ccf insertions. Used only when `color` is not a valid color.
+        If `color` is not a valid color, `color_cc`, `color_peak`, `color_genes` should be utilized.
+    :param color_cc: Default is `None`.
+        The color of qbed insertions. Used only when `color` is not a valid color.
     :param color_peak: Default is `None`.
         The color of peaks. Used only when `color` is not a valid color.
     :param color_genes: Default is `None`.
@@ -105,32 +105,32 @@ def draw_area(
 
     :example:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10", record = True)
-    >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
-    >>> cc.pl.draw_area("chr12",50102917,50124960,400000,peak_data,ccf_data,"mm10",adata_ccf,"Neuron_Excit",'cluster',figsize = (30,6),peak_line = 4,color = "red")
+    >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.callpeaks(qbed_data, method = "CCcaller", reference = "mm10", record = True)
+    >>> adata_cc = cc.datasets.mousecortex_data(data="CC")
+    >>> cc.pl.draw_area("chr12",50102917,50124960,400000,peak_data,qbed_data,"mm10",adata_cc,"Neuron_Excit",'cluster',figsize = (30,6),peak_line = 4,color = "red")
 
     """
 
     if color == "blue":
-        color_ccf = "cyan"
+        color_cc = "cyan"
         color_peak = "royalblue"
         color_genes = "skyblue"
 
     elif color == "red":
-        color_ccf = "tomato"
+        color_cc = "tomato"
         color_peak = "red"
         color_genes = "mistyrose"
 
     elif color == "green":
 
-        color_ccf = "lightgreen"
+        color_cc = "lightgreen"
         color_peak = "palegreen"
         color_genes = "springgreen"
 
     elif color == "purple":
 
-        color_ccf = "magenta"
+        color_cc = "magenta"
         color_peak = "darkviolet"
         color_genes = "plum"
 
@@ -248,7 +248,7 @@ def draw_area(
     axis[0].plot(
         list(d1.iloc[:, 1]),
         list(np.log(d1.iloc[:, 3] + 1)),
-        color_ccf,
+        color_cc,
         marker="o",
         linestyle="None",
         markersize=6,
@@ -256,8 +256,8 @@ def draw_area(
     axis[0].axis("off")
     axis[0].set_xlim([start - extend, end + extend])
 
-    counts, binsccf = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
-    axis[1].hist(binsccf[:-1], binsccf, weights=counts, color=color_ccf)
+    counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
+    axis[1].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
     axis[1].set_xlim([start - extend, end + extend])
     axis[1].axis("off")
 
@@ -388,7 +388,7 @@ def whole_peaks(
 
     :param peak_data:
         Peak_data file from cc.pp.callpeaks.
-    :param reference: `['mm10','hg38',None]` Default is `'hg38'`.
+    :param reference: `['mm10','hg38','sacCer3',None]` Default is `'hg38'`.
         The reference of the data.
     :param figsize: Default is `(100, 40)`.
         The size of the figure.
@@ -411,14 +411,17 @@ def whole_peaks(
 
     :example:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> ccf_data = cc.datasets.mousecortex_data(data="qbed")
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10", record = True)
     >>> cc.pl.whole_peaks(peak_data)
 
     """
 
     sortlist = list(peak_data["Chr"].unique())
-    sortlist.sort(key=_myFuncsorting)
+    if reference != "sacCer3":
+        sortlist.sort(key=_myFuncsorting)
+    else:
+        sortlist.sort()
     sortlist = np.array(sortlist)
 
     if reference == "mm10":
@@ -530,6 +533,51 @@ def whole_peaks(
                 "chr22",
                 "chrX",
                 "chrY",
+            ]
+        )
+        ref = ref[np.in1d(sortlist1, sortlist)]
+        sortlist = sortlist1[np.in1d(sortlist1, sortlist)]
+
+    elif reference == "sacCer3":
+
+        ref = np.array(
+            [
+                230218,
+                813184,
+                316620,
+                1531933,
+                576874,
+                270161,
+                1090940,
+                562643,
+                439888,
+                745751,
+                666816,
+                1078177,
+                924431,
+                784333,
+                1091291,
+                948066,
+            ]
+        )
+        sortlist1 = np.array(
+            [
+                "chrI",
+                "chrII",
+                "chrIII",
+                "chrIV",
+                "chrV",
+                "chrVI",
+                "chrVII",
+                "chrVIII",
+                "chrIX",
+                "chrX",
+                "chrXI",
+                "chrXII",
+                "chrXIII",
+                "chrXIV",
+                "chrXV",
+                "chrXVI",
             ]
         )
         ref = ref[np.in1d(sortlist1, sortlist)]

@@ -117,11 +117,11 @@ def WashU_browser_url(
 ):
 
     """\
-    Display qbed/ccf, bed data in `WashU Epigenome Browser <http://epigenomegateway.wustl.edu/browser/>`__ :cite:`li2019washu`.
+    Display qbed, bed data in `WashU Epigenome Browser <http://epigenomegateway.wustl.edu/browser/>`__ :cite:`li2019washu`.
 
 
     :param qbed: Default is blank.
-        A dictionary for input qbed/ccf data key as the name to display and value is the path or data of the file. Prefer path.
+        A dictionary for input qbed data key as the name to display and value is the path or data of the file. Prefer path.
     :param bed: Default is blank.
         A dictionary for input bed data(peak data) key as the name to display and value is the path or data of the file. Prefer path.
     :param genome: Default is 'mm10'.

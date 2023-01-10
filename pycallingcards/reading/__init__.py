@@ -3,6 +3,7 @@
 
 from pycallingcards.reading._read import (
     combine_qbed,
+    read_barbodes,
     read_qbed,
     read_rna,
     save_bed,

@@ -29,7 +29,7 @@ def combine_annotation(
 
     :Example:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> ccf_data = cc.datasets.mousecortex_data(data="qbed")
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10", record = True)
     >>> peak_annotation = cc.pp.annotation(peak_data, reference = "mm10")
     >>> peak_annotation = cc.pp.combine_annotation(peak_data,peak_annotation)
@@ -85,7 +85,7 @@ def annotation(
 
     :Example:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
+    >>> ccf_data = cc.datasets.mousecortex_data(data="qbed")
     >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10", record = True)
     >>> peak_annotation = cc.pp.annotation(peak_data, reference = "mm10")
 

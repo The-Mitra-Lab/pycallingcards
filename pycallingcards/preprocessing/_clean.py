@@ -41,9 +41,9 @@ def clean_qbed(
         "chrXI",
         "chrXII",
         "chrXIII",
-        "XIV",
-        "XV",
-        "XVI",
+        "chrXIV",
+        "chrXV",
+        "chrXVI",
     ],
 ) -> pd.DataFrame:
 

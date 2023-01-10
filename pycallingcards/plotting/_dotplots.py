@@ -11,8 +11,15 @@ from matplotlib import rcParams
 from matplotlib.axes import Axes
 
 
+def _myFuncsorting(e):
+    try:
+        return int(e.split("_")[0][3:])
+    except:
+        return int(ord(e.split("_")[0][3:]))
+
+
 def dotplot_bulk(
-    adata_ccf: AnnData,
+    adata_cc: AnnData,
     rna: pd.DataFrame,
     selected_list: list,
     num_list: list,
@@ -21,15 +28,16 @@ def dotplot_bulk(
     figsize: Tuple[int, int] = (12, 15),
     dotsize: float = 5,
     cmap: str = "Reds",
-    title="DE binding & RNA",
-    topspace=0.977,
+    title: str = "DE binding & RNA",
+    topspace: float = 0.977,
+    sort_by_chrom: bool = False,
     save: bool = False,
 ):
 
     """\
     Plot ranking of peaks.
 
-    :param adata_ccf:
+    :param adata_cc:
         Anndata of peak.
     :param rna:
         pd.DataFrame of RNA expression.
@@ -39,7 +47,7 @@ def dotplot_bulk(
         The distribution of samples in rna.
         eg. the first three columns for rna is female and the following two columns is male data, then num_list should be [3,2]
     :param xticklabels: Default is `None`.
-        xticklabels for the column. If `None`, it would be the index of adata_ccf.obs
+        xticklabels for the column. If `None`, it would be the index of adata_cc.obs
     :param rate: Default is `50`.
         Rate to control the dot size.
     :param figsize: Default is (12, 15).
@@ -52,6 +60,9 @@ def dotplot_bulk(
         The title of the plot.
     :param topspace: Default is 0.977.
         Parameter to control the title position.
+    :param sort_by_chrom: Default is `False`.
+        If `True`, it would sort by chr1, chr2, etc.
+        sort_by_chrom can not be applied to yeast data.
     :param save: Default is `False`.
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name would be given and the plot would be saved as png.
@@ -59,9 +70,9 @@ def dotplot_bulk(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mouse_brd4_data(data = "CCF")
+    >>> adata_cc = cc.datasets.mouse_brd4_data(data = "CC")
     >>> rna = cc.datasets.mouse_brd4_data(data = "RNA")
-    >>> cc.pl.dotplot_bulk(adata_ccf,rna,
+    >>> cc.pl.dotplot_bulk(adata_cc,rna,
                    selected_list = ['chr1_72823300_72830641', 'chr1_174913218_174921560',
                     'chr4_68545354_68551370', 'chr5_13001870_13004057',
                     'chr5_13124523_13131816', 'chr5_13276480_13283561',
@@ -78,26 +89,30 @@ def dotplot_bulk(
 
     sns.set_theme()
 
+    if sort_by_chrom:
+        selected_list = list(selected_list)
+        selected_list.sort(key=_myFuncsorting)
+
     length = rna.shape[1]
-    num_cluster = adata_ccf.shape[0]
-    df = adata_ccf.var[["Gene Name1", "Gene Name2"]]
+    num_cluster = adata_cc.shape[0]
+    df = adata_cc.var[["Gene Name1", "Gene Name2"]]
     rna_list = list(rna.index)
 
     if xticklabels == None:
-        xticklabels = list(adata_ccf.obs.index)
+        xticklabels = list(adata_cc.obs.index)
 
     index0 = []
     index1 = []
     index2 = []
-    result_ccf = []
+    result_cc = []
 
     for i in selected_list:
 
         gene1 = df.loc[i][0]
         gene2 = df.loc[i][1]
         if gene1 in rna_list and gene2 in rna_list:
-            result_ccf.append(
-                adata_ccf[:, i].X.T.toarray()[0].tolist()
+            result_cc.append(
+                adata_cc[:, i].X.T.toarray()[0].tolist()
                 + list(rna.loc[gene1])
                 + list(rna.loc[gene2])
             )
@@ -105,8 +120,8 @@ def dotplot_bulk(
             index1.append(gene1)
             index2.append(gene2)
         elif gene1 in rna_list and gene2 not in rna_list:
-            result_ccf.append(
-                adata_ccf[:, i].X.T.toarray()[0].tolist()
+            result_cc.append(
+                adata_cc[:, i].X.T.toarray()[0].tolist()
                 + list(rna.loc[gene1])
                 + [0] * length
             )
@@ -114,8 +129,8 @@ def dotplot_bulk(
             index1.append(gene1)
             index2.append(gene2)
         elif gene1 not in rna_list and gene2 in rna_list:
-            result_ccf.append(
-                adata_ccf[:, i].X.T.toarray()[0].tolist()
+            result_cc.append(
+                adata_cc[:, i].X.T.toarray()[0].tolist()
                 + [0] * length
                 + list(rna.loc[gene2])
             )
@@ -123,7 +138,7 @@ def dotplot_bulk(
             index1.append(gene1)
             index2.append(gene2)
 
-    data = np.log2(np.array(result_ccf) + 1)
+    data = np.log2(np.array(result_cc) + 1)
     selected_length = data.shape[0]
 
     xticks = list(range(num_cluster))
@@ -207,7 +222,7 @@ def dotplot_bulk(
 
 
 def dotplot_sc(
-    adata_ccf: AnnData,
+    adata_cc: AnnData,
     adata: AnnData,
     result: pd.DataFrame,
     rate: float = 50,
@@ -222,7 +237,7 @@ def dotplot_sc(
     """\
     Plot ranking of peaks.
 
-    :param adata_ccf:
+    :param adata_cc:
         Anndata of peak.
     :param adata:
         Anndata of RNA.
@@ -248,16 +263,16 @@ def dotplot_sc(
     :example:
     >>> import pycallingcards as cc
     >>> import scanpy as sc
-    >>> adata_ccf = sc.read("Mouse-Cortex_CCF.h5ad")
+    >>> adata_cc = cc.datasets.mousecortex_data(data="CC")
     >>> adata = cc.datasets.mousecortex_data(data="RNA")
-    >>> ccf_data = cc.datasets.mousecortex_data(data="ccf")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000, pvalue_cutoff = 0.01,
+    >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.callpeaks(qbed_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000, pvalue_cutoff = 0.01,
                 lam_win_size = 1000000,  pseudocounts = 1, record = True)
     >>> peak_annotation = cc.pp.annotation(peak_data, reference = "mm10")
     >>> peak_annotation = cc.pp.combine_annotation(peak_data,peak_annotation)
     >>> sc.tl.rank_genes_groups(adata,'cluster')
-    >>> result = cc.tl.pair_peak_gene_sc(adata_ccf,adata,peak_annotation)
-    >>> cc.pl.dotplot_sc(adata_ccf,adata,result)
+    >>> result = cc.tl.pair_peak_gene_sc(adata_cc,adata,peak_annotation)
+    >>> cc.pl.dotplot_sc(adata_cc,adata,result)
 
     """
 
@@ -266,10 +281,10 @@ def dotplot_sc(
     genelist = list(result["Gene"])
     peaklist = list(result["Peak"])
 
-    clusterlist = list(adata_ccf.obs["cluster"].unique())
+    clusterlist = list(adata_cc.obs["cluster"].unique())
     clusterlist.sort()
 
-    clusterandata = np.array(adata_ccf.obs["cluster"])
+    clusterandata = np.array(adata_cc.obs["cluster"])
     clusterehere = {}
 
     for i in range(len(clusterlist)):
@@ -283,7 +298,7 @@ def dotplot_sc(
         peakinfor = []
         for cluster in range(len(clusterlist)):
             peakinfor.append(
-                adata_ccf[clusterehere[clusterlist[cluster]][0], peaklist[num]].X.mean()
+                adata_cc[clusterehere[clusterlist[cluster]][0], peaklist[num]].X.mean()
             )
             geneinfor.append(
                 float(

@@ -127,7 +127,7 @@ def diff2group_bygroup(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
+    >>> adata_ccf = cc.datasets.mousecortex_data(data="CC")
     >>> cc.tl.diff2group_bygroup(adata_ccf, 'cluster', 'Neuron_Excit_L5_Mixed','Astrocyte','chr2_28188592_28188996')
     """
 
@@ -254,7 +254,7 @@ def diff2group_bysample(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mouse_brd4_data(data="CCF")
+    >>> adata_ccf = cc.datasets.mouse_brd4_data(data="CC")
     >>> cc.tl.diff2group_bysample(adata_ccf,'F6_Brd4','M6_Brd4','chr1_4196845_4200095','fisher_exact')
 
     """
@@ -377,7 +377,7 @@ def rank_peak_groups(
 
     :example:
     >>> import pycallingcards as cc
-    >>> adata_ccf = cc.datasets.mousecortex_data(data="CCF")
+    >>> adata_ccf = cc.datasets.mousecortex_data(data="CC")
     >>> cc.tl.rank_peak_groups(adata_ccf,'cluster',method = 'binomtest',key_added = 'binomtest')
     """
 
