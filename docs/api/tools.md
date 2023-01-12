@@ -23,6 +23,11 @@ import pycallingcards as cc
    tools.DE_pvalue
    tools.pair_peak_gene_bulk
    tools.pair_peak_gene_sc
+   tools.liftover
+   tools.find_location
+   tools.result_mapping
+   tools.footprint
+   tools.find_fastq
 
 
 ```

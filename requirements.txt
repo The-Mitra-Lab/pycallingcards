@@ -10,3 +10,5 @@ pybedtools
 seaborn
 pyBigWig
 d3blocks
+sklearn
+liftover

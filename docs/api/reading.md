@@ -18,6 +18,7 @@ import pycallingcards as cc
 
    reading.read_qbed
    reading.read_rna
+   reading.read_barbodes
    reading.combine_qbed
    reading.save_qbed
    reading.save_bed

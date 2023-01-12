@@ -16,6 +16,7 @@ import pycallingcards as cc
    :toctree: reference/
    :nosignatures:
 
+   preprocessing.clean_qbed
    preprocessing.callpeaks
    preprocessing.annotation
    preprocessing.makeAnndata
