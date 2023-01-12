@@ -11,4 +11,4 @@ seaborn
 pyBigWig
 d3blocks
 sklearn
-liftover
+pyliftover
