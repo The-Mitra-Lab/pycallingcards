@@ -228,7 +228,8 @@ def dotplot_sc(
     rate: float = 50,
     figsize: Tuple[int, int] = (10, 120),
     size: int = 1,
-    cmap: str = "Reds",
+    cmap1: str = "Reds",
+    cmap2: str = "BuPu",
     title="DE binding & RNA",
     topspace=0.977,
     save: bool = False,
@@ -250,7 +251,9 @@ def dotplot_sc(
     :param size: Default is 1.
         The size of relative size of text.
     :param cmap: Default is `'Reds'`.
-        The colormap of the plot.
+        The colormap of the plot for bindings.
+    :param cmap: Default is `'BuPu'`.
+        The colormap of the plot for genes.
     :param title: Default is `'DE binding & RNA'`.
         The title of the plot.
     :param topspace: Default is 0.977.
@@ -337,7 +340,7 @@ def dotplot_sc(
             c=geneinfor_total[num],
             s=rate * geneinfor_total[num],
             facecolor="blue",
-            cmap=cmap,
+            cmap=cmap1,
         )
         ax[num].scatter(
             x,
@@ -345,7 +348,7 @@ def dotplot_sc(
             c=peakinfor_total[num],
             s=rate * peakinfor_total[num],
             facecolor="blue",
-            cmap=cmap,
+            cmap=cmap2,
         )
         ax[num].axis(ymin=0, ymax=1.5)
         ax[num].set_yticks([0.5, 1])
