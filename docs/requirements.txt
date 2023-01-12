@@ -11,6 +11,8 @@ pybedtools
 seaborn
 pyBigWig
 d3blocks
+sklearn
+liftover
 # doc
 sphinx
 myst_parser
