@@ -17,9 +17,9 @@ import pycallingcards as cc
    :nosignatures:
 
    preprocessing.clean_qbed
-   preprocessing.callpeaks
+   preprocessing.call_peaks
    preprocessing.annotation
-   preprocessing.makeAnndata
+   preprocessing.make_Anndata
    preprocessing.filter_peaks
    preprocessing.adata_insertions
 
