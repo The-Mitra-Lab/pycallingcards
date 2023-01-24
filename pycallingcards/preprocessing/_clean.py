@@ -1,4 +1,5 @@
 import pandas as pd
+from anndata import AnnData
 
 
 def clean_qbed(
@@ -67,3 +68,43 @@ def clean_qbed(
     """
 
     return qbed[qbed["Chr"].isin(chrom)]
+
+
+def filter_adata_sc(
+    adata_cc: AnnData,
+    adata: AnnData,
+) -> AnnData:
+
+    """\
+    The function would make sure the adata_cc only keeps the cells from adata.
+
+    :param adata_cc:
+        Anndata object for scCC data
+    :param adata:
+        Anndata object for scRNA-seq data.
+
+
+    :Returns:
+        adata_cc object after filtering.
+
+    :example:
+    >>> import pycallingcards as cc
+    >>> cc_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.callpeaks(cc_data, method = "test", reference = "mm10",  record = True)
+    >>> barcodes = cc.datasets.mousecortex_data(data="barcodes")
+    >>> adata_cc = cc.pp.makeAnndata(cc_data, peak_data, barcodes)
+    >>> adata = cc.datasets.mousecortex_data(data="RNA")
+    >>> adata_cc = cc.pp.filter_adata_sc(adata_cc,adata)
+
+
+    """
+
+    adata_cc = adata_cc[adata.obs.index]
+
+    if adata_cc.shape[0] != adata.shape[0]:
+        raise ValueError("Please check your obs index again")
+
+    if (adata_cc.obs.index != adata_cc.obs.index).sum() > 0:
+        raise ValueError("Please check your obs index again")
+
+    return adata_cc

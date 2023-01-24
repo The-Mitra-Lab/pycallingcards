@@ -8,14 +8,14 @@ _reference2 = Optional[Literal["hg38", "mm10", "sacCer3"]]
 
 
 def call_motif(
-    peaks_path: str = None,
-    peaks_frame: pd.DataFrame = None,
-    save_name: str = None,
+    peaks_path: Optional[str] = None,
+    peaks_frame: Optional[pd.DataFrame] = None,
+    save_name: Optional[str] = None,
     reference: _reference2 = "hg38",
-    save_homer: str = None,
+    save_homer: Optional[str] = None,
     size: int = 1000,
-    homer_path: str = None,
-    motif_length: int = None,
+    homer_path: Optional[str] = None,
+    motif_length: Optional[int] = None,
     num_cores: int = 3,
     denovo: bool = False,
 ):
@@ -56,9 +56,9 @@ def call_motif(
 
     :Examples:
     >>> import pycallingcards as cc
-    >>> HCT116_SP1 = cc.datasets.SP1_K562HCT116_data(data="HCT116_SP1_ccf")
-    >>> HCT116_brd4 = cc.datasets.SP1_K562HCT116_data(data="HCT116_brd4_ccf")
-    >>> peak_data_HCT116 = cc.pp.callpeaks(HCT116_SP1, HCT116_brd4, method = "ccf_tools", reference = "hg38",  window_size = 2000, step_size = 500,
+    >>> HCT116_SP1 = cc.datasets.SP1_K562HCT116_data(data="HCT116_SP1_qbed")
+    >>> HCT116_brd4 = cc.datasets.SP1_K562HCT116_data(data="HCT116_brd4_qbed")
+    >>> peak_data_HCT116 = cc.pp.callpeaks(HCT116_SP1, HCT116_brd4, method = "cc_tools", reference = "hg38",  window_size = 2000, step_size = 500,
             pvalue_cutoffTTAA = 0.001, pvalue_cutoffbg = 0.1, lam_win_size = None,  pseudocounts = 0.1, record = True, save = "peak_HCT116_test.bed")
     >>> cc.tl.call_motif("peak_HCT116_test.bed",reference ="hg38",save_homer = "Homer/peak_HCT116_test", homer_path = "/ref/rmlab/software/homer/bin")
 
@@ -143,3 +143,43 @@ def call_motif(
         os.system("rm temp_Homer_trial.bed")
 
     print("Finished!")
+
+
+def compare_motif(
+    motif_path1: str,
+    motif_path2: str,
+    qvalue_cutoff: float = 0.05,
+    pvalue_cutoff: float = 0.05,
+) -> pd.DataFrame:
+
+    """\
+    Compare motifs for motif results of two groups from y `HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>`__ and :cite:`heinz2010simple`.
+    Here, we will find the motif in group1 but not in group2.
+
+    :param peaks_path1:
+        The path of motif result for the first data.
+    :param peaks_path2:
+        The path of motif result for the second data.
+    :param qvalue_cutoff: Default is `0.05`.
+        The cutoff for q-value (Benjamini).
+    :param qvalue_cutoff: Default is `0.05`.
+        The cutoff for P-value.
+
+    """
+
+    p1 = pd.read_csv(motif_path1 + "/knownResults.txt", sep="\t")
+    p2 = pd.read_csv(motif_path2 + "/knownResults.txt", sep="\t")
+    p1_list = list(
+        p1[
+            (p1["q-value (Benjamini)"] < qvalue_cutoff)
+            & (p1["P-value"] < pvalue_cutoff)
+        ]["Motif Name"]
+    )
+    p2_list = list(
+        p2[
+            (p2["q-value (Benjamini)"] < qvalue_cutoff)
+            & (p2["P-value"] < pvalue_cutoff)
+        ]["Motif Name"]
+    )
+
+    return p1[p1["Motif Name"].isin(list(set(p1_list) - set(p2_list)))]

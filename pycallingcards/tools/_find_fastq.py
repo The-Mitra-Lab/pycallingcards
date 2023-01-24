@@ -1,4 +1,4 @@
-def find_fastq(chrm: str, start: int, end: int, path: str):
+def find_fastq(chrm: str, start: int, end: int, path: str) -> str:
 
     """\
     Find the fastq file of specific part of gene.

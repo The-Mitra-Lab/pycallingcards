@@ -76,7 +76,7 @@ def combine_qbed(filelist: list, name: List = ["Chr", "Start"]) -> pd.DataFrame:
     return pd.concat(filelist).sort_values(by=name).reset_index(drop=True)
 
 
-def read_rna(filename: str):
+def read_rna(filename: str) -> pd.DataFrame:
 
     """\
     Read RNA file which column index is sample names and row index is gene names.
@@ -93,7 +93,7 @@ def read_rna(filename: str):
 
     """
 
-    return pd.read_csv("dmso.csv", index_col=0)
+    return pd.read_csv(filename, index_col=0)
 
 
 def save_qbed(file: pd.DataFrame, path: str):

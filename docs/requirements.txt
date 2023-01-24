@@ -10,9 +10,9 @@ appdirs
 pybedtools
 seaborn
 pyBigWig
-d3blocks
 sklearn
 liftover
+mudata
 # doc
 sphinx
 myst_parser

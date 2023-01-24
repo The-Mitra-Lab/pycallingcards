@@ -9,6 +9,7 @@ from matplotlib import cm
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 from matplotlib.axes import Axes
+from mudata import MuData
 
 
 def _myFuncsorting(e):
@@ -237,7 +238,6 @@ def dotplot_sc(
 
     """\
     Plot ranking of peaks.
-
     :param adata_cc:
         Anndata of peak.
     :param adata:
@@ -261,8 +261,6 @@ def dotplot_sc(
     :param save: Default is `False`.
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name would be given and the plot would be saved as png.
-
-
     :example:
     >>> import pycallingcards as cc
     >>> import scanpy as sc
@@ -276,7 +274,6 @@ def dotplot_sc(
     >>> sc.tl.rank_genes_groups(adata,'cluster')
     >>> result = cc.tl.pair_peak_gene_sc(adata_cc,adata,peak_annotation)
     >>> cc.pl.dotplot_sc(adata_cc,adata,result)
-
     """
 
     sns.set_theme()
@@ -288,6 +285,155 @@ def dotplot_sc(
     clusterlist.sort()
 
     clusterandata = np.array(adata_cc.obs["cluster"])
+    clusterehere = {}
+
+    for i in range(len(clusterlist)):
+        clusterehere[clusterlist[i]] = np.where(clusterandata == clusterlist[i])
+
+    geneinfor_total = []
+    peakinfor_total = []
+
+    for num in range(len(genelist)):
+        geneinfor = []
+        peakinfor = []
+        for cluster in range(len(clusterlist)):
+            peakinfor.append(
+                adata_cc[clusterehere[clusterlist[cluster]][0], peaklist[num]].X.mean()
+            )
+            geneinfor.append(
+                float(
+                    adata[clusterehere[clusterlist[cluster]][0], genelist[num]].X.mean()
+                )
+            )
+        geneinfor_total.append(geneinfor)
+        peakinfor_total.append(peakinfor)
+
+    geneinfor_total = np.array(geneinfor_total)
+    peakinfor_total = np.log2(np.array(peakinfor_total) + 1)
+
+    geneinfor_total = geneinfor_total - geneinfor_total.min(axis=1).reshape(-1, 1)
+    peakinfor_total = peakinfor_total - peakinfor_total.min(axis=1).reshape(-1, 1)
+
+    geneinfor_total = geneinfor_total / geneinfor_total.max(axis=1).reshape(-1, 1)
+    peakinfor_total = peakinfor_total / peakinfor_total.max(axis=1).reshape(-1, 1)
+
+    x = list(range(len(clusterlist)))
+    rate = 100
+
+    total_num = len(genelist)
+    fig, ax = plt.subplots(total_num, 1, figsize=figsize)
+
+    fig.patch.set_visible(False)
+
+    small = [] * len(clusterlist)
+    for num in range(total_num):
+
+        for spine in ["top", "right", "left", "bottom"]:
+            ax[num].spines[spine].set_visible(False)
+
+        ax[num].scatter(
+            x,
+            [1] * len(clusterlist),
+            c=geneinfor_total[num],
+            s=rate * geneinfor_total[num],
+            facecolor="blue",
+            cmap=cmap1,
+        )
+        ax[num].scatter(
+            x,
+            [0.5] * len(clusterlist),
+            c=peakinfor_total[num],
+            s=rate * peakinfor_total[num],
+            facecolor="blue",
+            cmap=cmap2,
+        )
+        ax[num].axis(ymin=0, ymax=1.5)
+        ax[num].set_yticks([0.5, 1])
+        ax[num].set_yticklabels([peaklist[num], genelist[num]], fontsize=10 * size)
+        ax[num].set_xticks(x)
+        ax[num].set_xticklabels(small, fontsize=10 * size)
+
+    ax[num].set_xticklabels(clusterlist, rotation=90)
+    plt.suptitle(title, size=15 * size)
+    fig.subplots_adjust(top=topspace)
+
+    if save != False:
+        if save == True:
+            save = f"dotplot" + ".png"
+        plt.savefig(save, bbox_inches="tight")
+
+    mpl.rc_file_defaults()
+
+
+def dotplot_sc_mu(
+    mdata: MuData,
+    adata_cc: str = "CC",
+    adata: str = "RNA",
+    result: str = "pair",
+    cluster_name: str = "RNA:cluster",
+    rate: float = 50,
+    figsize: Tuple[int, int] = (10, 120),
+    size: int = 1,
+    cmap1: str = "Reds",
+    cmap2: str = "BuPu",
+    title="DE binding & RNA",
+    topspace=0.977,
+    save: bool = False,
+):
+
+    """\
+    Designed for mudata object.
+    Plot ranking of peaks.
+
+    :param mdata:
+        mdata for both CC and RNA.
+    :param adata_cc: Default is `'CC'`.
+        Name for CC data. Anndata is mdata[adata_cc].
+    :param adata: Default is `'RNA'`.
+        Name for RNA data. Anndata is mdata[adata].
+    :param result: Default is `'pair'`.
+        pd.DataFrame of result gain from cc.tl.pair_peak_gene_sc with 'Peak' and 'Gene' columns.
+    :param cluster_name: Default is `'RNA:cluster'`.
+        The name of cluster in adata_cc and adata.
+    :param rate: Default is `50`.
+        Rate to control the dot size.
+    :param figsize: Default is (10, 120).
+        The size of the figure.
+    :param size: Default is 1.
+        The size of relative size of text.
+    :param cmap: Default is `'Reds'`.
+        The colormap of the plot for bindings.
+    :param cmap: Default is `'BuPu'`.
+        The colormap of the plot for genes.
+    :param title: Default is `'DE binding & RNA'`.
+        The title of the plot.
+    :param topspace: Default is 0.977.
+        Parameter to control the title position.
+    :param save: Default is `False`.
+        Could be bool or str indicating the file name it would be saved.
+        If `True`, a default name would be given and the plot would be saved as png.
+
+
+    :example:
+    >>> import pycallingcards as cc
+    >>> mdata = cc.datasets.mousecortex_data(data="Mudata")
+    >>> cc.pl.dotplot_sc_mu(mdata)
+
+    """
+
+    sns.set_theme()
+
+    adata_cc = mdata[adata_cc]
+    adata = mdata[adata]
+    result = adata_cc.uns[result]
+
+    genelist = list(result["Gene"])
+    peaklist = list(result["Peak"])
+
+    clusterlist = list(mdata.obs[cluster_name].unique())
+    clusterlist.sort()
+
+    clusterandata = np.array(mdata.obs[cluster_name])
     clusterehere = {}
 
     for i in range(len(clusterlist)):

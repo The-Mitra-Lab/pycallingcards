@@ -7,6 +7,7 @@ from matplotlib import cm
 from matplotlib import pyplot as plt
 from matplotlib import rcParams
 from matplotlib.axes import Axes
+from mudata import MuData
 
 _draw_area_color = Optional[Literal["blue", "red", "green", "pruple"]]
 
@@ -411,8 +412,8 @@ def whole_peaks(
 
     :example:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="qbed")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "CCcaller", reference = "mm10", record = True)
+    >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.callpeaks(qbed_data, method = "CCcaller", reference = "mm10", record = True)
     >>> cc.pl.whole_peaks(peak_data)
 
     """
@@ -630,4 +631,356 @@ def whole_peaks(
     if save != False:
         if save == True:
             save = "Peaks_over_chromosomes.png"
+        figure.savefig(save, bbox_inches="tight")
+
+
+def draw_area_mu(
+    chromosome: str,
+    start: int,
+    end: int,
+    extend: int,
+    peaks: pd.DataFrame,
+    insertions: pd.DataFrame,
+    reference: Union[str, pd.DataFrame],
+    background: Union[None, pd.DataFrame] = None,
+    mdata: Optional[MuData] = None,
+    adata_CC: str = "CC",
+    name: Optional[str] = None,
+    key: Optional[str] = None,
+    insertionkey: Optional[str] = None,
+    figsize: Tuple[int, int] = (10, 3),
+    plotsize: list = [1, 1, 2],
+    bins: Optional[int] = None,
+    color: _draw_area_color = "red",
+    color_cc: str = None,
+    color_peak: str = None,
+    color_genes: str = None,
+    title: Optional[str] = None,
+    example_length: int = 10000,
+    peak_line: int = 1,
+    font_size: int = 1,
+    save: Union[bool, str] = False,
+):
+
+    """\
+    Designed for mudata object.
+    Plot the specific area of the genome. This plot contains three parts.
+    The first part is a plot of insertions plot: one dot is one insertion and the height is log(reads + 1).
+    The second part is the distribution plot of insertions.
+    If backgound is input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
+    If backgound is not input and mdata/name/key are provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
+    The third part composes of reference genes and peaks.
+
+
+    :param chromosome:
+        The chromosome plotted.
+    :param start:
+        The start point of middle area. Usually, it's the start point of a peak.
+    :param end:
+        The end point of middle area. Usually, it's the end point of a peak.
+    :param extend:
+        The extend length (bp) to plot.
+    :param peaks:
+        pd.Dataframe of peaks
+    :param insertions:
+        pd.Datadrame of qbed
+    :param reference:
+        `'hg38'`, `'mm10'`, `'sacCer3'` or pd.DataFrame of the reference data.
+    :param background: Default is `None`.
+        pd.DataFrame of qbed or None.
+    :param mdata: Default is `None`.
+        Input along with `name` and `key`.
+        It would only show the insertions when the `key` of mdata is `name`.
+    :param name: Default is `None`.
+        Input along with `mdata` and `key`.
+        It would only show the insertions when the `key` of mdata is `name`.
+    :param key: Default is `None`.
+        Input along with `mdata` and `name`.
+        It would only show the insertions when the `key` of mdata is `name`.
+    :param insertionkey: Default is `None`('Barcodes').
+        Input along with `mdata` and `name`.
+        It would find the column `insertionkey` of the insertions file.
+    :param figsize: Default is (10, 3).
+        The size of the figure.
+    :param plotsize: Default is [1,1,2].
+        The relateive size of the dot plot, distribution plot and the peak plot.
+    :param bins:  Default is `None`.
+        The bins of histogram. I would automatically calculate if None.
+    :param color:  `['blue','red','green','pruple']`. Default is `red`.
+        The color of the plot.
+        If `color` is not a valid color, `color_cc`, `color_peak`, `color_genes` should be utilized.
+    :param color_cc: Default is `None`.
+        The color of qbed insertions. Used only when `color` is not a valid color.
+    :param color_peak: Default is `None`.
+        The color of peaks. Used only when `color` is not a valid color.
+    :param color_genes: Default is `None`.
+        The color of genes. Used only when `color` is not a valid color.
+    :param title: Default is `None`.
+        The title of the plot.
+    :param example_length:  Default is 10000.
+        The length of example.
+    :param peak_line: Default is 1.
+        The total number of peak lines.
+    :param font_size: Default is `10`.
+        The relative font of the words on the plot.
+    :param save: Default is `False`.
+        Could be bool or str indicating the file name it would be saved.
+        If `True`, a default name would be given and the plot would be saved as png.
+
+
+    :example:
+    >>> import pycallingcards as cc
+    >>> mdata = cc.datasets.mousecortex_data(data="Mudata")
+    >>> cc.pl.draw_area_mu("chr3",34638588,34656047,400000,peak_data,qbed_data,"mm10",mdata = mdata,
+            name = 'Astrocyte',key ='RNA:cluster',figsize = (30,7),peak_line = 4,color = "blue", title = "chr3_34638588_34656047")
+    """
+
+    if color == "blue":
+        color_cc = "cyan"
+        color_peak = "royalblue"
+        color_genes = "skyblue"
+
+    elif color == "red":
+        color_cc = "tomato"
+        color_peak = "red"
+        color_genes = "mistyrose"
+
+    elif color == "green":
+
+        color_cc = "lightgreen"
+        color_peak = "palegreen"
+        color_genes = "springgreen"
+
+    elif color == "purple":
+
+        color_cc = "magenta"
+        color_peak = "darkviolet"
+        color_genes = "plum"
+
+    peakschr = peaks[peaks.iloc[:, 0] == chromosome]
+    insertionschr = insertions[insertions.iloc[:, 0] == chromosome]
+
+    if type(mdata) == MuData:
+        if name != None:
+            if key == "Index":
+                mdata = mdata[adata_CC][name, :]
+            else:
+                mdata = mdata[adata_CC][mdata.obs[key] == name]
+
+        if insertionkey == None:
+            insertionschr = insertionschr[
+                insertionschr["Barcodes"].isin(mdata.obs.index)
+            ]
+        else:
+            insertionschr = insertionschr[
+                insertionschr[insertionkey].isin(mdata.obs.index)
+            ]
+
+    if type(reference) == str:
+        if reference == "hg38":
+            refdata = pd.read_csv(
+                "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.hg38.Sorted.bed",
+                delimiter="\t",
+                header=None,
+            )
+        elif reference == "mm10":
+            refdata = pd.read_csv(
+                "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.mm10.Sorted.bed",
+                delimiter="\t",
+                header=None,
+            )
+        elif reference == "sacCer3":
+            refdata = pd.read_csv(
+                "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.sacCer3.Sorted.bed",
+                delimiter="\t",
+                header=None,
+            )
+
+    elif type(reference) == pd.DataFrame:
+        refdata = reference
+    else:
+        raise ValueError("Not valid reference.")
+
+    refchr = refdata[refdata.iloc[:, 0] == chromosome]
+
+    r1 = refchr[
+        (refchr.iloc[:, 2] >= start - extend) & (refchr.iloc[:, 1] <= end + extend)
+    ].to_numpy()
+    d1 = insertionschr[
+        (insertionschr.iloc[:, 1] >= start - extend)
+        & (insertionschr.iloc[:, 2] <= end + extend)
+    ]
+    p1 = peakschr[
+        (peakschr.iloc[:, 1] >= start - extend) & (peakschr.iloc[:, 2] <= end + extend)
+    ].to_numpy()
+
+    if bins == None:
+        bins = int(
+            min(plt.rcParams["figure.dpi"] * figsize[0], (end - start + 2 * extend)) / 4
+        )
+
+    bins = list(
+        range(start - extend, end + extend, int((end - start + 2 * extend) / bins))
+    )
+
+    if type(background) == pd.DataFrame:
+
+        backgroundchr = background[background.iloc[:, 0] == chromosome]
+        b1 = backgroundchr[
+            (backgroundchr.iloc[:, 1] >= start - extend)
+            & (backgroundchr.iloc[:, 2] <= end + extend)
+        ]
+
+    elif name != None:
+
+        backgroundchr = insertions[insertions.iloc[:, 0] == chromosome]
+        b1 = backgroundchr[
+            (backgroundchr.iloc[:, 1] >= start - extend)
+            & (backgroundchr.iloc[:, 2] <= end + extend)
+        ]
+
+    figure, axis = plt.subplots(
+        3, 1, figsize=figsize, gridspec_kw={"height_ratios": plotsize}
+    )
+
+    if type(background) == pd.DataFrame:
+        axis[0].plot(
+            list(b1.iloc[:, 1]),
+            list(np.log(b1.iloc[:, 3] + 1)),
+            "lightgray",
+            marker="o",
+            linestyle="None",
+            markersize=6,
+        )
+        counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
+        axis[1].hist(binsbg[:-1], binsbg, weights=np.log(counts + 1), color="lightgray")
+
+    elif name != None:
+
+        axis[0].plot(
+            list(b1.iloc[:, 1]),
+            list(np.log(b1.iloc[:, 3] + 1)),
+            "lightgray",
+            marker="o",
+            linestyle="None",
+            markersize=6,
+        )
+        counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
+        axis[1].hist(binsbg[:-1], binsbg, weights=counts, color="lightgray")
+
+    axis[0].plot(
+        list(d1.iloc[:, 1]),
+        list(np.log(d1.iloc[:, 3] + 1)),
+        color_cc,
+        marker="o",
+        linestyle="None",
+        markersize=6,
+    )
+    axis[0].axis("off")
+    axis[0].set_xlim([start - extend, end + extend])
+
+    counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
+    axis[1].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
+    axis[1].set_xlim([start - extend, end + extend])
+    axis[1].axis("off")
+
+    pnumber = 0
+
+    for i in range(len(p1)):
+
+        axis[2].plot(
+            [p1[i, 1], p1[i, 2]],
+            [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
+            linewidth=10,
+            c=color_peak,
+        )
+        axis[2].text(
+            (p1[i, 2] + extend / 40),
+            -1 * (pnumber % peak_line) + 0.15,
+            p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
+            fontsize=14 * font_size,
+        )
+        pnumber += 1
+
+    for i in range(len(r1)):
+
+        axis[2].plot(
+            [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
+            [1 + i, 1 + i],
+            linewidth=5,
+            c=color_genes,
+        )
+        axis[2].text(
+            min(r1[i, 2] + extend / 40, end + extend),
+            1 + i,
+            r1[i, 3] + ", " + r1[i, 4],
+            fontsize=12 * font_size,
+        )
+
+        if r1[i, 5] == "-":
+            axis[2].annotate(
+                "",
+                xytext=(min(r1[i, 2], end + extend), 1 + i),
+                xy=(max(r1[i, 1], start - extend), 1 + i),
+                xycoords="data",
+                va="center",
+                ha="center",
+                size=20,
+                arrowprops=dict(arrowstyle="simple", color=color_genes),
+            )
+        elif r1[i, 5] == "+":
+            axis[2].annotate(
+                "",
+                xytext=(max(r1[i, 1], start - extend), 1 + i),
+                xy=(min(r1[i, 2], end + extend), 1 + i),
+                xycoords="data",
+                va="center",
+                ha="center",
+                size=20,
+                arrowprops=dict(arrowstyle="simple", color=color_genes),
+            )
+
+    axis[2].set_xlim([start - extend, end + extend])
+    axis[2].axis("off")
+
+    if title != None:
+        figure.suptitle(title, fontsize=16 * font_size)
+
+    if example_length != None:
+        axis[2].plot(
+            [
+                end + extend - example_length - example_length / 5,
+                end + extend - example_length / 5,
+            ],
+            [-1 - peak_line, -1 - peak_line],
+            linewidth=2,
+            c="k",
+        )
+        axis[2].plot(
+            [
+                end + extend - example_length - example_length / 5,
+                end + extend - example_length - example_length / 5,
+            ],
+            [-1 - peak_line, -0.6 - peak_line],
+            linewidth=2,
+            c="k",
+        )
+        axis[2].plot(
+            [end + extend - example_length / 5, end + extend - example_length / 5],
+            [-1 - peak_line, -0.6 - peak_line],
+            linewidth=2,
+            c="k",
+        )
+        axis[2].text(
+            end + extend,
+            -1 - peak_line,
+            str(example_length) + "bp",
+            fontsize=12 * font_size,
+        )
+
+    if save != False:
+        if save == True:
+            save = (
+                "draw_area_" + chromosome + "_" + str(start) + "_" + str(end) + ".png"
+            )
         figure.savefig(save, bbox_inches="tight")

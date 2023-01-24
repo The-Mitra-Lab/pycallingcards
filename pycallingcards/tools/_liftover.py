@@ -12,7 +12,7 @@ def liftover(
     torlerance: int = 10,
     original_genome: str = "mm10",
     new_genome: str = "hg38",
-):
+) -> Union[AnnData, pd.DataFrame]:
 
     """\
     Use `liftover <https://genome.ucsc.edu/cgi-bin/hgLiftOver>`__  to transform from one genome to another :cite:`hinrichs2006ucsc`.
@@ -58,7 +58,7 @@ def liftover(
                 temp_result.append(np.array(re)[0])
                 break
 
-        if len(temp_result) != 0:
+        if len(temp_result) > 1:
 
             length = abs(int(temp_result[1][1]) - int(temp_result[0][1]))
 
@@ -77,9 +77,9 @@ def liftover(
                         [temp_result[1][0], temp_result[0][1], temp_result[1][1]]
                     )
             else:
-                finalresult.append([None, None, None])
+                finalresult.append(["", "", ""])
         else:
-            finalresult.append([None, None, None])
+            finalresult.append(["", "", ""])
 
     finalresult = pd.DataFrame(finalresult).set_index(peak_data.index)
     finalresult.columns = [
@@ -100,7 +100,7 @@ def find_location(
     original_name: str,
     new_name: str = None,
     genome: str = "hg38",
-):
+) -> pd.DataFrame:
 
     """\
     Find gene location for specfic genome.
@@ -153,7 +153,7 @@ def find_location(
         data_gene = refdata[refdata[4] == gene.upper()]
 
         if len(data_gene[0].unique()) != 1:
-            newdata.append([None, None, None])
+            newdata.append(["", "", ""])
 
         else:
             newdata.append(
@@ -178,11 +178,10 @@ def result_mapping(
     torlerance: int = 10,
     original_genome: str = "mm10",
     new_genome: str = "hg38",
-):
+) -> pd.DataFrame:
 
     """\
     Mapping from one genome to another for the result table :cite:`hinrichs2006ucsc`.
-
     :param data:
         pd.DataFrame of result. Specially, it contains 'Peak' and 'Gene'.
     :param torlerance: Default is 10.
@@ -192,7 +191,7 @@ def result_mapping(
     :param new_genome: Default is `hg38`.
         The new genome.
 
-
+    :Example:
     >>> import pycallingcards as cc
     >>> import scanpy as sc
     >>> adata_cc = sc.read("Mouse-Cortex_cc.h5ad")
@@ -205,7 +204,6 @@ def result_mapping(
     >>> sc.tl.rank_genes_groups(adata,'cluster')
     >>> result = cc.tl.pair_peak_gene_sc(adata_cc,adata,peak_annotation)
     >>> result = cc.tl.result_mapping(result)
-
     """
 
     data_temp = pd.concat(

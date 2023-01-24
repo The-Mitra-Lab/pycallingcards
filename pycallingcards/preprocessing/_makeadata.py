@@ -17,7 +17,7 @@ def _myFuncsorting(e):
         return int(ord(e.split("_")[0][3:]))
 
 
-def makeAnndata(
+def make_Anndata(
     qbed: pd.DataFrame,
     peaks: pd.DataFrame,
     barcodes: Union[pd.DataFrame, List],
@@ -56,10 +56,10 @@ def makeAnndata(
 
     :Example:
     >>> import pycallingcards as cc
-    >>> ccf_data = cc.datasets.mousecortex_data(data="qbed")
-    >>> peak_data = cc.pp.callpeaks(ccf_data, method = "test", reference = "mm10",  record = True)
+    >>> cc_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.callpeaks(cc_data, method = "test", reference = "mm10",  record = True)
     >>> barcodes = cc.datasets.mousecortex_data(data="barcodes")
-    >>> adata_ccf = cc.pp.makeAnndata(ccf_data, peak_data, barcodes)
+    >>> adata_cc = cc.pp.makeAnndata(cc_data, peak_data, barcodes)
 
 
     """
@@ -164,10 +164,10 @@ _method = Optional[
 
 
 def adata_insertions(
-    adata_ccf: AnnData,
+    adata_cc: AnnData,
     adata: AnnData,
     name: str,
-    groupby="cluster",
+    groupby: str = "cluster",
     method: _method = "logAvginsertions",
     peak: str = "all",
 ):
@@ -175,7 +175,7 @@ def adata_insertions(
     """\
     Calculate sum of peaks per cluster or average peaks per cell in different cluster and give it to anndata object.
 
-    :param adata_ccf:
+    :param adata_cc:
         Anndata for callingcards
     :param adata:
         Anndata for RNA.
@@ -198,16 +198,16 @@ def adata_insertions(
 
     """
 
-    possible_group = list(adata_ccf.obs[groupby].unique())
+    possible_group = list(adata_cc.obs[groupby].unique())
     my_dictionary = {}
 
     for groupname in possible_group:
 
         if peak == "all":
-            tempadata = adata_ccf[(adata_ccf.obs[[groupby]] == groupname)[groupby], :].X
+            tempadata = adata_cc[(adata_cc.obs[[groupby]] == groupname)[groupby], :].X
         else:
-            tempadata = adata_ccf[
-                (adata_ccf.obs[[groupby]] == groupname)[groupby], peak
+            tempadata = adata_cc[
+                (adata_cc.obs[[groupby]] == groupname)[groupby], peak
             ].X
 
         if method == "avginsertions":

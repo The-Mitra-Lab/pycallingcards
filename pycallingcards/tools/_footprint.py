@@ -11,7 +11,7 @@ def footprint(
     delete_unfound: bool = False,
     resultname: list = ["Chr_footprint", "Start_footprint", "End_footprint"],
     return_bed: bool = False,
-):
+) -> pd.DataFrame:
 
     """\
     Find CC footprint in yeast CC data.

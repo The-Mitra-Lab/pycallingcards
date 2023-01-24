@@ -2,6 +2,7 @@ import os
 from typing import Literal, Optional, Union
 
 import anndata as ad
+import mudata as md
 import pandas as pd
 import scanpy as sc
 from appdirs import user_cache_dir
@@ -12,7 +13,7 @@ if not os.path.exists(PYCALLINGCARDS_CACHE_DIR):
 
 
 def mousecortex_data(
-    data: Optional[Literal["qbed", "barcodes", "RNA", "CC"]]
+    data: Optional[Literal["qbed", "barcodes", "RNA", "CC", "Mudata"]]
 ) -> Union[pd.DataFrame, ad.AnnData]:
 
     """\
@@ -23,6 +24,7 @@ def mousecortex_data(
         `barcodes` reads the barcodes file.
         | `RNA` reads the RNA anndata.
         | `CC` reads the CC anndata.
+        | `Mudata` reads the mudata for both RNA and CC.
 
     :example:
     >>> import pycallingcards as cc
@@ -58,8 +60,18 @@ def mousecortex_data(
         adata = sc.read(filename, backup_url=url)
         return adata
 
+    elif data == "Mudata":
+        import wget
+
+        url = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/Mouse-Cortex.h5mu"
+        filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "Mouse-Cortex.h5mu")
+        wget.download(url, filename)
+        mudata = md.read_h5mu(filename)
+
+        return mudata
+
     else:
-        avail_data = ["qbed", "barcodes", "RNA", "CC"]
+        avail_data = ["qbed", "barcodes", "RNA", "CC", "Mudata"]
         raise ValueError(f"data must be one of {avail_data}.")
 
 

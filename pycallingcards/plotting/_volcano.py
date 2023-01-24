@@ -70,8 +70,8 @@ def volcano_plot(
 
     plt.plot(fc, pva, "gray", marker="o", linestyle="None")
     plt.plot(
-        fc[(pva > p_cutoff) & (fc < (-1 * lfc_cutoff))],
-        pva[(pva > p_cutoff) & (fc < (-1 * lfc_cutoff))],
+        fc[(pva >= p_cutoff) & (fc <= (-1 * lfc_cutoff))],
+        pva[(pva >= p_cutoff) & (fc <= (-1 * lfc_cutoff))],
         colorleft,
         marker="o",
         linestyle="None",

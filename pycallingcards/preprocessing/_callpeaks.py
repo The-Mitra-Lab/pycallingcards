@@ -165,7 +165,7 @@ def _CCcallerCompare_bf2(
                     alternative="greater",
                 ).pvalue
 
-        if pvalue < pvalue_cutoff:
+        if pvalue <= pvalue_cutoff:
             if record:
                 boundnew.append(
                     [chrom, bound[i][0], bound[i][1], boundnum, TTAAnum, lam, pvalue]
@@ -314,7 +314,7 @@ def _CCcallerCompare2(
                         alternative="greater",
                     ).pvalue
 
-        if pvaluebg < pvalue_cutoffbg and pvalueTTAA < pvalue_cutoffTTAA:
+        if pvaluebg <= pvalue_cutoffbg and pvalueTTAA <= pvalue_cutoffTTAA:
 
             if record:
                 boundnew.append(
@@ -881,7 +881,7 @@ def _callpeakscc_tools(
                 p = 1
 
             # is this window significant?
-            if p < pvalue_cutoff:
+            if p <= pvalue_cutoff:
                 # was last window significant?
                 if sig_flag:
                     # if so, extend end of windows
@@ -899,7 +899,7 @@ def _callpeakscc_tools(
                     # add full sig window to the frame of peaks
                     # add chr, peak start, peak end
                     chr_list.append(chrom)  # add chr to frame
-                    start_list.append(sig_start)  # add peak start to frame
+                    start_list.append(max(0, sig_start))  # add peak start to frame
                     end_list.append(sig_end)  # add peak end to frame
 
                     # compute peak center and add to frame
@@ -1374,7 +1374,7 @@ def _callpeakscc_tools_bfnew2(
                 else:
                     pvalue = 1
 
-                if pvalue < pvalue_cutoff:
+                if pvalue <= pvalue_cutoff:
 
                     # was last window significant?
                     if sig_flag:
@@ -1521,7 +1521,7 @@ def _callpeakscc_tools_bfnew2(
                                 )
 
                         chr_list.append(chrom)  # add chr to frame
-                        start_list.append(sig_start)  # add peak start to frame
+                        start_list.append(max(sig_start, 0))  # add peak start to frame
                         end_list.append(sig_end)  # add peak end to frame
 
                         if record:
@@ -1809,7 +1809,7 @@ def _callpeakscc_toolsnew2(
                     pvaluebg = 0
 
                 # if it passes, then look at the TTAA:
-                if pvaluebg < pvalue_cutoff_background:
+                if pvaluebg <= pvalue_cutoff_background:
 
                     num_TTAA_insertions, startTTAA1 = _findinsertionslen2(
                         curTTAAframe,
@@ -1871,7 +1871,10 @@ def _callpeakscc_toolsnew2(
                 pvalueTTAA = 1
 
             # is this window significant?
-            if pvaluebg < pvalue_cutoff_background and pvalueTTAA < pvalue_cutoff_TTAA:
+            if (
+                pvaluebg <= pvalue_cutoff_background
+                and pvalueTTAA <= pvalue_cutoff_TTAA
+            ):
                 # was last window significant?
                 if sig_flag:
                     # if so, extend end of windows
@@ -1916,7 +1919,7 @@ def _callpeakscc_toolsnew2(
                     )
 
                     chr_list.append(chrom)  # add chr to frame
-                    start_list.append(sig_start)  # add peak start to frame
+                    start_list.append(max(sig_start, 0))  # add peak start to frame
                     end_list.append(sig_end)
 
                     if record:
@@ -2161,7 +2164,7 @@ def _check_test_method(method):
         )
 
 
-def callpeaks(
+def call_peaks(
     expdata: pd.DataFrame,
     background: Optional[pd.DataFrame] = None,
     method: _Peakcalling_Method = "CCcaller",
@@ -2269,6 +2272,9 @@ def callpeaks(
     if type(record) != bool:
         raise ValueError("Please enter a True/ False for record")
 
+    if save == True:
+        save = "peak.bed"
+
     if type(background) == pd.DataFrame:
 
         length = 3
@@ -2309,7 +2315,7 @@ def callpeaks(
             min_insertions = _checkint(min_insertions, "min_insertions")
             min_insertions = max(min_insertions, 1)
 
-            if save == None:
+            if save == None or save == False:
 
                 return _callpeakscc_toolsnew2(
                     expdata,
@@ -2391,7 +2397,7 @@ def callpeaks(
             min_insertions = _checkint(min_insertions, "min_insertions")
             min_insertions = max(min_insertions, 1)
 
-            if save == None:
+            if save == None or save == False:
 
                 return _CCcaller2(
                     expdata,
@@ -2445,7 +2451,7 @@ def callpeaks(
             _checkpvalue(pvalue_cutoff, "pvalue_cutoff")
             _checkint(pseudocounts, "pseudocounts")
 
-            if save == None:
+            if save == None or save == False:
 
                 data = _Blockify(
                     expdata,
@@ -2516,7 +2522,7 @@ def callpeaks(
             lam_win_size = _checkint(lam_win_size, "lam_win_size")
             step_size = _checkint(step_size, "step_size")
 
-            if save == None:
+            if save == None or save == False:
 
                 return _callpeakscc_tools(
                     expdata,
@@ -2610,7 +2616,7 @@ def callpeaks(
             min_insertions = _checkint(min_insertions, "min_insertions")
             min_insertions = max(min_insertions, 1)
 
-            if save == None:
+            if save == None or save == False:
 
                 return _callpeakscc_tools_bfnew2(
                     expdata,
@@ -2705,7 +2711,7 @@ def callpeaks(
             min_insertions = _checkint(min_insertions, "min_insertions")
             min_insertions = max(min_insertions, 1)
 
-            if save == None:
+            if save == None or save == False:
 
                 return _CCcaller_bf2(
                     expdata,
@@ -2789,7 +2795,7 @@ def callpeaks(
             _check_test_method(test_method)
             _checkpvalue(pvalue_cutoff, "pvalue_cutoff")
 
-            if save == None:
+            if save == None or save == False:
 
                 data = _Blockify(
                     expdata,
