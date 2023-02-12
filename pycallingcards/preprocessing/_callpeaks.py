@@ -350,6 +350,7 @@ def _CCcaller_bf2(
     pseudocounts: float = 0.2,
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = False,
+    minnum: int = 0,
 ) -> pd.DataFrame:
 
     # The chromosomes we need to consider
@@ -373,6 +374,7 @@ def _CCcaller_bf2(
 
         # make a summary of our current insertion start points
         unique, counts = np.unique(curChromnp, return_counts=True)
+        counts = np.concatenate((counts, np.array([0] * 2)))
 
         # create a list to find out the protintial peak region of their bounds
         bound = []
@@ -385,14 +387,20 @@ def _CCcaller_bf2(
         # calculate the distance between each points
         dif1 = np.diff(unique, axis=0)
         # add a zero to help end the following loop at the end
-        dif1 = np.concatenate((dif1, np.array([maxbetween + 1])))
+        dif1 = np.concatenate((dif1, np.array([maxbetween + 1] * 2)))
 
         # look for the uique insertion points
         for i in range(len(unique)):
             if startbound == 0:
                 startbound = unique[i]
                 insertionbound += counts[i]
-                if dif1[i] > maxbetween:
+
+                if (dif1[i] > maxbetween) or (
+                    counts[(i + 1)] <= minnum
+                    and (
+                        dif1[i + 1] > float(maxbetween) / 3 or counts[(i + 2)] <= minnum
+                    )
+                ):
                     endbound = unique[i]
                     if (insertionbound >= mininser) and (
                         (endbound - startbound) >= minlen
@@ -410,7 +418,12 @@ def _CCcaller_bf2(
                     insertionbound = 0
             else:
                 insertionbound += counts[i]
-                if dif1[i] > maxbetween:
+                if (dif1[i] > maxbetween) or (
+                    counts[(i + 1)] <= minnum
+                    and (
+                        dif1[i + 1] > float(maxbetween) / 3 or counts[(i + 2)] <= minnum
+                    )
+                ):
                     endbound = unique[i]
                     if (insertionbound >= mininser) and (
                         (endbound - startbound) >= minlen
@@ -440,6 +453,10 @@ def _CCcaller_bf2(
             test_method=test_method,
             record=record,
         )
+
+    for inser_num in range(len(bound) - 1):
+        if boundnew[inser_num + 1][1] < boundnew[inser_num][2]:
+            boundnew[inser_num + 1][1] = boundnew[inser_num][2]
 
     if record:
         return pd.DataFrame(
@@ -475,6 +492,7 @@ def _CCcaller2(
     pseudocounts: float = 0.2,
     test_method: _PeakCCcallerMethod = "poisson",
     record: bool = False,
+    minnum: int = 0,
 ) -> pd.DataFrame:
 
     # The chromosomes we need to consider
@@ -505,6 +523,7 @@ def _CCcaller2(
 
         # make a summary of our current insertion start points
         unique, counts = np.unique(np.array(curChrom), return_counts=True)
+        counts = np.concatenate((counts, np.array(2 * [0])))
 
         # create a list to find out the protintial peak region of their bounds
         bound = []
@@ -517,14 +536,19 @@ def _CCcaller2(
         # calculate the distance between each points
         dif1 = np.diff(unique, axis=0)
         # add a zero to help end the following loop at the end
-        dif1 = np.concatenate((dif1, np.array([maxbetween + 1])))
+        dif1 = np.concatenate((dif1, np.array(2 * [maxbetween + 1])))
 
         # look for the uique insertion points
         for i in range(len(unique)):
             if startbound == 0:
                 startbound = unique[i]
                 insertionbound += counts[i]
-                if dif1[i] > maxbetween:
+                if (dif1[i] > maxbetween) or (
+                    counts[(i + 1)] <= minnum
+                    and (
+                        dif1[i + 1] > float(maxbetween) / 3 or counts[(i + 2)] <= minnum
+                    )
+                ):
                     endbound = unique[i]
                     if (insertionbound >= mininser) and (
                         (endbound - startbound) >= minlen
@@ -542,7 +566,12 @@ def _CCcaller2(
                     insertionbound = 0
             else:
                 insertionbound += counts[i]
-                if dif1[i] > maxbetween:
+                if (dif1[i] > maxbetween) or (
+                    counts[(i + 1)] <= minnum
+                    and (
+                        dif1[i + 1] > float(maxbetween) / 3 or counts[(i + 2)] <= minnum
+                    )
+                ):
                     endbound = unique[i]
                     if (insertionbound >= mininser) and (
                         (endbound - startbound) >= minlen
@@ -574,6 +603,10 @@ def _CCcaller2(
             test_method,
             record,
         )
+
+    for inser_num in range(len(bound) - 1):
+        if boundnew[inser_num + 1][1] < boundnew[inser_num][2]:
+            boundnew[inser_num + 1][1] = boundnew[inser_num][2]
 
     if record:
         return pd.DataFrame(
@@ -619,9 +652,11 @@ def _BlockifyCompare(
     last = -1
     Chrnumtotal = 0
     TTAAnumtotal = 0
+    currentlen = len(curframe)
 
     for i in range(len(bound)):
-        TTAAnum = _findinsertionslen(curframe, bound[i][0], bound[i][1], length)
+
+        TTAAnum = bound[i][4]
         boundnum = bound[i][2]
 
         if test_method == "poisson":
@@ -631,7 +666,7 @@ def _BlockifyCompare(
             pValue = binomCCcaller(
                 int(boundnum + pseudocounts),
                 n=len(curChrom),
-                p=((TTAAnum + pseudocounts) / len(curframe)),
+                p=((TTAAnum + pseudocounts) / currentlen),
                 alternative="greater",
             ).pvalue
 
@@ -654,7 +689,7 @@ def _BlockifyCompare(
                     pvalue = binomCCcaller(
                         int(Chrnumtotal + pseudocounts),
                         n=len(curChrom),
-                        p=((TTAAnumtotal + pseudocounts) / len(curframe)),
+                        p=((TTAAnumtotal + pseudocounts) / currentlen),
                         alternative="greater",
                     ).pvalue
 
@@ -689,7 +724,7 @@ def _BlockifyCompare(
                 pvalue = binomCCcaller(
                     int(Chrnumtotal + pseudocounts),
                     n=len(curChrom),
-                    p=((TTAAnumtotal + pseudocounts) / len(curframe)),
+                    p=((TTAAnumtotal + pseudocounts) / currentlen),
                     alternative="greater",
                 ).pvalue
 
@@ -720,6 +755,14 @@ def _Blockify(
     record: bool = True,
 ) -> pd.DataFrame:
 
+    from pybedtools import BedTool
+
+    from . import _blo_segmentation as segmentation
+
+    blo = segmentation.segment(
+        BedTool.from_dataframe(expdata), "PELT", p0=0.05, prior=None
+    ).blocks.to_dataframe()
+
     # The chromosomes we need to consider
     chrm = list(expdata["Chr"].unique())
 
@@ -744,10 +787,20 @@ def _Blockify(
         # create a list to find out the protintial peak region of their bounds
         bound = []
 
-        import astropy.stats as astrostats
+        hist, bin_edges = np.histogram(
+            curChromnp,
+            bins=np.array(
+                list(blo[blo["chrom"] == chrom]["start"])
+                + [list(blo[blo["chrom"] == chrom]["end"])[-1]]
+            ),
+        )
 
-        hist, bin_edges = astrostats.histogram(
-            expdata[expdata["Chr"] == chrom]["Start"], bins="blocks"
+        hist_TTAA, _ = np.histogram(
+            curTTAAframe,
+            bins=np.array(
+                list(blo[blo["chrom"] == chrom]["start"])
+                + [list(blo[blo["chrom"] == chrom]["end"])[-1]]
+            ),
         )
 
         hist = list(hist)
@@ -759,6 +812,7 @@ def _Blockify(
                     bin_edges[bins + 1],
                     hist[bins],
                     bin_edges[bins + 1] - bin_edges[bins],
+                    hist_TTAA[bins],
                 ]
             )
 
@@ -2176,6 +2230,7 @@ def call_peaks(
     minlen: int = 0,
     extend: int = 200,
     maxbetween: int = 2000,
+    minnum: int = 0,
     test_method: _PeakCCcallerMethod = "poisson",
     window_size: int = 1500,
     lam_win_size: Optional[int] = 100000,
@@ -2215,7 +2270,9 @@ def call_peaks(
     :param extend:  Default is 200.
         Valid for method = `'CCcaller'` and `'cc_tools'`. The length (bp) that peaks extend for both sides.
     :param maxbetween: Default is 2000.
-        Valid only for method = `'CCcaller'`. The maximum length of nearby insertions within one peak.
+        Valid only for method = `'CCcaller'`. The maximum length of nearby position within one peak.
+    :param minnum: Default is 0.
+        Valid only for method = `'CCcaller'`. The minmum number of insertions for the nearby position.
     :param test_method: `['poisson','binomial']`. Default is `'poisson'`.
         The method for making hypothesis CCcaller.
     :param window_size: Default is 1500.
@@ -2414,6 +2471,7 @@ def call_peaks(
                     pseudocounts=pseudocounts,
                     test_method=test_method,
                     record=record,
+                    minnum=minnum,
                 )
             else:
 
@@ -2432,6 +2490,7 @@ def call_peaks(
                     pseudocounts=pseudocounts,
                     test_method=test_method,
                     record=record,
+                    minnum=minnum,
                 )
 
                 data.to_csv(save, sep="\t", header=None, index=None)
@@ -2726,6 +2785,7 @@ def call_peaks(
                     pseudocounts=pseudocounts,
                     test_method=test_method,
                     record=record,
+                    minnum=minnum,
                 )
             else:
 
@@ -2742,6 +2802,7 @@ def call_peaks(
                     pseudocounts=pseudocounts,
                     test_method=test_method,
                     record=record,
+                    minnum=minnum,
                 )
 
                 data.to_csv(save, sep="\t", header=None, index=None)
@@ -2844,3 +2905,33 @@ def call_peaks(
     else:
 
         raise ValueError("Not a valid background.")
+
+
+def down_sample(
+    qbed: pd.DataFrame,
+    number: int = 10000000,
+    random_state: int = 1,
+):
+
+    """\
+    Down sample insertion data.
+
+    :param qbed:
+        pd.DataFrame for qbed data.
+    :param number:
+        The target number for downsampling. It should be less than the total number of insertions.
+    :param random_state:
+        The random seed.
+
+
+    :Examples:
+    >>> import pycallingcards as cc
+    >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.down_sample(qbed_data, number = 10000)
+
+    """
+
+    qbed_ram = qbed.sample(n=number, random_state=random_state)
+    qbed_ram = qbed_ram.sort_values(by=["Chr", "Start"])
+
+    return qbed_ram
