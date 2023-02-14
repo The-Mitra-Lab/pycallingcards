@@ -55,25 +55,25 @@ def annotation(
 ) -> pd.DataFrame:
 
     """\
-    Annotate the peak data by `bedtools <https://bedtools.readthedocs.io/en/latest/index.html>`__ :cite:`quinlan2010bedtools`.
+    Annotate the peak data using `bedtools <https://bedtools.readthedocs.io/en/latest/index.html>`__ :cite:`quinlan2010bedtools`.
 
-    :param peaks_frame: Default is `None`.
+    :param peaks_frame:
         pd.DataFrame with the first three columns as chromosome, start and end.
-        Will not be used if peak_path is pervided.
-    :param peaks_path: Default is `None`.
+        Will not be used if peak_path is provided.
+    :param peaks_path:
         The path to the peak data.
-        An external program would be used in this function so peak_path is perferred over peaks_frame.
+        An external program is used in this function so peak_path is preferred over peaks_frame.
     :param reference:  Default is `'hg38'`.
-        reference of the annoatation data.
-        Currently, `'hg38'`, `'mm10'`, `'sacCer3'` are provided only.
+        Reference of the annotation data.
+        Currently, only `'hg38'`, `'mm10'`, `'sacCer3'` are provided.
 
-    :param save_annotation:  Default is `None`.
+    :param save_annotation:
         The path and name of the annotation results would be saved.
-    :param bedtools_path: Default is `None`.
+    :param bedtools_path:
         Default uses the default path for bedtools.
 
     :Returns:
-        pd.DataFrame with the first three columns as chromosome, start abd end. Following columns are the peak_annotation.
+        pd.DataFrame with the first three columns as chromosome, start and end. Following the columns is the peak_annotation.
 
         | **Chr** - The chromosome of the peak.
         | **Start** - The start point of the peak.

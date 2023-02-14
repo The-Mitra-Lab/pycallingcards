@@ -29,16 +29,16 @@ def make_Anndata(
     Make cell(sample) by using peak anndata for calling cards.
 
     :param qbed:
-        pd.DataFrame the first five with columns as chromosome, start, end, reads number, diretion and barcodes.
+        pd.DataFrame the first five with columns as chromosome, start, end, reads number, direction and barcodes.
         Chromosome, start, end and barcodes are the actual information needed.
     :param peaks:
-        pd.DataFrame with first three columnsas chromosome, start and end. Other information is contained after these.
+        pd.DataFrame with first three columns as chromosome, start and end. Other information is contained after these.
     :param barcodes:
         pd.DataFrame or a list of all barcodes.
-    :param reference: `['hg38','mm10','sacCer3']`. Default is `hg38`.
+    :param reference: `['hg38','mm10','sacCer3']`.
         This information is only used to calculate the length of one insertion.
-        `hg38` and `mm10` are the same. Default is `hg38`.
-    :param key: Default is  `Barcodes`.
+        `hg38` and `mm10` are the same.
+    :param key:
         The name of the column in qbed file containing the barcodes information.
 
 
@@ -182,11 +182,11 @@ def adata_insertions(
     :param name:
         The name to add to adata.obs.
     :param groupby:
-        The name all the cells grouped by.
-    :param method: `["avginsertions","logAvginsertions","suminsertions","logSuminsertions"]` Default is `'logAvginsertions'`.
-        method to calculate the insertions.
-    :param peak: Default is `'all'`.
-        The name of the peak we are looking into. If it is `'all'`, all the peaks would be counted into.
+        The name all the cells are grouped by.
+    :param method: `["avginsertions","logAvginsertions","suminsertions","logSuminsertions"]`.
+        The method to calculate the insertions.
+    :param peak:
+        The name of the peak we are looking into. If it is `'all'`, all the peaks would be counted.
 
 
 

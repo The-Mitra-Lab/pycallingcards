@@ -59,7 +59,7 @@ def combine_qbed(filelist: list, name: List = ["Chr", "Start"]) -> pd.DataFrame:
     Combine .qbed file.
 
     :param filelist:
-        List containing all the pd.DataFrames need to be combined.
+        List containing all of the pd.DataFrames that need to be combined.
     :param name:
         Name of the first two colums. Default is ["Chr", "Start"].
 
@@ -79,7 +79,7 @@ def combine_qbed(filelist: list, name: List = ["Chr", "Start"]) -> pd.DataFrame:
 def read_rna(filename: str) -> pd.DataFrame:
 
     """\
-    Read RNA file which column index is sample names and row index is gene names.
+    Read RNA file where column index is sample names and row index is gene names.
 
     :param filename:
         Path to RNA file.
@@ -120,7 +120,7 @@ def save_qbed(file: pd.DataFrame, path: str):
 def save_bed(file: pd.DataFrame, path: str):
 
     """\
-    Save.bed file.
+    Save .bed file.
 
     :param file:
         pd.Dataframe of the file
