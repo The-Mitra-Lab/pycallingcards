@@ -43,30 +43,30 @@ def dotplot_bulk(
     :param rna:
         pd.DataFrame of RNA expression.
     :param selected_list:
-        A list of peak going to show.
+        A list of peak to be shown.
     :param num_list:
-        The distribution of samples in rna.
-        eg. the first three columns for rna is female and the following two columns is male data, then num_list should be [3,2]
-    :param xticklabels: Default is `None`.
-        xticklabels for the column. If `None`, it would be the index of adata_cc.obs
-    :param rate: Default is `50`.
+        The distribution of samples in RNA.
+        eg. the first three columns for RNA is female and the following two columns is male data, then num_list should be [3,2]
+    :param xticklabels:
+        xticklabels for the column. If `None`, it will be the index of adata_cc.obs
+    :param rate:
         Rate to control the dot size.
-    :param figsize: Default is (12, 15).
+    :param figsize:
         The size of the figure.
-    :param dotsize: Default is 5.
+    :param dotsize:
         The relative size of dots.
-    :param cmap: Default is `'Reds'`.
+    :param cmap:
         The colormap of the plot.
-    :param title: Default is `'DE binding & RNA'`.
+    :param title:
         The title of the plot.
-    :param topspace: Default is 0.977.
+    :param topspace:
         Parameter to control the title position.
-    :param sort_by_chrom: Default is `False`.
+    :param sort_by_chrom:
         If `True`, it would sort by chr1, chr2, etc.
         sort_by_chrom can not be applied to yeast data.
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name would be given and the plot would be saved as a png file.
 
 
     :example:
@@ -238,29 +238,31 @@ def dotplot_sc(
 
     """\
     Plot ranking of peaks.
+
     :param adata_cc:
         Anndata of peak.
     :param adata:
         Anndata of RNA.
     :param result:
         pd.DataFrame of result gain from cc.tl.pair_peak_gene_sc with 'Peak' and 'Gene' columns.
-    :param rate: Default is `50`.
+    :param rate:
         Rate to control the dot size.
-    :param figsize: Default is (10, 120).
+    :param figsize:
         The size of the figure.
-    :param size: Default is 1.
+    :param size:
         The size of relative size of text.
-    :param cmap: Default is `'Reds'`.
+    :param cmap:
         The colormap of the plot for bindings.
-    :param cmap: Default is `'BuPu'`.
+    :param cmap:
         The colormap of the plot for genes.
-    :param title: Default is `'DE binding & RNA'`.
+    :param title:
         The title of the plot.
-    :param topspace: Default is 0.977.
+    :param topspace:
         Parameter to control the title position.
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name would be given and the plot would be saved as a png file.
+
     :example:
     >>> import pycallingcards as cc
     >>> import scanpy as sc
@@ -279,6 +281,7 @@ def dotplot_sc(
     sns.set_theme()
 
     genelist = list(result["Gene"])
+    genelist_expression = [w + " Expression" for w in genelist]
     peaklist = list(result["Peak"])
 
     clusterlist = list(adata_cc.obs["cluster"].unique())
@@ -349,7 +352,9 @@ def dotplot_sc(
         )
         ax[num].axis(ymin=0, ymax=1.5)
         ax[num].set_yticks([0.5, 1])
-        ax[num].set_yticklabels([peaklist[num], genelist[num]], fontsize=10 * size)
+        ax[num].set_yticklabels(
+            [peaklist[num], genelist_expression[num]], fontsize=10 * size
+        )
         ax[num].set_xticks(x)
         ax[num].set_xticklabels(small, fontsize=10 * size)
 
@@ -387,31 +392,31 @@ def dotplot_sc_mu(
 
     :param mdata:
         mdata for both CC and RNA.
-    :param adata_cc: Default is `'CC'`.
+    :param adata_cc:
         Name for CC data. Anndata is mdata[adata_cc].
-    :param adata: Default is `'RNA'`.
+    :param adata:
         Name for RNA data. Anndata is mdata[adata].
-    :param result: Default is `'pair'`.
+    :param result:
         pd.DataFrame of result gain from cc.tl.pair_peak_gene_sc with 'Peak' and 'Gene' columns.
-    :param cluster_name: Default is `'RNA:cluster'`.
+    :param cluster_name:
         The name of cluster in adata_cc and adata.
-    :param rate: Default is `50`.
+    :param rate:
         Rate to control the dot size.
-    :param figsize: Default is (10, 120).
+    :param figsize:
         The size of the figure.
-    :param size: Default is 1.
+    :param size:
         The size of relative size of text.
-    :param cmap: Default is `'Reds'`.
+    :param cmap:
         The colormap of the plot for bindings.
-    :param cmap: Default is `'BuPu'`.
+    :param cmap:
         The colormap of the plot for genes.
-    :param title: Default is `'DE binding & RNA'`.
+    :param title:
         The title of the plot.
-    :param topspace: Default is 0.977.
+    :param topspace:
         Parameter to control the title position.
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name will be given and the plot would be saved as a png file.
 
 
     :example:
@@ -428,6 +433,7 @@ def dotplot_sc_mu(
     result = adata_cc.uns[result]
 
     genelist = list(result["Gene"])
+    genelist_expression = [w + " Expression" for w in genelist]
     peaklist = list(result["Peak"])
 
     clusterlist = list(mdata.obs[cluster_name].unique())
@@ -498,7 +504,9 @@ def dotplot_sc_mu(
         )
         ax[num].axis(ymin=0, ymax=1.5)
         ax[num].set_yticks([0.5, 1])
-        ax[num].set_yticklabels([peaklist[num], genelist[num]], fontsize=10 * size)
+        ax[num].set_yticklabels(
+            [peaklist[num], genelist_expression[num]], fontsize=10 * size
+        )
         ax[num].set_xticks(x)
         ax[num].set_xticklabels(small, fontsize=10 * size)
 

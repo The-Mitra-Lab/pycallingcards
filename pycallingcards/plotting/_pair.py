@@ -77,8 +77,7 @@ def plot_matched(
 ):
 
     """\
-    Designed for mudata object.
-    Plot matched peak,gene and cluster pair.
+    Plot matched peak,gene and cluster pair (Designed for mudata object).
 
     :param mdata:
         mdata for both CC and RNA.
@@ -88,14 +87,14 @@ def plot_matched(
         Gene name.
     :param name:
         The name for peak displyed.
-    :param adata_cc: Default is `'CC'`.
+    :param adata_cc:
         Name for CC data. Anndata is mdata[adata_cc].
     :param adata: Default is `'RNA'`.
         Name for RNA data. Anndata is mdata[adata].
     :param groupby:
-        The name all the cells grouped by.
-    :param method: `["avginsertions","logAvginsertions","suminsertions","logSuminsertions"]` Default is `'logAvginsertions'`.
-        method to calculate the insertions.
+        The name all the cells are grouped by.
+    :param method: `["avginsertions","logAvginsertions","suminsertions","logSuminsertions"]`.
+        Method to calculate the insertions.
 
 
 

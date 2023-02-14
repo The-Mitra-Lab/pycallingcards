@@ -32,6 +32,7 @@ def draw_area(
     color_cc: str = None,
     color_peak: str = None,
     color_genes: str = None,
+    color_background: str = "lightgray",
     title: Optional[str] = None,
     example_length: int = 10000,
     peak_line: int = 1,
@@ -40,12 +41,12 @@ def draw_area(
 ):
 
     """\
-    Plot the specific area of the genome. This plot contains three parts.
-    The first part is a plot of insertions plot: one dot is one insertion and the height is log(reads + 1).
-    The second part is the distribution plot of insertions.
-    If backgound is input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
-    If backgound is not input and adata/name/key are provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
-    The third part composes of reference genes and peaks.
+    Plot the specific area of the genome. This plot contains three sections.
+    The top section is a plot of insertions plot: one dot is one insertion and the height is log(reads + 1).
+    The middle section is the distribution plot of insertions.
+    If backgound is the input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
+    If backgound is not the input and adata/name/key is provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
+    The bottom section composes of reference genes and peaks.
 
 
     :param chromosome:
@@ -62,46 +63,48 @@ def draw_area(
         pd.Datadrame of qbed
     :param reference:
         `'hg38'`, `'mm10'`, `'sacCer3'` or pd.DataFrame of the reference data.
-    :param background: Default is `None`.
+    :param background:
         pd.DataFrame of qbed or None.
-    :param adata: Default is `None`.
+    :param adata:
         Input along with `name` and `key`.
-        It would only show the insertions when the `key` of adata is `name`.
-    :param name: Default is `None`.
+        It will only show the insertions when the `key` of adata is `name`.
+    :param name:
         Input along with `adata` and `key`.
-        It would only show the insertions when the `key` of adata is `name`.
-    :param key: Default is `None`.
+        It will only show the insertions when the `key` of adata is `name`.
+    :param key:
         Input along with `adata` and `name`.
-        It would only show the insertions when the `key` of adata is `name`.
-    :param insertionkey: Default is `None`('Barcodes').
+        It will only show the insertions when the `key` of adata is `name`.
+    :param insertionkey:
         Input along with `adata` and `name`.
-        It would find the column `insertionkey` of the insertions file.
-    :param figsize: Default is (10, 3).
+        It will find the column `insertionkey` of the insertions file.
+    :param figsize:
         The size of the figure.
-    :param plotsize: Default is [1,1,2].
-        The relateive size of the dot plot, distribution plot and the peak plot.
-    :param bins:  Default is `None`.
-        The bins of histogram. I would automatically calculate if None.
-    :param color:  `['blue','red','green','pruple']`. Default is `red`.
+    :param plotsize:
+        The relative size of the dot plot, distribution plot and the peak plot.
+    :param bins:
+        The bins of histogram. It will automatically calculate if None.
+    :param color:  `['blue','red','green','pruple']`.
         The color of the plot.
-        If `color` is not a valid color, `color_cc`, `color_peak`, `color_genes` should be utilized.
-    :param color_cc: Default is `None`.
+        If `color` is not a valid color, `color_cc`, `color_peak`, and `color_genes` should be utilized.
+    :param color_cc:
         The color of qbed insertions. Used only when `color` is not a valid color.
-    :param color_peak: Default is `None`.
+    :param color_peak:
         The color of peaks. Used only when `color` is not a valid color.
-    :param color_genes: Default is `None`.
+    :param color_genes:
         The color of genes. Used only when `color` is not a valid color.
-    :param title: Default is `None`.
+    :param color_background:
+        The color of background.
+    :param title:
         The title of the plot.
-    :param example_length:  Default is 10000.
+    :param example_length:
         The length of example.
-    :param peak_line: Default is 1.
+    :param peak_line:
         The total number of peak lines.
-    :param font_size: Default is `10`.
+    :param font_size:
         The relative font of the words on the plot.
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param save:
+        Could be bool or str indicating the file name It will be saved as.
+        If `True`, a default name would be given and the plot would be saved as a png file.
 
 
     :example:
@@ -185,11 +188,11 @@ def draw_area(
         (refchr.iloc[:, 2] >= start - extend) & (refchr.iloc[:, 1] <= end + extend)
     ].to_numpy()
     d1 = insertionschr[
-        (insertionschr.iloc[:, 1] >= start - extend)
-        & (insertionschr.iloc[:, 2] <= end + extend)
+        (insertionschr.iloc[:, 2] >= start - extend)
+        & (insertionschr.iloc[:, 1] <= end + extend)
     ]
     p1 = peakschr[
-        (peakschr.iloc[:, 1] >= start - extend) & (peakschr.iloc[:, 2] <= end + extend)
+        (peakschr.iloc[:, 2] >= start - extend) & (peakschr.iloc[:, 1] <= end + extend)
     ].to_numpy()
 
     if bins == None:
@@ -225,26 +228,28 @@ def draw_area(
         axis[0].plot(
             list(b1.iloc[:, 1]),
             list(np.log(b1.iloc[:, 3] + 1)),
-            "lightgray",
+            color_background,
             marker="o",
             linestyle="None",
             markersize=6,
         )
         counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
-        axis[1].hist(binsbg[:-1], binsbg, weights=np.log(counts + 1), color="lightgray")
+        axis[1].hist(
+            binsbg[:-1], binsbg, weights=np.log(counts + 1), color=color_background
+        )
 
     elif name != None:
 
         axis[0].plot(
             list(b1.iloc[:, 1]),
             list(np.log(b1.iloc[:, 3] + 1)),
-            "lightgray",
+            color_background,
             marker="o",
             linestyle="None",
             markersize=6,
         )
         counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
-        axis[1].hist(binsbg[:-1], binsbg, weights=counts, color="lightgray")
+        axis[1].hist(binsbg[:-1], binsbg, weights=counts, color=color_background)
 
     axis[0].plot(
         list(d1.iloc[:, 1]),
@@ -275,7 +280,7 @@ def draw_area(
         axis[2].text(
             (p1[i, 2] + extend / 40),
             -1 * (pnumber % peak_line) + 0.15,
-            p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
+            "  " + p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
             fontsize=14 * font_size,
         )
         pnumber += 1
@@ -291,7 +296,7 @@ def draw_area(
         axis[2].text(
             min(r1[i, 2] + extend / 40, end + extend),
             1 + i,
-            r1[i, 3] + ", " + r1[i, 4],
+            " " + r1[i, 3] + ", " + r1[i, 4],
             fontsize=12 * font_size,
         )
 
@@ -381,6 +386,7 @@ def whole_peaks(
     color: str = "black",
     added: int = 10000,
     height_name: str = "Experiment Insertions",
+    exact: bool = False,
     save: Union[bool, str] = False,
 ):
 
@@ -389,25 +395,27 @@ def whole_peaks(
 
     :param peak_data:
         Peak_data file from cc.pp.callpeaks.
-    :param reference: `['mm10','hg38','sacCer3',None]` Default is `'hg38'`.
+    :param reference: `['mm10','hg38','sacCer3',None]`.
         The reference of the data.
-    :param figsize: Default is `(100, 40)`.
+    :param figsize:
         The size of the figure.
-    :param title: Default is `'Peaks over chromosomes'`.
+    :param title:
         The title of the plot.
-    :param font_size: Default is `10`.
+    :param font_size:
         The font of the words on the plot.
-    :param linewidth: Default is `4`.
-        The linewidth of the words on the plot.
-    :param color:  Default is `'black'`.
+    :param linewidth:
+        The linewidth between words on the plot.
+    :param color:
         The color of the plot, the same as color in plt.plot.
-    :param added: Default is `10000`.
-        Only valide when there is no reference provided. The max length(bp) added to the end of a chromosome shown.
-    :param height_name: Default is 'Experiment Insertions'.
-        The height of each peak. If `None`, it would all be the same height.
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param added:
+        Only valid when there is no reference provided. The max length(bp) added to the end of a chromosome shown.
+    :param height_name:
+        The height of each peak. If `None`, it will all be the same height.
+    :param exact:
+        Wheather to show the exact number of total bp at the end of chromosome.
+    :param save:
+        Could be bool or str indicating the file name It will be saved.
+        If `True`, a default name will be given and the plot would be saved as a png file.
 
 
     :example:
@@ -426,6 +434,7 @@ def whole_peaks(
     sortlist = np.array(sortlist)
 
     if reference == "mm10":
+
         ref = np.array(
             [
                 195471971,
@@ -451,6 +460,35 @@ def whole_peaks(
                 91744698,
             ]
         )
+        if exact:
+            ref_d = ref
+        else:
+            ref_d = np.array(
+                [
+                    "195.5 M",
+                    "182.1 M",
+                    "160.0 M",
+                    "156.5 M",
+                    "151.8 M",
+                    "149.7 M",
+                    "145.4 M",
+                    "129.4 M",
+                    "124.6 M",
+                    "130.7 M",
+                    "122.1 M",
+                    "120.1 M",
+                    "120.4 M",
+                    "124.9 M",
+                    "104.0 M",
+                    "98.2 M",
+                    "95.0 M",
+                    "90.7 M",
+                    "61.4 M",
+                    "171.0 M",
+                    "91.7 M",
+                ]
+            )
+
         sortlist1 = np.array(
             [
                 "chr1",
@@ -508,6 +546,38 @@ def whole_peaks(
                 57227415,
             ]
         )
+        if exact:
+            ref_d = ref
+
+        else:
+            ref_d = np.array(
+                [
+                    "249.0 M",
+                    "242.2 M",
+                    "198.3 M",
+                    "190.2 M",
+                    "181.5 M",
+                    "170.8 M",
+                    "159.3 M",
+                    "145.1 M",
+                    "138.4 M",
+                    "133.8 M",
+                    "135.1 M",
+                    "133.3 M",
+                    "114.4 M",
+                    "107.0 M",
+                    "102.0 M",
+                    "90.3 M",
+                    "83.3 M",
+                    "80.4 M",
+                    "58.6 M",
+                    "64.4 M",
+                    "46.7 M",
+                    "50.8 M",
+                    "156.0 M",
+                    "57.2 M",
+                ]
+            )
         sortlist1 = np.array(
             [
                 "chr1",
@@ -561,6 +631,30 @@ def whole_peaks(
                 948066,
             ]
         )
+        if exact:
+            ref_d = ref
+        else:
+            ref_d = np.array(
+                [
+                    "230.2 T",
+                    "813.2 T",
+                    "316.6 T",
+                    "1.5 M",
+                    "576.9 T",
+                    "270.2 T",
+                    "1.1 M",
+                    "562.6 T",
+                    "439.9 T",
+                    "745.8 T",
+                    "666.8 T",
+                    "1.1 M",
+                    "924.4 T",
+                    "784.3 T",
+                    "1.1 M",
+                    "948.1 T ",
+                ]
+            )
+
         sortlist1 = np.array(
             [
                 "chrI",
@@ -596,6 +690,11 @@ def whole_peaks(
     figure, axis = plt.subplots(len(sortlist), 1, figsize=figsize)
     figure.suptitle(title, fontsize=9 * font_size, y=0.90)
 
+    if height_name != None:
+        max_height = peak_data["Experiment Insertions"].max()
+    else:
+        max_height = 1
+
     for chrom in range(len(sortlist)):
 
         start = list(peak_data[peak_data["Chr"] == sortlist[chrom]]["Start"])
@@ -610,6 +709,7 @@ def whole_peaks(
         axis[chrom].plot([0, ref[chrom]], [0, 0], color, linewidth=linewidth)
         axis[chrom].set_xlim([0, ref[chrom]])
         axis[chrom].text(ref[chrom], 0, sortlist[chrom], fontsize=6 * font_size)
+        axis[chrom].set_ylim([0, 1.01 * np.log(max_height + 1)])
         for peak in range(len(start)):
             axis[chrom].plot(
                 [start[peak], start[peak]],
@@ -624,9 +724,16 @@ def whole_peaks(
                 linewidth=linewidth,
             )
         axis[chrom].axis("off")
-        axis[chrom].text(20, -2, "0bp", fontsize=4 * font_size)
+        # axis[chrom].text(20, -2, "0bp", fontsize=4 * font_size)
         # axis[chrom].text(int(ref[chrom]/2) , -2, str(int(ref[chrom]/2))+"bp", fontsize=4*font_size)
-        axis[chrom].text(ref[chrom], -2, str(ref[chrom]) + "bp", fontsize=4 * font_size)
+        if exact:
+            axis[chrom].text(
+                ref[chrom], -2, str(ref_d[chrom]) + "bp", fontsize=4 * font_size
+            )
+        else:
+            axis[chrom].text(
+                ref[chrom], -2, str(ref_d[chrom]) + "b", fontsize=4 * font_size
+            )
 
     if save != False:
         if save == True:
@@ -655,6 +762,7 @@ def draw_area_mu(
     color_cc: str = None,
     color_peak: str = None,
     color_genes: str = None,
+    color_background: str = "lightgray",
     title: Optional[str] = None,
     example_length: int = 10000,
     peak_line: int = 1,
@@ -663,13 +771,13 @@ def draw_area_mu(
 ):
 
     """\
-    Designed for mudata object.
-    Plot the specific area of the genome. This plot contains three parts.
-    The first part is a plot of insertions plot: one dot is one insertion and the height is log(reads + 1).
-    The second part is the distribution plot of insertions.
-    If backgound is input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
-    If backgound is not input and mdata/name/key are provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
-    The third part composes of reference genes and peaks.
+    Plot the specific area of the genome (Designed for mudata object).
+    Plot the specific area of the genome. This plot contains three sections.
+    The top section is a plot of insertions plot: one dot is one insertion and the height is log(reads + 1).
+    The middle section is the distribution plot of insertions.
+    If backgound is the input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
+    If backgound is not the input and mdata/name/key is provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
+    The third section composes of reference genes and peaks.
 
 
     :param chromosome:
@@ -690,31 +798,33 @@ def draw_area_mu(
         pd.DataFrame of qbed or None.
     :param mdata: Default is `None`.
         Input along with `name` and `key`.
-        It would only show the insertions when the `key` of mdata is `name`.
+        It will only show the insertions when the `key` of mdata is `name`.
     :param name: Default is `None`.
         Input along with `mdata` and `key`.
-        It would only show the insertions when the `key` of mdata is `name`.
+        It will only show the insertions when the `key` of mdata is `name`.
     :param key: Default is `None`.
         Input along with `mdata` and `name`.
-        It would only show the insertions when the `key` of mdata is `name`.
+        It will only show the insertions when the `key` of mdata is `name`.
     :param insertionkey: Default is `None`('Barcodes').
         Input along with `mdata` and `name`.
-        It would find the column `insertionkey` of the insertions file.
+        It will find the column `insertionkey` of the insertions file.
     :param figsize: Default is (10, 3).
         The size of the figure.
     :param plotsize: Default is [1,1,2].
-        The relateive size of the dot plot, distribution plot and the peak plot.
+        The relative size of the dot plot, distribution plot and the peak plot.
     :param bins:  Default is `None`.
         The bins of histogram. I would automatically calculate if None.
     :param color:  `['blue','red','green','pruple']`. Default is `red`.
         The color of the plot.
-        If `color` is not a valid color, `color_cc`, `color_peak`, `color_genes` should be utilized.
+        If `color` is not a valid color, `color_cc`, `color_peak`, and `color_genes` should be utilized.
     :param color_cc: Default is `None`.
         The color of qbed insertions. Used only when `color` is not a valid color.
     :param color_peak: Default is `None`.
         The color of peaks. Used only when `color` is not a valid color.
     :param color_genes: Default is `None`.
         The color of genes. Used only when `color` is not a valid color.
+    :param color_background:
+        The color of background.
     :param title: Default is `None`.
         The title of the plot.
     :param example_length:  Default is 10000.
@@ -724,8 +834,8 @@ def draw_area_mu(
     :param font_size: Default is `10`.
         The relative font of the words on the plot.
     :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+        Could be bool or str indicating the file name It will be saved.
+        If `True`, a default name would be given and the plot would be saved as a png file.
 
 
     :example:
@@ -847,26 +957,28 @@ def draw_area_mu(
         axis[0].plot(
             list(b1.iloc[:, 1]),
             list(np.log(b1.iloc[:, 3] + 1)),
-            "lightgray",
+            color_background,
             marker="o",
             linestyle="None",
             markersize=6,
         )
         counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
-        axis[1].hist(binsbg[:-1], binsbg, weights=np.log(counts + 1), color="lightgray")
+        axis[1].hist(
+            binsbg[:-1], binsbg, weights=np.log(counts + 1), color=color_background
+        )
 
     elif name != None:
 
         axis[0].plot(
             list(b1.iloc[:, 1]),
             list(np.log(b1.iloc[:, 3] + 1)),
-            "lightgray",
+            color_background,
             marker="o",
             linestyle="None",
             markersize=6,
         )
         counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
-        axis[1].hist(binsbg[:-1], binsbg, weights=counts, color="lightgray")
+        axis[1].hist(binsbg[:-1], binsbg, weights=counts, color=color_background)
 
     axis[0].plot(
         list(d1.iloc[:, 1]),

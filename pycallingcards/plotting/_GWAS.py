@@ -28,42 +28,42 @@ def GWAS_adata_sc(
 ):
 
     """\
-    Plot GWAS results for different cell types for single-cell calling cards data. It considers the relative number of insertions in each cell type.
+    Plot GWAS results for different cell types in single-cell calling cards data. It considers the relative number of insertions in each cell type.
     GWAS data is downloaded from `GWAS Catalog <https://www.ebi.ac.uk/gwas/docs/file-downloads>`__.
 
 
     :param adata:
         The anndata object of scCC data.
-    :param number: Default is `100`.
-       The minimun total number for each SNP.
-    :param bindings: Default is ['Chr', 'Start', 'End'].
+    :param number:
+       The minimum total number for each SNP.
+    :param bindings:
         The name for binding information.
-    :param clusters: Default is None.
-        The cluter to consider.
+    :param clusters:
+        The cluster to consider.
         If None, it will use all the clusters in adata.obs[cluster_name]/
-    :param cluster_name: Default is `'cluster'`.
+    :param cluster_name:
         The name of cluster in adata.obs.
-    :param figsize:  Default is `(8,40)`.
+    :param figsize:
         The size of the figure.
-    :param cmap1: Default is `'BuPu'`.
+    :param cmap1:
         The colormap of the first heatmap which is the total count of each SNP.
-    :param cmap2: Default is None.
+    :param cmap2:
         The colormap of the second heatmap which is the relative number of insertions in each cell type.
-    :param font_scale: Default is `1`.
+    :param font_scale:
         The font_scale of the words on the plot (except fot title).
-    :param pad:  Default is `0.01`.
+    :param pad:
         The distance of the color bar from the bottom of the heatmap.
-    :param rotation:  Default is `0`.
+    :param rotation:
         The angle of the bottom label of the second heatmap
-    :param title: Default is None.
+    :param title:
         The title of the plot.
-    :param title_top: Default is 0.97.
+    :param title_top:
         Control the distance of the title from the top of the heatmap.
     :param title_fontsize: Default is title_fontsize.
         The fontsize of the title.
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name will be given and the plot would be saved as a png file.
 
 
     :example:
@@ -179,37 +179,37 @@ def GWAS_adata_bulk(
 ):
 
     """\
-    Plot GWAS results for different cell types for bulk calling cards data. It considers the relative number of insertions in each group.
+    Plot GWAS results for different cell types in bulk calling cards data. It considers the relative number of insertions in each group.
     GWAS data is downloaded from `GWAS Catalog <https://www.ebi.ac.uk/gwas/docs/file-downloads>`__.
 
 
     :param adata:
         The anndata object of bulk CC data.
-    :param number: Default is `100`.
-       The minimun total number for each SNP.
-    :param bindings: Default is ['Chr', 'Start', 'End'].
+    :param number:
+       The minimum total number for each SNP.
+    :param bindings:
         The name for binding information.
-    :param figsize:  Default is `(8,40)`.
+    :param figsize:
         The size of the figure.
-    :param cmap1: Default is `'BuPu'`.
+    :param cmap1:
         The colormap of the first heatmap which is the total count of each SNP.
-    :param cmap2: Default is None.
+    :param cmap2:
         The colormap of the second heatmap which is the relative number of insertions in each cell type.
-    :param font_scale: Default is `1`.
+    :param font_scale:
         The font_scale of the words on the plot (except fot title).
-    :param pad:  Default is `0.01`.
+    :param pad:
         The distance of the color bar from the bottom of the heatmap.
-    :param rotation:  Default is `0`.
+    :param rotation:
         The angle of the bottom label of the second heatmap
-    :param title: Default is None.
+    :param title:
         The title of the plot.
-    :param title_top: Default is 0.97.
+    :param title_top:
         Control the distance of the title from the top of the heatmap.
-    :param title_fontsize: Default is title_fontsize.
+    :param title_fontsize:
         The fontsize of the title.
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name would be given and the plot would be saved as a png file.
 
 
     :example:

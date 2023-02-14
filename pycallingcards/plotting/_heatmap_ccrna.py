@@ -25,22 +25,22 @@ def heatmap(
     :param adata_cc:
         Annotated data matrix.
     :param ran: pd.DataFrame.
-        pd.DataFrame for RNA data (genes*sample). Make sure the sample is in the same order of adata_cc.obs
-    :param figsize: Default is (28, 8).
+        pd.DataFrame for RNA data (genes*sample). Make sure the sample is in the same order as adata_cc.obs
+    :param figsize:
         The size of the figure.
-    :param font_scale: Default is 1.
+    :param font_scale:
         The scale of the font size.
-    :param cmap: Default is `'BuPu'`.
+    :param cmap:
         Color map of the plot.
-    :param rnalabels: Default is `None`.
-        The labels of the rna data. Be sure the length of list match the number of sample in rna file.
-    :param log: Default is `True`.
+    :param rnalabels:
+        The labels of the RNA data. Be sure the length of list match the number of samples in RNA file.
+    :param log:
         Whether to log transform the gene expression or not.
-    :param title: Default is `'Relative calling cards and RNA information'`.
+    :param title:
         The title of the plot.
-    :param save: Default is `False`.
+    :param save:
         Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+        If `True`, a default name will be given and the plot would be saved as a png file.
 
     :example:
     >>> import pycallingcards as cc

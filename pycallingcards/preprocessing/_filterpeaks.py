@@ -25,20 +25,20 @@ def filter_peaks(
     `max_counts`, `max_cells` per call.
 
 
-    :param data: Default is `None`.
+    :param data:
         An annotated data matrix of shape `n_obs` * `n_vars`. Rows correspond
         to cells and columns to peaks.
-    :param min_counts: Default is `None`.
+    :param min_counts:
         Minimum number of counts required for a peak to pass filtering.
-    :param min_cells: Default is `None`.
+    :param min_cells:
         Minimum number of cells expressed required for a peak to pass filtering.
-    :param max_counts: Default is `None`.
+    :param max_counts:
         Maximum number of counts required for a peak to pass filtering.
-    :param max_cells: Default is `None`.
+    :param max_cells:
         Maximum number of cells expressed required for a peak to pass filtering.
-    :param inplace: Default is `True`.
+    :param inplace:
         Perform computation inplace or return result.
-    :param copy: Default is `False`.
+    :param copy:
         Whether to modify copied input object.
 
 

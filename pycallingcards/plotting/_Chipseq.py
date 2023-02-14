@@ -28,13 +28,13 @@ def calculate_signal(
         Peak_data file from cc.pp.callpeaks.
     :param chipseq_signal:
         Chipseq signal file should be bigWig/bigBed file.
-    :param before: Default is `10000`.
-        The length(bp) we need to calculate before the middle point of the peak.
-    :param after: Default is `10000`.
-        The length(bp) we need to calculate after the middle point of the peak.
-    :param signaltype: `['mean', 'median', 'min', 'max', 'sum' ,'std']`. Default is `'mean'`.
-        Define the type of statistic that should be used over the bin size range.
-    :param nbins: Default is `100`.
+    :param before:
+        The length(bp) calculated before the middle point of the peak.
+    :param after:
+        The length(bp) calculated after the middle point of the peak.
+    :param signaltype: `['mean', 'median', 'min', 'max', 'sum' ,'std']`.
+        Define the type of statistic to be used over the bin size range.
+    :param nbins:
         The number of bins calculated.
 
 
@@ -90,27 +90,29 @@ def signal_plot(
 
     :param signalmtx:
         The signal calculated from cc.pl.calculate_signal
-    :param fill_between: Default is `True`.
-        Whether to fill with the range of signal values.
-    :param alpha: Default is `0.05`.
+    :param fill_between:
+        Whether to fill with the range of signal values or not.
+    :param alpha:
         The percentage of signals coverage in fill_between.
-    :param before: Default is `10000`.
-        The length(bp) we need to calculate before the middle point of the peak.
-    :param after: Default is `10000`.
-        The length(bp) we need to calculate after the middle point of the peak.
-    :param nbins: Default is `100`.
+    :param before:
+        The length(bp) calculated before the middle point of the peak.
+    :param after:
+        The length(bp) calculated after the middle point of the peak.
+    :param nbins:
         The number of bins calculated.
-    :param figsize: Default is `(8,6)`.
+    :param figsize:
         The size of the figure.
-    :param font_size: Default is `10`.
+    :param font_size:
         The font of the words on the plot.
-    :param color:  Default is `'red'`.
+    :param color:
         The color of the plot, the same as color in plt.plot.
-    :param title: Default is `'Log2(FC) Chip-seq Signal'`.
+    :param textbelow:
+        The distance of the bottom text and the plot.
+    :param title:
         The title of the plot.
-    :param save: Default is `False`.
+    :param save:
         Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+        If `True`, a default name will be given and the plot would be saved as a png file.
 
 
     :example:
@@ -193,31 +195,31 @@ def signal_heatmap(
 
     :param signalmtx:
         The signal calculated from cc.pl.calculate_signal
-    :param before: Default is `10000`.
-        The length(bp) we need to calculate before the middle point of the peak.
-    :param after: Default is `10000`.
-        The length(bp) we need to calculate after the middle point of the peak.
-    :param nbins: Default is `100`.
+    :param before:
+        The length(bp) calculated before the middle point of the peak.
+    :param after:
+        The length(bp) calculated after the middle point of the peak.
+    :param nbins:
         The number of bins calculated.
-    :param figsize: Default is `(4,15)`.
+    :param figsize:
         The size of the figure.
-    :param font_size: Default is `10`.
+    :param font_size:
         The font of the words on the plot.
-    :param color: Default is `'Reds'`.
+    :param color:
         The color of the plot, the same as Colormaps in Matplotlib.
-    :param color: Default is `0.03`.
+    :param pad:
         Control the distance between plot and the colormap.
-    :param belowlength: Default is `0`.
+    :param belowlength:
         Control the distance between plot and the text below.
-    :param colormap_vmin: Default is `0`.
+    :param colormap_vmin:
         vmin value of the colormap.
-    :param colormap_vmax: Default is `0`.
+    :param colormap_vmax:
         vmax value of the colormap.
-    :param title: Default is `'Log2(FC) Chip-seq Signal Heatmap'`.
+    :param title:
         The title of the plot.
-    :param save: Default is `False`.
+    :param save:
         Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+        If `True`, a default name will be given and the plot would be saved as a png file.
 
 
     :example:

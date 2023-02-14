@@ -30,26 +30,26 @@ def rank_peak_groups(
 
     :param adata_cc:
         Annotated data matrix.
-    :param groups: Default is `None`.
+    :param groups:
         The groups used to show the peak ranking.
-    :param n_peaks: Default is 10.
+    :param n_peaks:
         Number of peaks that appear in the returned tables.
-    :param peak_symbols: Default is `None`.
+    :param peak_symbols:
          Key for field in .var that stores peak symbols if you do not want to use .var_names.
-    :param key: Default is `'binomtest'`.
+    :param key:
         Key for the name of the cluster.
-    :param fontsize: Default is 8.
+    :param fontsize:
         Fontsize for peak names.
-    :param ncols: Default is 4.
+    :param ncols:
         Number of panels shown per row.
-    :param sharey: Default is `True`.
-        Controls if the y-axis of each panels should be shared. By passing
+    :param sharey:
+        Controls if the y-axis of each panels will be shared or not. By passing
         `sharey=False`, each panel has its own y-axis range.
-    :param show: Default is `True`
+    :param show:
         Controls if the plot shows or not.
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name would be given and the plot will be saved as a png file.
 
 
     :example:

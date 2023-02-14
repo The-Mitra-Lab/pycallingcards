@@ -22,31 +22,31 @@ def volcano_plot(
 ):
 
     """\
-    Volcano plot of for two sample/cluster comparing.
-    Please make sure that alternative = 'two-sided' for the differential binding analysis.
+    Volcano plot comparing two sample/cluster.
+    Please make sure that alternative equals to 'two-sided' for the differential binding analysis.
 
 
-    :param figsize: Default is `(4,15)`.
+    :param figsize:
         The size of the figure.
-    :param font_size: Default is `10`.
+    :param font_size:
         The font of the words on the plot.
-    :param colorleft: Default is `'indianred'`.
+    :param colorleft:
         The color of the dot for the left group.
-    :param colorright: Default is `'lightseagreen'`.
+    :param colorright:
         The color of the dot for the right group.
-    :param pvalue_cutoff: Default is `0.01`.
+    :param pvalue_cutoff:
         The pvalue cutoff.
-    :param lfc_cutoff: Default is `4`.
+    :param lfc_cutoff:
         The log fold change cutoff.
-    :param title: Default is `'Log2(FC) Chip-seq Signal Heatmap'`.
+    :param title:
         The title of the plot.
-    :param labelleft: Default is `None`.
-        The exact place for left label. Default would automatically give it a place on left top of the plot.
-    :param labelright: Default is `None`.
-        The exact place for left label. Default would automatically give it a place on lrighr top of the plot.s
-    :param save: Default is `False`.
-        Could be bool or str indicating the file name it would be saved.
-        If `True`, a default name would be given and the plot would be saved as png.
+    :param labelleft:
+        The exact place for left label. Default will automatically give it a place on left top of the plot.
+    :param labelright:
+        The exact place for left label. Default will automatically give it a place on right top of the plots.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name would be given and the plot would be saved as a png file.
 
 
     :example:

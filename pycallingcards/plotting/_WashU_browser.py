@@ -120,17 +120,17 @@ def WashU_browser_url(
     Display qbed, bed data in `WashU Epigenome Browser <http://epigenomegateway.wustl.edu/browser/>`__ :cite:`li2019washu`.
 
 
-    :param qbed: Default is blank.
+    :param qbed:
         A dictionary for input qbed data key as the name to display and value is the path or data of the file. Prefer path.
-    :param bed: Default is blank.
+    :param bed:
         A dictionary for input bed data(peak data) key as the name to display and value is the path or data of the file. Prefer path.
-    :param genome: Default is 'mm10'.
+    :param genome:
         Genome to display.
         Currently, `'hg38'`, `'mm10'`, `'sacCer3'` are provided only.
-    :param dirc:  Default is 'WashU_cashe'.
-        The dirctory for all the cache files.
-    :param remove: Default is `False`.
-        Weather to remove the dirc or not.
+    :param dirc:
+        The directory for all the cache files.
+    :param remove:
+        Weather to remove the directory or not.
 
     :example:
     >>> import pycallingcards as cc
