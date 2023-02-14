@@ -76,7 +76,7 @@ def filter_adata_sc(
 ) -> AnnData:
 
     """\
-    Make sure the adata_cc only keeps the cells from adata.
+    The function would make sure the adata_cc only keeps the cells from adata.
 
     :param adata_cc:
         Anndata object for scCC data
@@ -95,6 +95,8 @@ def filter_adata_sc(
     >>> adata_cc = cc.pp.makeAnndata(cc_data, peak_data, barcodes)
     >>> adata = cc.datasets.mousecortex_data(data="RNA")
     >>> adata_cc = cc.pp.filter_adata_sc(adata_cc,adata)
+
+
     """
 
     adata_cc = adata_cc[adata.obs.index]
