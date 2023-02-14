@@ -191,7 +191,7 @@ def signal_heatmap(
 ):
 
     """\
-    Heatmap plot the Chip-seq signal of peaks.
+    Plot the heatmap plot the Chip-seq signal of peaks.
 
     :param signalmtx:
         The signal calculated from cc.pl.calculate_signal

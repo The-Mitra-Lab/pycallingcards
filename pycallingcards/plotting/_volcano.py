@@ -22,7 +22,7 @@ def volcano_plot(
 ):
 
     """\
-    Volcano plot comparing two sample/cluster.
+    Plot the volcano plot comparing two sample/cluster.
     Please make sure that alternative equals to 'two-sided' for the differential binding analysis.
 
 

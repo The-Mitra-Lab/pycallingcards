@@ -21,11 +21,11 @@ def GWAS(
 
 
     :param data:
-        The pd.DataFrame. Should contain either 3 colums for [chr,start,end] or 1 column like 'chr8_64645834_64659215'.
-    :param chr_name: Default is `['Chr_liftover','Start_liftover','End_liftover']`.
-       If the data contain either 3 columns for [chr,start,end], input the column names as list eg ['Chr_liftover','Start_liftover','End_liftover'].
-       If the data contain either 1 column like 'chr8_64645834_64659215', input the column name as list eg ['Peak'].
-    :param return_name: Default is `'GWAS'`.
+        The pd.DataFrame. Should contain either 3 columns [chr,start,end] or 1 column like 'chr8_64645834_64659215'.
+    :param chr_name:
+       If the data contains either 3 columns [chr,start,end], input the column names as a list: eg ['Chr_liftover', 'Start_liftover', 'End_liftover'].
+       If the data contains either 1 column like 'chr8_64645834_64659215', input the column name as a list: eg ['Peak'].
+    :param return_name:
         The name of the column for the result.
 
 
@@ -90,14 +90,14 @@ def GWAS_adata_sc(
 
     :param adata:
         The anndata object of scCC data.
-    :param number: Default is `100`.
+    :param number:
        The minimun total number for each SNP.
-    :param bindings: Default is ['Chr', 'Start', 'End'].
+    :param bindings:
         The name for binding information.
-    :param clusters: Default is None.
+    :param clusters:
         The cluter to consider.
         If None, it will use all the clusters in adata.obs[cluster_name]
-    :param cluster_name: Default is `'cluster'`.
+    :param cluster_name:
         The name of cluster in adata.obs.
 
 

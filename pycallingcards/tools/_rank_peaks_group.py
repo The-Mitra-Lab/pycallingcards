@@ -22,25 +22,21 @@ def DE_pvalue(
 ):
 
     """\
-    Comparing the peak difference between two groups for specific peak.
+    Compare the peak difference between two groups for specific peak.
 
     :param number1:
-        The total number of insertions (or the number of cells containing insertions) in group 1.
+        The total number of insertions (or the number of cells that contain insertions) in group 1.
     :param number2:
-        The total number of insertions (or the number of cells containing insertions) in group 2.
+        The total number of insertions (or the number of cells that contain insertions) in group 2.
     :param total1:
         The total number of cells in group 1.
     :param total2:
         The total number of cells in group 2.
-    :param peakname:
-        The name of the peak for comparing.
-    :param copy: Default is `False`.
-        Whether to modify copied input object.
-    :param method: `['binomtest', 'binomtest2','fisher_exact']`. Default is `fisher_exact`
+    :param method:
         The default method is 'fisher_exact', `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on different hypothesis of `binomtest`, 'fisher_exact' uses
         fisher exact test.
-    :param alternative: `['two-sided', 'greater']`. Default is `'greater'`.
+    :param alternative:
         If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
 
 
@@ -101,7 +97,7 @@ def diff2group_bygroup(
 ) -> Union[List[float], float]:
 
     """\
-    Comaparing the peak difference between two groups for specific peak by group.
+    Compare the peak difference between two groups for specific peak by group.
 
 
     :param adata_cc:
@@ -110,15 +106,15 @@ def diff2group_bygroup(
         The key in adata_cc of the observation groups to consider.
     :param name1:
         The name of the first group.
-    :param name2: Default is `None`.
+    :param name2:
         The name of the second group.
-    :param peakname: Default is `None`.
+    :param peakname:
         The name of the peak used for comparing.
-    :param test_method: `['binomtest', 'binomtest2','fisher_exact']`. Default is `fisher_exact`
+    :param test_method:
         `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
-    :param alternative: `['two-sided', 'greater']`. Default is `'greater'`.
+    :param alternative:
         If it has two clusters, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
 
 
@@ -175,7 +171,7 @@ def diff2group_bygroup(
     else:
 
         print(
-            "No peak name is provided, the pvalue for all the peaks would be returned."
+            "No peak name is provided, the pvalue for all the peaks will be returned."
         )
         pvaluelist = []
 
@@ -228,24 +224,22 @@ def diff2group_bysample(
 ) -> Union[List[float], float]:
 
     """\
-    Comaparing the peak difference between two groups for a specific peak by sample.
+    Comapare the peak difference between two groups for a specific peak by sample.
 
 
     :param adata_cc:
         Annotated data matrix.
-    :param groupby:
-        The key in adata_cc of the observation groups to consider.
     :param name1:
         The name of the first group.
-    :param name2: Default is `None`.
+    :param name2:
         The name of the second group.
-    :param peakname: Default is `None`.
+    :param peakname:
         The name of the peak used for comparing.
-    :param test_method: ["binomtest", "binomtest2","fisher_exact"]. Default is `fisher_exact`
+    :param test_method: ["binomtest", "binomtest2","fisher_exact"].
         `binomtest` uses binomial test, `binomtest2` uses
         binomial test but stands on a different hypothesis of `binomtest`, `fisher_exact` uses
         fisher exact test.
-    :param alternative: `['two-sided', 'greater']`. Default is `'greater'`.
+    :param alternative: `['two-sided', 'greater']`.
         If it has two samples, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
 
 
@@ -288,7 +282,7 @@ def diff2group_bysample(
     else:
 
         print(
-            "No peak name is provided, the pvalue for all the peaks would be returned."
+            "No peak name is provided, the pvalue for all the peaks will be returned."
         )
         pvaluelist = []
 
@@ -342,39 +336,39 @@ def rank_peak_groups(
         Annotated data matrix.
     :param groupby:
         The key of the groups.
-    :param groups: Default is `all`.
+    :param groups:
         Subset of groups (list), e.g. [`'g1'`, `'g2'`, `'g3'`], to which comparison
         shall be restricted, or `all` (default), for all groups.
-    :param reference: Defaulf is `rest`.
+    :param reference:
         If `rest`, compare each group to the union of the rest of the group.
         If a group identifier, compare with respect to this group.
     :param n_peaks:
         The number of peaks that appear in the returned tables.
-        Default includes all peaks.
+        The default includes all peaks.
     :param key_added:
         The key in `adata.uns` information is saved to.
-    :param rankby: ['pvalues', 'logfoldchanges']. Default is `'pvalues'`.
+    :param rankby:
         The list we rank by.
-    :param copy: Default is `False`.
-        If copy
-    :param  method: ["binomtest", "binomtest2","fisher_exact"]. Default is `fisher_exact`.
+    :param copy:
+        If copy, it will return a copy of the AnnData object and leave the passed adata unchanged.
+    :param method:
         `binomtest` uses binomial test,
         `binomtest2` uses binomial test but stands on a different hypothesis of `binomtest`,
         `fisher_exact` uses fisher exact test.
-    :param alternative: `['two-sided', 'greater','None']`. Default is `'None'`.
+    :param alternative:
         If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
-        For default (`'None'`), if groupby == "Index", it would be 'two-sided'. Otherwise, please use `'greater'`.
+        For default (`'None'`), if groupby == "Index", it will be 'two-sided'. Otherwise, please use `'greater'`.
 
 
 
     :Returns:
-        | **names** - structured `np.ndarray` (`.uns['rank_peaks_groups']`). Structured array is to be indexed by the group ID storing the peak names. Ordered according to scores.
+        | **names** - structured `np.ndarray` (`.uns['rank_peaks_groups']`). Structured array is to be indexed by the group ID storing the peak names. It's ordered according to scores.
         | **return pvalues** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
         | **return logfoldchanges** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
-        | **number** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells contian peaks (depending on the method).
-        | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells contianing peaks (depending on the method).
-        | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contianing peaks.
-        | **total_rest** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contianing peaks.
+        | **number** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells that contain peaks (depending on the method).
+        | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells that contain peaks (depending on the method).
+        | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells that contain peaks.
+        | **total_rest** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells that contain peaks.
 
     :example:
     >>> import pycallingcards as cc
@@ -877,12 +871,12 @@ def rank_peak_groups_mu(
         mdata for both RNA and CC data.
     :param groupby:
         The key of the groups.
-    :param adata_cc: Default is `'CC'`.
+    :param adata_cc:
         Name for Anndata of CC. Anndata is mdata[adata_cc].
-    :param groups: Default is `all`.
+    :param groups:
         Subset of groups (list), e.g. [`'g1'`, `'g2'`, `'g3'`], to which comparison
         shall be restricted, or `all` (default), for all groups.
-    :param reference: Defaulf is `rest`.
+    :param reference:
         If `rest`, compare each group to the union of the rest of the group.
         If a group identifier, compare with respect to this group.
     :param n_peaks:
@@ -890,17 +884,17 @@ def rank_peak_groups_mu(
         Default includes all peaks.
     :param key_added:
         The key in `adata.uns` information is saved to.
-    :param rankby: ['pvalues', 'logfoldchanges']. Default is `'pvalues'`.
+    :param rankby: ['pvalues', 'logfoldchanges'].
         The list we rank by.
-    :param copy: Default is `False`.
-        If copy
-    :param  method: ["binomtest", "binomtest2","fisher_exact"]. Default is `fisher_exact`.
+    :param copy:
+        If copy, it will return a copy of the AnnData object and leave the passed adata unchanged.
+    :param  method: ["binomtest", "binomtest2","fisher_exact"].
         `binomtest` uses binomial test,
         `binomtest2` uses binomial test but stands on a different hypothesis of `binomtest`,
         `fisher_exact` uses fisher exact test.
-    :param alternative: `['two-sided', 'greater','None']`. Default is `'None'`.
+    :param alternative: `['two-sided', 'greater','None']`.
         If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
-        For default (`'None'`), if groupby == "Index", it would be 'two-sided'. Otherwise, please use `'greater'`.
+        For default (`'None'`), if groupby == "Index", it will be 'two-sided'. Otherwise, please use `'greater'`.
 
 
 
@@ -908,10 +902,10 @@ def rank_peak_groups_mu(
         | **names** - structured `np.ndarray` (`.uns['rank_peaks_groups']`). Structured array is to be indexed by the group ID storing the peak names. Ordered according to scores.
         | **return pvalues** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
         | **return logfoldchanges** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
-        | **number** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells contian peaks (depending on the method).
-        | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells contianing peaks (depending on the method).
-        | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contianing peaks.
-        | **total_rest** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells contianing peaks.
+        | **number** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells that contain peaks (depending on the method).
+        | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells that contain peaks (depending on the method).
+        | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells that contain peaks.
+        | **total_rest** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells that contain peaks.
 
     :example:
     >>> import pycallingcards as cc

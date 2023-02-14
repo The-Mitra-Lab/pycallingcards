@@ -28,7 +28,7 @@ def GWAS_adata_sc(
 ):
 
     """\
-    Plot GWAS results for different cell types in single-cell calling cards data. It considers the relative number of insertions in each cell type.
+    Plot GWAS results for the different cell types in single-cell calling cards data. It considers the relative number of insertions in each cell type.
     GWAS data is downloaded from `GWAS Catalog <https://www.ebi.ac.uk/gwas/docs/file-downloads>`__.
 
 

@@ -14,24 +14,24 @@ def footprint(
 ) -> pd.DataFrame:
 
     """\
-    Find CC footprint in yeast CC data.
+    Find the CC footprint in yeast CC data.
 
     :param peak_data:
         pd.DataFrame of the peak data with the first three columns as chromosome, start and end.
     :param qbed_data:
-        pd.DataFrame of the qbed data where peaks were called from.
-    :param fixed_number: Default is 50.
-        The minimum length of footprint.
-    param compress_number: Default is 0.5.
-        How many sd should the footprint conpress. The larger compress_number, the shorter the footprint is.
-    :param delete_unfound: Default is `False`.
-        If `False`, the point that is not a footprint point would keep the original start and end sites.
-        If `True`, the point that is not a footprint point would be [None,None,None].
-    :param resultname: Default is [ "Chr_footprint","Start_footprint", "End_footprint"].
+        pd.DataFrame of the qbed data where peaks are called from.
+    :param fixed_number:
+        The minimum length of a footprint.
+    :param compress_number:
+        How many standard deviation should the footprint conpress. The larger compress_number, the shorter the footprint is.
+    :param delete_unfound:
+        If `False`, the point that is not a footprint point will keep the original start and end sites.
+        If `True`, the point that is not a footprint point will be [None,None,None].
+    :param resultname:
         The column name of the final results.
-    :param return_bed:Default is `False`.
-        If `False`, the function would return the footprint result to the end columns of the data.
-        If `True`, the function would return only the footprint results and delete all the none columns.
+    :param return_bed:
+        If `False`, the function will return the footprint result to the end columns of the data.
+        If `True`, the function will return only the footprint results and delete all the none columns.
 
     :Example:
         Please check `tutorial <https://pycallingcards.readthedocs.io/en/latest/tutorials/notebooks/yeast.html>`for details.

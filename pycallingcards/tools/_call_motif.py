@@ -24,35 +24,35 @@ def call_motif(
     Call motif by `HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>`__ and :cite:`heinz2010simple`.
     Please make sure HOMER is installed along with the genome data.
 
-    :param peaks_path: Default is `None`.
+    :param peaks_path:
         pd.DataFrame with the path to the peak data.
-        If this is provided, it would not consider peaks_frame and save_name.
-    :param peaks_frame: Default is `None`.
+        If this is provided, it will not consider peaks_frame and save_name.
+    :param peaks_frame:
         pd.DataFrame with the first three columns as chromosome, start and end.
-    :param save_name: Default is `None`.
-        The name of saved peak file. Only used when peaks_frame is provided and peaks_path is not provided.
-    :param reference:  Default is `'hg38'`.
+    :param save_name:
+        The name of a saved peak file. Only used when peaks_frame is provided and peaks_path is not provided.
+    :param reference:
         reference of the annoatation data.
-        Currently, `'hg38'`, `'mm10'`, `'sacCer3'` are provided only.
-        Make sure the installed HOMER
+        Currently, only `'hg38'`, `'mm10'`, `'sacCer3'` are provided.
+        Make sure the genome in HOMER is installed.
         Eg for mm10: `perl [path]/homer/.//configureHomer.pl -install mm10`
-    :param save_homer:  Default is `None`.
-        The path and name of the annotation results would be saved.
-        If 'None' it would be saved to "Homerresult/peaks_name"
-    :param size:  Default is `1000`.
+    :param save_homer:
+        Where path and name of the annotation results will be saved.
+        If 'None' it will be saved to "Homerresult/peaks_name"
+    :param size:
         The size of the region for motif finding.
         This is one of the most important parameters and also a source of confusion for many.
         If you wish to find motifs using your peaks using their exact sizes, use the option "-size given").
-        However, for Transcription Factor peaks, most of the motifs are found +/- 50-75 bp from the peak center, making it better to use a fixed size rather than depend on your peak size.
-    :param homer_path: Default is `None`.
-        Default uses the default path for Homer.
-    :param motif_length: Default is `None`.
-        Default uses the default Motif length for `HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>`__.
+        However, for Transcription Factor peaks, most of the motifs are found +/- 50-75 bp from the peak center, making it better to use a fixed size rather than depending on your peak size.
+    :param homer_path:
+        The default uses the default path for Homer.
+    :param motif_length:
+        The default uses the default motif length for `HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>`__.
         Specifies the length of motifs to be found.
-    :param num_cores: Default is `3`.
+    :param num_cores:
         Number of CPUs to use.
-    :param deno: Default is `False`.
-        Weather to call denovo modif.
+    :param deno:
+        Whether to call denovo modif or not.
 
     :Examples:
     >>> import pycallingcards as cc
@@ -67,7 +67,7 @@ def call_motif(
 
     if type(peaks_path) == str:
 
-        print("Peak data " + peaks_path + " would be used here.")
+        print("Peak data " + peaks_path + " will be used here.")
         name = peaks_path
 
     elif peaks_path == None:
@@ -153,17 +153,17 @@ def compare_motif(
 ) -> pd.DataFrame:
 
     """\
-    Compare motifs for motif results of two groups from y `HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>`__ and :cite:`heinz2010simple`.
+    Compare the motifs from the motif results of two groups from `HOMER <http://homer.ucsd.edu/homer/ngs/peakMotifs.html>`__ and :cite:`heinz2010simple`.
     Here, we will find the motif in group1 but not in group2.
 
     :param peaks_path1:
-        The path of motif result for the first data.
+        The path of motif result for the first dataset.
     :param peaks_path2:
-        The path of motif result for the second data.
-    :param qvalue_cutoff: Default is `0.05`.
+        The path of motif result for the second datast.
+    :param qvalue_cutoff:
         The cutoff for q-value (Benjamini).
-    :param qvalue_cutoff: Default is `0.05`.
-        The cutoff for P-value.
+    :param pvalue_cutoff:
+        The cutoff for p-value.
 
     """
 

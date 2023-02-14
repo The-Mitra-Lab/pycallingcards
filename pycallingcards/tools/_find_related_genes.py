@@ -22,27 +22,32 @@ def pair_peak_gene_sc(
 
     """\
     Pair related peaks and genes.
-    Find out significant binding peaks for one cluster and then see whether the annotated genes are also significantly expressed.
+    Find out the significant binding peaks for one cluster and then see whether the annotated genes are also significantly expressed.
+
+
     :param adata_cc:
         Anndata for callingcards
     :param adata:
         Anndata for RNA.
     :param peak_annotation:
-        peak_annotation get from cc.pp.annotation and cc.pp.combine_annotation
-    :param pvalue_cutoff_cc: Default is `0.001`.
+        peak_annotation gotten from cc.pp.annotation and cc.pp.combine_annotation
+    :param pvalue_cutoff_cc:
         The cut off value for the pvalues of adata_cc.
-    :param pvalue_cutoff_rna: Default is `0.001`.
+    :param pvalue_cutoff_rna:
         The cut off value for the pvalues of adata.
-    :param score_cutoff: Default is `3`.
-        The cut off value for the logfoldchange of adata_cc and the cut of score value for adata.
-    :param group_cc: Default is `'binomtest'`.
+    :param lfc_cutoff:
+        The cut off value for the logfoldchange of adata_cc.
+    :param score_cutoff:
+        The cut off value for the cut of score value for adata.
+    :param group_cc:
         The name of target result in adata_cc.uns.
-    :param group_adata: Default is `'rank_genes_groups'`.
+    :param group_adata:
         The name of target result in adata.uns.
-    :param group_name: Default is `'rank_genes_groups'`.
+    :param group_name:
         The name of the cluster in adata_cc.obs.
     :return:
         pd.DataFrame with paired genes and peaks for different groups.
+
     :example:
     >>> import pycallingcards as cc
     >>> import scanpy as sc
@@ -148,18 +153,18 @@ def pair_peak_gene_bulk(
     :param adata_cc:
         Anndata for callingcards
     :param deresult:
-        result form DEseq2 could be a pandas dataframe or the path to the csv file.
-    :param pvalue_cutoff_cc: Default is `0.001`.
+        Results from DEseq2 could be a pandas dataframe or the path to the csv file.
+    :param pvalue_cutoff_cc:
         The cut off value for the pvalues of adata_cc.
-    :param pvalue_cutoff_rna: Default is `0.001`.
+    :param pvalue_cutoff_rna:
         The cut off value for the pvalues of adata.
-    :param lfc_cutoff_cc: Default is `3`.
+    :param lfc_cutoff_cc:
         The cut off value for the logfoldchange for name_cc of adata_cc.
-    :param lfc_cutoff_rna: Default is `3`.
+    :param lfc_cutoff_rna:
         The cut off value for the logfoldchange of rna.
-    :param group_cc: Default is `'fisher_exact'`.
+    :param group_cc:
         The name of target result in adata_cc.uns.
-    :param name_cc: Default is `''logfoldchanges'`.
+    :param name_cc:
         The name of target result in adata.uns[group_cc].
 
 
@@ -251,19 +256,23 @@ def pair_peak_gene_sc_mu(
     :param adata:
         Name for RNA data. Anndata is mdata[adata].
     :param peak_annotation:
-        peak_annotation get from cc.pp.annotation and cc.pp.combine_annotation
-    :param pvalue_cutoff_cc: Default is `0.001`.
+        peak_annotation gotten from cc.pp.annotation and cc.pp.combine_annotation
+    :param pvalue_cutoff_cc:
         The cut off value for the pvalues of adata_cc.
-    :param pvalue_cutoff_rna: Default is `0.001`.
+    :param pvalue_cutoff_rna:
         The cut off value for the pvalues of adata.
-    :param score_cutoff: Default is `3`.
-        The cut off value for the logfoldchange of adata_cc and the cut of score value for adata.
-    :param group_cc: Default is `'binomtest'`.
+    :param lfc_cutoff:
+        The cut off value for the logfoldchange of adata_cc.
+    :param score_cutoff:
+        The cut off value for the cut of score value for adata.
+    :param group_cc:
         The name of target result in adata_cc.uns.
-    :param group_adata: Default is `'rank_genes_groups'`.
+    :param group_adata:
         The name of target result in adata.uns.
-    :param group_name: Default is `'rank_genes_groups'`.
+    :param group_name:
         The name of the cluster in mdata.obs.
+    :param save_name:
+        The name saved in mdata[adta_CC].uns.
 
 
     :example:

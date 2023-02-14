@@ -20,11 +20,11 @@ def liftover(
     :param data:
         pd.DataFrame with the first three columns as chromosome, start and end.
         Anndata with peak adata.var contains the first three columns as chromosome, start and end.
-    :param torlerance: Default is 10.
-        The max multiples allowance for the length of new_genome comparing to the original one.
-    :param original_genome: Default is `mm10`.
-        The orginal genome.
-    :param new_genome: Default is `hg38`.
+    :param torlerance:
+        The max multiples allowsfor the length of new_genome to compare with the original one.
+    :param original_genome:
+        The original genome.
+    :param new_genome:
         The new genome.
 
 
@@ -103,16 +103,16 @@ def find_location(
 ) -> pd.DataFrame:
 
     """\
-    Find gene location for specfic genome.
+    Find the gene location for a specfic genome.
 
     :param data:
         pd.DataFrame with the first three columns as chromosome, start and end.
     :param original_name: .
         The name of the target column.
-    :param new_name: Default is None.
+    :param new_name:
         The new name, default is the genome name.
-    :param genome: Default is `hg38`.
-        The genome to search.
+    :param genome:
+        The genome to search for .
 
     :Example:
     >>> import pycallingcards as cc
@@ -181,14 +181,15 @@ def result_mapping(
 ) -> pd.DataFrame:
 
     """\
-    Mapping from one genome to another for the result table :cite:`hinrichs2006ucsc`.
+    Map from one genome to another for the result table :cite:`hinrichs2006ucsc`.
+
     :param data:
-        pd.DataFrame of result. Specially, it contains 'Peak' and 'Gene'.
-    :param torlerance: Default is 10.
-        The max multiples allowance for the length of new_genome comparing to the original one.
-    :param original_genome: Default is `mm10`.
-        The orginal genome.
-    :param new_genome: Default is `hg38`.
+        pd.DataFrame of result. It contains 'Peak' and 'Gene'.
+    :param torlerance:
+        The max multiples allows for the length of new_genome to be compared with to the original one.
+    :param original_genome:
+        The original genome.
+    :param new_genome:
         The new genome.
 
     :Example:
