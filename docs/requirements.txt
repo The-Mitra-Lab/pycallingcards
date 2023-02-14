@@ -10,7 +10,7 @@ appdirs
 pybedtools
 seaborn
 pyBigWig
-sklearn
+scikit-learn
 liftover
 mudata
 # doc
