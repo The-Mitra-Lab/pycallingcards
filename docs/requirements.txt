@@ -1,5 +1,5 @@
 # src
-matplotlib
+matplotlib==3.6.3
 numpy
 pandas
 numba
