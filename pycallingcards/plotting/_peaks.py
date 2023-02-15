@@ -386,6 +386,7 @@ def whole_peaks(
     color: str = "black",
     added: int = 10000,
     height_name: str = "Experiment Insertions",
+    height_scale: float = 1.01,
     exact: bool = False,
     save: Union[bool, str] = False,
 ):
@@ -411,6 +412,8 @@ def whole_peaks(
         Only valid when there is no reference provided. The max length(bp) added to the end of a chromosome shown.
     :param height_name:
         The height of each peak. If `None`, it will all be the same height.
+    :param height_scale:
+        The relative height for the chromosome section of the tallest peak.
     :param exact:
         Wheather to show the exact number of total bp at the end of chromosome.
     :param save:
@@ -709,7 +712,7 @@ def whole_peaks(
         axis[chrom].plot([0, ref[chrom]], [0, 0], color, linewidth=linewidth)
         axis[chrom].set_xlim([0, ref[chrom]])
 
-        axis[chrom].set_ylim([0, 1.01 * np.log(max_height + 1)])
+        axis[chrom].set_ylim([0, height_scale * np.log(max_height + 1)])
         for peak in range(len(start)):
             axis[chrom].plot(
                 [start[peak], start[peak]],
