@@ -708,7 +708,7 @@ def whole_peaks(
 
         axis[chrom].plot([0, ref[chrom]], [0, 0], color, linewidth=linewidth)
         axis[chrom].set_xlim([0, ref[chrom]])
-        axis[chrom].text(ref[chrom], 0, sortlist[chrom], fontsize=6 * font_size)
+
         axis[chrom].set_ylim([0, 1.01 * np.log(max_height + 1)])
         for peak in range(len(start)):
             axis[chrom].plot(
@@ -724,16 +724,25 @@ def whole_peaks(
                 linewidth=linewidth,
             )
         axis[chrom].axis("off")
-        # axis[chrom].text(20, -2, "0bp", fontsize=4 * font_size)
-        # axis[chrom].text(int(ref[chrom]/2) , -2, str(int(ref[chrom]/2))+"bp", fontsize=4*font_size)
+
         if exact:
             axis[chrom].text(
-                ref[chrom], -2, str(ref_d[chrom]) + "bp", fontsize=4 * font_size
+                ref[chrom], 0, str(ref_d[chrom]) + "bp", fontsize=5 * font_size
             )
         else:
             axis[chrom].text(
-                ref[chrom], -2, str(ref_d[chrom]) + "b", fontsize=4 * font_size
+                ref[chrom], 0, str(ref_d[chrom]) + "b", fontsize=5 * font_size
             )
+
+        axis[chrom].text(
+            0.001,
+            0.9,
+            sortlist[chrom],
+            ha="left",
+            va="top",
+            transform=axis[chrom].transAxes,
+            fontsize=5 * font_size,
+        )
 
     if save != False:
         if save == True:
