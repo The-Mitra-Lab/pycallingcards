@@ -67,7 +67,7 @@ def call_motif(
 
     if type(peaks_path) == str:
 
-        print("Peak data " + peaks_path + " will be used here.")
+        print("Peak data " + peaks_path + " is used here.")
         name = peaks_path
 
     elif peaks_path == None:
