@@ -45,10 +45,10 @@ pre-commit install
 ```bibtex
 @software{pycallingcards_python,
   author = {Guo, Juanru and Mitra, Robi},
-  month = {1},
+  month = {2},
   year = {2023},
   title = {Pycallingcards: Calling Cards Data Analysis in Python},
   url = {https://github.com/The-Mitra-Lab/pycallingcards},
-  version = {0.0.2},
+  version = {0.0.4},
 }
 ```
