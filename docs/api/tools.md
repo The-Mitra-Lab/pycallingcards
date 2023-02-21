@@ -31,6 +31,8 @@ import pycallingcards as cc
    tools.find_location
    tools.result_mapping
    tools.GWAS
+   tools.GWAS_adata_bulk
+   tools.GWAS_adata_sc
    tools.footprint
    tools.find_fastq
 

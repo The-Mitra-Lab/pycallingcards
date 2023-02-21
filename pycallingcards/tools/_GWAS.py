@@ -84,7 +84,7 @@ def GWAS_adata_sc(
 ) -> pd.DataFrame:
 
     """\
-    Plot GWAS results for different cell types for single-cell calling cards data. It considers the relative number of insertions in each cell type.
+    GWAS results for different cell types for single-cell calling cards data. It considers the relative number of insertions in each cell type.
     GWAS data is downloaded from `GWAS Catalog <https://www.ebi.ac.uk/gwas/docs/file-downloads>`__.
 
 
@@ -166,15 +166,15 @@ def GWAS_adata_bulk(
 ) -> pd.DataFrame:
 
     """\
-    Plot GWAS results for different cell types for bulk calling cards data. It considers the relative number of insertions in each group.
+    GWAS results for different cell types for bulk calling cards data. It considers the relative number of insertions in each group.
     GWAS data is downloaded from `GWAS Catalog <https://www.ebi.ac.uk/gwas/docs/file-downloads>`__.
 
 
     :param adata:
         The anndata object of bulk CC data.
-    :param number: Default is `100`.
+    :param number:
        The minimun total number for each SNP.
-    :param bindings: Default is ['Chr', 'Start', 'End'].
+    :param bindings:
         The name for binding information.
 
     :example:
