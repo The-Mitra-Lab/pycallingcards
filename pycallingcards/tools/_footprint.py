@@ -17,7 +17,7 @@ def footprint(
     Find the CC footprint in yeast CC data.
 
     :param peak_data:
-        pd.DataFrame of the peak data with the first three columns as chromosome, start and end.
+        pd.DataFrame of the peak data with the three columns as chromosome, start and end named ["Chr", "Start", "End"].
     :param qbed_data:
         pd.DataFrame of the qbed data where peaks are called from.
     :param fixed_number:
