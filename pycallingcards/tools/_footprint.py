@@ -7,7 +7,8 @@ def footprint(
     peak_data: pd.DataFrame,
     qbed_data: pd.DataFrame,
     fixed_number: float = 50,
-    compress_number: float = 0.5,
+    compress_number: float = 0,
+    min_insertions: int = 15,
     delete_unfound: bool = False,
     resultname: list = ["Chr_footprint", "Start_footprint", "End_footprint"],
     return_bed: bool = False,
@@ -24,6 +25,8 @@ def footprint(
         The minimum length of a footprint.
     :param compress_number:
         How many standard deviation should the footprint conpress. The larger compress_number, the shorter the footprint is.
+    :param min_insertions:
+        Minimum insertion numbers for the algorithm to start.
     :param delete_unfound:
         If `False`, the point that is not a footprint point will keep the original start and end sites.
         If `True`, the point that is not a footprint point will be [None,None,None].
@@ -50,7 +53,7 @@ def footprint(
             ]["Start"]
         )
 
-        if len(X) >= 20:
+        if len(X) >= min_insertions:
 
             X = X.reshape((len(X), 1))
             gm = GaussianMixture(n_components=2, random_state=0).fit(X)
