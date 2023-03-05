@@ -86,8 +86,8 @@ def call_motif(
                 name = save_name
 
             peaks_frame["ID"] = peaks_frame.index
-            peaks_frame.to_csv(
-                name[["Chr", "Start", "End", "ID"]], sep="\t", header=None, index=None
+            peaks_frame[["Chr", "Start", "End", "ID"]].to_csv(
+                name, sep="\t", header=None, index=None
             )
 
         else:
