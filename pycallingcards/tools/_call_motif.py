@@ -84,7 +84,11 @@ def call_motif(
                 if save_name[-4:] != ".bed":
                     save_name = save_name + ".bed"
                 name = save_name
-            peaks_frame.to_csv(name, sep="\t", header=None, index=None)
+
+            peaks_frame["ID"] = peaks_frame.index
+            peaks_frame.to_csv(
+                name[["Chr", "Start", "End", "ID"]], sep="\t", header=None, index=None
+            )
 
         else:
             raise ValueError("Please input correct form of peaks_frame")

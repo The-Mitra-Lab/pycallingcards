@@ -103,10 +103,7 @@ def annotation(
     if peaks_path != None:
         peaks_bed = pybedtools.BedTool(peaks_path)
     elif type(peaks_frame) == pd.DataFrame:
-        peaks_frame["ID"] = peaks_frame.index
-        peaks_bed = pybedtools.BedTool.from_dataframe(
-            peaks_frame[["Chr", "Start", "End", "ID"]]
-        )
+        peaks_bed = pybedtools.BedTool.from_dataframe(peaks_frame)
     else:
         print("Please input a valid peak.")
 
