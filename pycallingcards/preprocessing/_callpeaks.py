@@ -7,7 +7,7 @@ from numba import jit
 
 _Peakcalling_Method = Optional[Literal["CCcaller", "cc_tools", "Blockify"]]
 _reference = Optional[Literal["hg38", "mm10", "sacCer3"]]
-_PeakCCcallerMethod = Optional[Literal["poisson", "binomial"]]
+_PeakTestMethod = Optional[Literal["poisson", "binomial"]]
 
 
 @jit(nopython=True)
@@ -15,7 +15,6 @@ def _findinsertionslen2(
     Chrom, start, end, length=3, startpoint=0, totallength=100000000
 ):
     # function to calculate the number of insertions in the spcific area of chromosomes
-
     count = 0
     initial = startpoint
     flag = 0
@@ -85,14 +84,15 @@ def _CCcallerCompare_bf2(
     pseudocounts: float = 0.2,
     pvalue_cutoff: float = 0.00001,
     chrom: str = None,
-    test_method: _PeakCCcallerMethod = "poisson",
+    test_method: _PeakTestMethod = "poisson",
     record: bool = True,
+    minnum: int = 0,
 ) -> list:
 
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
-        from scipy.stats import binomCCcaller
+        from scipy.stats import binom_test
 
     # CCcaller whether the potiential peaks are true peaks by comparing to other data
 
@@ -105,75 +105,175 @@ def _CCcallerCompare_bf2(
     totallengthcurframe = len(curframe)
     totallengthcurChromnp = len(curChromnp)
 
-    for i in range(len(bound)):
+    if minnum == 0:
 
-        # calculate the total number of insertions in total
-        TTAAnum, startpointTTAA = _findinsertionslen2(
-            curframe,
-            bound[i][0],
-            bound[i][1],
-            length,
-            startpointTTAA,
-            totallengthcurframe,
-        )
-        boundnum = bound[i][2]
+        for i in range(len(bound)):
 
-        if lam_win_size == None:
-
-            scaleFactor = float(totallengthcurChromnp / totallengthcurframe)
-            lam = TTAAnum * scaleFactor + pseudocounts
-
-            if test_method == "poisson":
-                pvalue = 1 - poisson.cdf(boundnum, lam)
-            elif test_method == "binomial":
-                pvalue = binomCCcaller(
-                    int(boundnum + pseudocounts),
-                    n=totallengthcurChromnp,
-                    p=((TTAAnum + pseudocounts) / totallengthcurframe),
-                    alternative="greater",
-                ).pvalue
-
-        else:
-
-            TTAAnumlam, startpointTTAAlam = _findinsertionslen2(
+            # calculate the total number of insertions in total
+            TTAAnum, startpointTTAA = _findinsertionslen2(
                 curframe,
-                bound[i][0] - lam_win_size / 2 + 1,
-                bound[i][1] + lam_win_size / 2,
+                bound[i][0],
+                bound[i][1],
                 length,
-                startpointTTAAlam,
+                startpointTTAA,
                 totallengthcurframe,
             )
-            boundnumlam, startpointboundlam = _findinsertionslen2(
-                curChromnp,
-                bound[i][0] - lam_win_size / 2 + 1,
-                bound[i][1] + lam_win_size / 2,
+            boundnum = bound[i][2]
+
+            if lam_win_size == None:
+
+                scaleFactor = float(totallengthcurChromnp / totallengthcurframe)
+                lam = TTAAnum * scaleFactor + pseudocounts
+
+                if test_method == "poisson":
+                    pvalue = 1 - poisson.cdf(boundnum, lam)
+                elif test_method == "binomial":
+                    pvalue = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=totallengthcurChromnp,
+                        p=((TTAAnum + pseudocounts) / totallengthcurframe),
+                        alternative="greater",
+                    ).pvalue
+
+            else:
+
+                TTAAnumlam, startpointTTAAlam = _findinsertionslen2(
+                    curframe,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startpointTTAAlam,
+                    totallengthcurframe,
+                )
+                boundnumlam, startpointboundlam = _findinsertionslen2(
+                    curChromnp,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startpointboundlam,
+                    totallengthcurChromnp,
+                )
+
+                scaleFactor = float(boundnumlam / TTAAnumlam)
+                lam = TTAAnum * scaleFactor + pseudocounts
+
+                if test_method == "poisson":
+                    pvalue = 1 - poisson.cdf(boundnum, lam)
+                elif test_method == "binomial":
+                    pvalue = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=boundnumlam,
+                        p=((TTAAnum + pseudocounts) / TTAAnumlam),
+                        alternative="greater",
+                    ).pvalue
+
+            if pvalue <= pvalue_cutoff:
+                if record:
+                    boundnew.append(
+                        [
+                            chrom,
+                            bound[i][0],
+                            bound[i][1],
+                            boundnum,
+                            TTAAnum,
+                            lam,
+                            pvalue,
+                        ]
+                    )
+                else:
+                    boundnew.append([chrom, bound[i][0], bound[i][1]])
+
+        return boundnew
+
+    else:
+
+        startchrom = 0
+
+        for i in range(len(bound)):
+
+            # calculate the total number of insertions in total
+            TTAAnum, startpointTTAA = _findinsertionslen2(
+                curframe,
+                bound[i][0],
+                bound[i][1],
                 length,
-                startpointboundlam,
+                startpointTTAA,
+                totallengthcurframe,
+            )
+
+            boundnum, startchrom = _findinsertionslen2(
+                curChromnp,
+                bound[i][0],
+                bound[i][1],
+                length,
+                startchrom,
                 totallengthcurChromnp,
             )
 
-            scaleFactor = float(boundnumlam / TTAAnumlam)
-            lam = TTAAnum * scaleFactor + pseudocounts
+            if lam_win_size == None:
 
-            if test_method == "poisson":
-                pvalue = 1 - poisson.cdf(boundnum, lam)
-            elif test_method == "binomial":
-                pvalue = binomCCcaller(
-                    int(boundnum + pseudocounts),
-                    n=boundnumlam,
-                    p=((TTAAnum + pseudocounts) / TTAAnumlam),
-                    alternative="greater",
-                ).pvalue
+                scaleFactor = float(totallengthcurChromnp / totallengthcurframe)
+                lam = TTAAnum * scaleFactor + pseudocounts
 
-        if pvalue <= pvalue_cutoff:
-            if record:
-                boundnew.append(
-                    [chrom, bound[i][0], bound[i][1], boundnum, TTAAnum, lam, pvalue]
-                )
+                if test_method == "poisson":
+                    pvalue = 1 - poisson.cdf(boundnum, lam)
+                elif test_method == "binomial":
+                    pvalue = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=totallengthcurChromnp,
+                        p=((TTAAnum + pseudocounts) / totallengthcurframe),
+                        alternative="greater",
+                    ).pvalue
+
             else:
-                boundnew.append([chrom, bound[i][0], bound[i][1]])
 
-    return boundnew
+                TTAAnumlam, startpointTTAAlam = _findinsertionslen2(
+                    curframe,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startpointTTAAlam,
+                    totallengthcurframe,
+                )
+                boundnumlam, startpointboundlam = _findinsertionslen2(
+                    curChromnp,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startpointboundlam,
+                    totallengthcurChromnp,
+                )
+
+                scaleFactor = float(boundnumlam / TTAAnumlam)
+                lam = TTAAnum * scaleFactor + pseudocounts
+
+                if test_method == "poisson":
+                    pvalue = 1 - poisson.cdf(boundnum, lam)
+                elif test_method == "binomial":
+                    pvalue = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=boundnumlam,
+                        p=((TTAAnum + pseudocounts) / TTAAnumlam),
+                        alternative="greater",
+                    ).pvalue
+
+            if pvalue <= pvalue_cutoff:
+                if record:
+                    boundnew.append(
+                        [
+                            chrom,
+                            bound[i][0],
+                            bound[i][1],
+                            boundnum,
+                            TTAAnum,
+                            lam,
+                            pvalue,
+                        ]
+                    )
+                else:
+                    boundnew.append([chrom, bound[i][0], bound[i][1]])
+
+        return boundnew
 
 
 def _CCcallerCompare2(
@@ -188,14 +288,15 @@ def _CCcallerCompare2(
     pvalue_cutoffbg: float,
     pvalue_cutoffTTAA: float,
     chrom: str,
-    test_method: _PeakCCcallerMethod,
+    test_method: _PeakTestMethod,
     record: bool,
+    minnum: int,
 ) -> list:
 
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
-        from scipy.stats import binomCCcaller
+        from scipy.stats import binom_test
 
     # CCcaller whether the potiential peaks are true peaks by comparing to other data
 
@@ -212,129 +313,283 @@ def _CCcallerCompare2(
         startTTAAlam = 0
         startboundlam = 0
 
-    for i in range(len(bound)):
+    if minnum == 0:
 
-        bgnum, startbg = _findinsertionslen2(
-            curbgframe, bound[i][0], bound[i][1], length, startbg, totalcurbackground
-        )
-        TTAAnum, startTTAA = _findinsertionslen2(
-            curTTAAframenp, bound[i][0], bound[i][1], length, startTTAA, totalcurTTAA
-        )
-        boundnum = bound[i][2]
+        for i in range(len(bound)):
 
-        if lam_win_size == None:
-
-            scaleFactorTTAA = totalcurChrom / totalcurTTAA
-            lamTTAA = TTAAnum * scaleFactorTTAA + pseudocounts
-
-            scaleFactorbg = totalcurChrom / totalcurbackground
-            lambg = bgnum * scaleFactorbg + pseudocounts
-
-            if test_method == "poisson":
-
-                pvalueTTAA = 1 - poisson.cdf(boundnum, lamTTAA)
-                pvaluebg = _compute_cumulative_poisson(
-                    boundnum, bgnum, totalcurChrom, totalcurbackground, pseudocounts
-                )
-
-            elif test_method == "binomial":
-
-                pvalueTTAA = binomCCcaller(
-                    int(boundnum + pseudocounts),
-                    n=totalcurChrom,
-                    p=((TTAAnum + pseudocounts) / totalcurTTAA),
-                    alternative="greater",
-                ).pvalue
-                pvaluebg = binomCCcaller(
-                    int(boundnum + pseudocounts),
-                    n=totalcurChrom,
-                    p=((bgnum + pseudocounts) / totalcurbackground),
-                    alternative="greater",
-                ).pvalue
-
-        else:
-
-            bgnumlam, startbglam = _findinsertionslen2(
+            bgnum, startbg = _findinsertionslen2(
                 curbgframe,
-                bound[i][0] - lam_win_size / 2 + 1,
-                bound[i][1] + lam_win_size / 2,
+                bound[i][0],
+                bound[i][1],
                 length,
-                startbglam,
+                startbg,
                 totalcurbackground,
             )
-            TTAAnumlam, startTTAAlam = _findinsertionslen2(
+            TTAAnum, startTTAA = _findinsertionslen2(
                 curTTAAframenp,
-                bound[i][0] - lam_win_size / 2 + 1,
-                bound[i][1] + lam_win_size / 2,
+                bound[i][0],
+                bound[i][1],
                 length,
-                startTTAAlam,
+                startTTAA,
                 totalcurTTAA,
             )
-            boundnumlam, startboundlam = _findinsertionslen2(
-                curChromnp,
-                bound[i][0] - lam_win_size / 2 + 1,
-                bound[i][1] + lam_win_size / 2,
-                length,
-                startboundlam,
-                totalcurChrom,
-            )
 
-            scaleFactorTTAA = boundnumlam / TTAAnumlam
-            lamTTAA = TTAAnum * scaleFactorTTAA + pseudocounts
+            boundnum = bound[i][2]
 
-            if bgnumlam != 0:
-                scaleFactorbg = boundnumlam / bgnumlam
+            if lam_win_size == None:
+
+                scaleFactorTTAA = totalcurChrom / totalcurTTAA
+                lamTTAA = TTAAnum * scaleFactorTTAA + pseudocounts
+
+                scaleFactorbg = totalcurChrom / totalcurbackground
                 lambg = bgnum * scaleFactorbg + pseudocounts
-            else:
-                lambg = 0
 
-            if test_method == "poisson":
+                if test_method == "poisson":
 
-                pvalueTTAA = 1 - poisson.cdf(boundnum, lamTTAA)
-                pvaluebg = _compute_cumulative_poisson(
-                    boundnum, bgnum, boundnumlam, bgnumlam, pseudocounts
-                )
+                    pvalueTTAA = 1 - poisson.cdf(boundnum, lamTTAA)
+                    pvaluebg = _compute_cumulative_poisson(
+                        boundnum, bgnum, totalcurChrom, totalcurbackground, pseudocounts
+                    )
 
-            elif test_method == "binomial":
+                elif test_method == "binomial":
 
-                pvalueTTAA = binomCCcaller(
-                    int(boundnum + pseudocounts),
-                    n=boundnumlam,
-                    p=((TTAAnum + pseudocounts) / TTAAnumlam),
-                    alternative="greater",
-                ).pvalue
-
-                if bgnumlam == 0:
-                    pvaluebg = 0
-                else:
-                    pvaluebg = binomCCcaller(
+                    pvalueTTAA = binom_test(
                         int(boundnum + pseudocounts),
-                        n=boundnumlam,
-                        p=((bgnum + pseudocounts) / bgnumlam),
+                        n=totalcurChrom,
+                        p=((TTAAnum + pseudocounts) / totalcurTTAA),
+                        alternative="greater",
+                    ).pvalue
+                    pvaluebg = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=totalcurChrom,
+                        p=((bgnum + pseudocounts) / totalcurbackground),
                         alternative="greater",
                     ).pvalue
 
-        if pvaluebg <= pvalue_cutoffbg and pvalueTTAA <= pvalue_cutoffTTAA:
-
-            if record:
-                boundnew.append(
-                    [
-                        chrom,
-                        bound[i][0],
-                        bound[i][1],
-                        boundnum,
-                        bgnum,
-                        TTAAnum,
-                        lambg,
-                        lamTTAA,
-                        pvaluebg,
-                        pvalueTTAA,
-                    ]
-                )
             else:
-                boundnew.append([chrom, bound[i][0], bound[i][1]])
 
-    return boundnew
+                bgnumlam, startbglam = _findinsertionslen2(
+                    curbgframe,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startbglam,
+                    totalcurbackground,
+                )
+                TTAAnumlam, startTTAAlam = _findinsertionslen2(
+                    curTTAAframenp,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startTTAAlam,
+                    totalcurTTAA,
+                )
+                boundnumlam, startboundlam = _findinsertionslen2(
+                    curChromnp,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startboundlam,
+                    totalcurChrom,
+                )
+
+                scaleFactorTTAA = boundnumlam / TTAAnumlam
+                lamTTAA = TTAAnum * scaleFactorTTAA + pseudocounts
+
+                if bgnumlam != 0:
+                    scaleFactorbg = boundnumlam / bgnumlam
+                    lambg = bgnum * scaleFactorbg + pseudocounts
+                else:
+                    lambg = 0
+
+                if test_method == "poisson":
+
+                    pvalueTTAA = 1 - poisson.cdf(boundnum, lamTTAA)
+                    pvaluebg = _compute_cumulative_poisson(
+                        boundnum, bgnum, boundnumlam, bgnumlam, pseudocounts
+                    )
+
+                elif test_method == "binomial":
+
+                    pvalueTTAA = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=boundnumlam,
+                        p=((TTAAnum + pseudocounts) / TTAAnumlam),
+                        alternative="greater",
+                    ).pvalue
+
+                    if bgnumlam == 0:
+                        pvaluebg = 0
+                    else:
+                        pvaluebg = binom_test(
+                            int(boundnum + pseudocounts),
+                            n=boundnumlam,
+                            p=((bgnum + pseudocounts) / bgnumlam),
+                            alternative="greater",
+                        ).pvalue
+
+            if pvaluebg <= pvalue_cutoffbg and pvalueTTAA <= pvalue_cutoffTTAA:
+
+                if record:
+                    boundnew.append(
+                        [
+                            chrom,
+                            bound[i][0],
+                            bound[i][1],
+                            boundnum,
+                            bgnum,
+                            TTAAnum,
+                            lambg,
+                            lamTTAA,
+                            pvaluebg,
+                            pvalueTTAA,
+                        ]
+                    )
+                else:
+                    boundnew.append([chrom, bound[i][0], bound[i][1]])
+
+        return boundnew
+
+    else:
+
+        startchrom = 0
+
+        for i in range(len(bound)):
+
+            bgnum, startbg = _findinsertionslen2(
+                curbgframe,
+                bound[i][0],
+                bound[i][1],
+                length,
+                startbg,
+                totalcurbackground,
+            )
+            TTAAnum, startTTAA = _findinsertionslen2(
+                curTTAAframenp,
+                bound[i][0],
+                bound[i][1],
+                length,
+                startTTAA,
+                totalcurTTAA,
+            )
+
+            boundnum, startchrom = _findinsertionslen2(
+                curChromnp, bound[i][0], bound[i][1], length, startchrom, totalcurChrom
+            )
+
+            if lam_win_size == None:
+
+                scaleFactorTTAA = totalcurChrom / totalcurTTAA
+                lamTTAA = TTAAnum * scaleFactorTTAA + pseudocounts
+
+                scaleFactorbg = totalcurChrom / totalcurbackground
+                lambg = bgnum * scaleFactorbg + pseudocounts
+
+                if test_method == "poisson":
+
+                    pvalueTTAA = 1 - poisson.cdf(boundnum, lamTTAA)
+                    pvaluebg = _compute_cumulative_poisson(
+                        boundnum, bgnum, totalcurChrom, totalcurbackground, pseudocounts
+                    )
+
+                elif test_method == "binomial":
+
+                    pvalueTTAA = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=totalcurChrom,
+                        p=((TTAAnum + pseudocounts) / totalcurTTAA),
+                        alternative="greater",
+                    ).pvalue
+                    pvaluebg = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=totalcurChrom,
+                        p=((bgnum + pseudocounts) / totalcurbackground),
+                        alternative="greater",
+                    ).pvalue
+
+            else:
+
+                bgnumlam, startbglam = _findinsertionslen2(
+                    curbgframe,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startbglam,
+                    totalcurbackground,
+                )
+                TTAAnumlam, startTTAAlam = _findinsertionslen2(
+                    curTTAAframenp,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startTTAAlam,
+                    totalcurTTAA,
+                )
+                boundnumlam, startboundlam = _findinsertionslen2(
+                    curChromnp,
+                    bound[i][0] - lam_win_size / 2 + 1,
+                    bound[i][1] + lam_win_size / 2,
+                    length,
+                    startboundlam,
+                    totalcurChrom,
+                )
+
+                scaleFactorTTAA = boundnumlam / TTAAnumlam
+                lamTTAA = TTAAnum * scaleFactorTTAA + pseudocounts
+
+                if bgnumlam != 0:
+                    scaleFactorbg = boundnumlam / bgnumlam
+                    lambg = bgnum * scaleFactorbg + pseudocounts
+                else:
+                    lambg = 0
+
+                if test_method == "poisson":
+
+                    pvalueTTAA = 1 - poisson.cdf(boundnum, lamTTAA)
+                    pvaluebg = _compute_cumulative_poisson(
+                        boundnum, bgnum, boundnumlam, bgnumlam, pseudocounts
+                    )
+
+                elif test_method == "binomial":
+
+                    pvalueTTAA = binom_test(
+                        int(boundnum + pseudocounts),
+                        n=boundnumlam,
+                        p=((TTAAnum + pseudocounts) / TTAAnumlam),
+                        alternative="greater",
+                    ).pvalue
+
+                    if bgnumlam == 0:
+                        pvaluebg = 0
+                    else:
+                        pvaluebg = binom_test(
+                            int(boundnum + pseudocounts),
+                            n=boundnumlam,
+                            p=((bgnum + pseudocounts) / bgnumlam),
+                            alternative="greater",
+                        ).pvalue
+
+            if pvaluebg <= pvalue_cutoffbg and pvalueTTAA <= pvalue_cutoffTTAA:
+
+                if record:
+                    boundnew.append(
+                        [
+                            chrom,
+                            bound[i][0],
+                            bound[i][1],
+                            boundnum,
+                            bgnum,
+                            TTAAnum,
+                            lambg,
+                            lamTTAA,
+                            pvaluebg,
+                            pvalueTTAA,
+                        ]
+                    )
+                else:
+                    boundnew.append([chrom, bound[i][0], bound[i][1]])
+
+        return boundnew
 
 
 def _CCcaller_bf2(
@@ -348,7 +603,7 @@ def _CCcaller_bf2(
     maxbetween: int = 2800,
     lam_win_size: Optional[int] = None,
     pseudocounts: float = 0.2,
-    test_method: _PeakCCcallerMethod = "poisson",
+    test_method: _PeakTestMethod = "poisson",
     record: bool = False,
     minnum: int = 0,
 ) -> pd.DataFrame:
@@ -452,6 +707,7 @@ def _CCcaller_bf2(
             chrom,
             test_method=test_method,
             record=record,
+            minnum=minnum,
         )
 
     for inser_num in range(len(bound) - 1):
@@ -490,7 +746,7 @@ def _CCcaller2(
     maxbetween: int = 2800,
     lam_win_size: Optional[int] = None,
     pseudocounts: float = 0.2,
-    test_method: _PeakCCcallerMethod = "poisson",
+    test_method: _PeakTestMethod = "poisson",
     record: bool = False,
     minnum: int = 0,
 ) -> pd.DataFrame:
@@ -602,6 +858,7 @@ def _CCcaller2(
             chrom,
             test_method,
             record,
+            minnum,
         )
 
     for inser_num in range(len(bound) - 1):
@@ -639,7 +896,7 @@ def _BlockifyCompare(
     pseudocounts: float,
     pvalue_cutoff: float,
     chrom: str,
-    test_method: _PeakCCcallerMethod = "poisson",
+    test_method: _PeakTestMethod = "poisson",
     record: bool = True,
 ) -> list:
     # CCcaller whether the potiential peaks are true peaks by comparing to TTAAs
@@ -647,7 +904,7 @@ def _BlockifyCompare(
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
-        from scipy.stats import binomCCcaller
+        from scipy.stats import binomCCcall
 
     last = -1
     Chrnumtotal = 0
@@ -663,7 +920,7 @@ def _BlockifyCompare(
             pValue = 1 - poisson.cdf(boundnum - 1, TTAAnum * scaleFactor + pseudocounts)
 
         elif test_method == "binomial":
-            pValue = binomCCcaller(
+            pValue = binom_test(
                 int(boundnum + pseudocounts),
                 n=len(curChrom),
                 p=((TTAAnum + pseudocounts) / currentlen),
@@ -673,6 +930,11 @@ def _BlockifyCompare(
         if pValue <= pvalue_cutoff and last == -1:
 
             last = i
+            Chrnumtotal += boundnum
+            TTAAnumtotal += TTAAnum
+
+        elif pValue <= pvalue_cutoff and last != -1:
+
             Chrnumtotal += boundnum
             TTAAnumtotal += TTAAnum
 
@@ -686,7 +948,7 @@ def _BlockifyCompare(
                     )
 
                 elif test_method == "binomial":
-                    pvalue = binomCCcaller(
+                    pvalue = binom_test(
                         int(Chrnumtotal + pseudocounts),
                         n=len(curChrom),
                         p=((TTAAnumtotal + pseudocounts) / currentlen),
@@ -721,7 +983,7 @@ def _BlockifyCompare(
                 )
 
             elif test_method == "binomial":
-                pvalue = binomCCcaller(
+                pvalue = binom_test(
                     int(Chrnumtotal + pseudocounts),
                     n=len(curChrom),
                     p=((TTAAnumtotal + pseudocounts) / currentlen),
@@ -732,7 +994,7 @@ def _BlockifyCompare(
                 [
                     chrom,
                     bound[last][0],
-                    bound[i - 1][1],
+                    bound[i][1],
                     Chrnumtotal,
                     TTAAnumtotal,
                     TTAAnumtotal * scaleFactor + pseudocounts,
@@ -740,7 +1002,7 @@ def _BlockifyCompare(
                 ]
             )
         else:
-            boundnew.append([chrom, bound[last][0], bound[i - 1][1]])
+            boundnew.append([chrom, bound[last][0], bound[i][1]])
 
     return boundnew
 
@@ -751,7 +1013,7 @@ def _Blockify(
     length: int,
     pvalue_cutoff: float = 0.0001,
     pseudocounts: float = 0.2,
-    test_method: _PeakCCcallerMethod = "poisson",
+    test_method: _PeakTestMethod = "poisson",
     record: bool = True,
 ) -> pd.DataFrame:
 
@@ -1242,14 +1504,14 @@ def _callpeakscc_tools_bfnew2(
     pvalue_cutoff: float = 0.01,
     lam_win_size: Optional[int] = None,
     record: bool = False,
-    test_method: _PeakCCcallerMethod = "poisson",
+    test_method: _PeakTestMethod = "poisson",
     multinumber=100000000,
 ) -> pd.DataFrame:
 
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
-        from scipy.stats import binomCCcaller
+        from scipy.stats import binom_test
 
     # The chromosomes we need to consider
     chrm = list(expdata["Chr"].unique())
@@ -1386,7 +1648,7 @@ def _callpeakscc_tools_bfnew2(
                     elif test_method == "binomial":
 
                         if lam_win_size == None:
-                            pvalue = binomCCcaller(
+                            pvalue = binom_test(
                                 int(num_exp_insertions + pseudocounts),
                                 n=totalcurChrom,
                                 p=((num_TTAAs_window + pseudocounts) / totalcurTTAA),
@@ -1415,7 +1677,7 @@ def _callpeakscc_tools_bfnew2(
                                 startinsertionslam1,
                                 totalcurChrom,
                             )
-                            pvalue = binomCCcaller(
+                            pvalue = binom_test(
                                 int(num_exp_insertions + pseudocounts),
                                 n=num_exp_insertions_lambda,
                                 p=(
@@ -1528,7 +1790,7 @@ def _callpeakscc_tools_bfnew2(
 
                             if lam_win_size == None:
                                 pvalue_list.append(
-                                    binomCCcaller(
+                                    binom_test(
                                         int(num_exp_insertions + pseudocounts),
                                         n=totalcurChrom,
                                         p=(
@@ -1563,7 +1825,7 @@ def _callpeakscc_tools_bfnew2(
                                     totalcurTTAA,
                                 )
                                 pvalue_list.append(
-                                    binomCCcaller(
+                                    binom_test(
                                         int(num_exp_insertions + pseudocounts),
                                         n=num_exp_insertions_lam_win_size,
                                         p=(
@@ -1658,7 +1920,7 @@ def _callpeakscc_toolsnew2(
     window_size: int = 1000,
     step_size: int = 500,
     pseudocounts: float = 0.2,
-    test_method: _PeakCCcallerMethod = "poisson",
+    test_method: _PeakTestMethod = "poisson",
     min_insertions: int = 3,
     record: bool = False,
 ) -> pd.DataFrame:
@@ -1666,7 +1928,7 @@ def _callpeakscc_toolsnew2(
     if test_method == "poisson":
         from scipy.stats import poisson
     elif test_method == "binomial":
-        from scipy.stats import binomCCcaller
+        from scipy.stats import binom_test
 
     multinumber = 100000000
 
@@ -1795,7 +2057,7 @@ def _callpeakscc_toolsnew2(
                                 pseudocounts,
                             )
                         elif test_method == "binomial":
-                            pvaluebg = binomCCcaller(
+                            pvaluebg = binom_test(
                                 int(num_exp_insertions + pseudocounts),
                                 n=totalcurChrom,
                                 p=(
@@ -1833,7 +2095,7 @@ def _callpeakscc_toolsnew2(
                                 pseudocounts,
                             )
                         elif test_method == "binomial":
-                            pvaluebg = binomCCcaller(
+                            pvaluebg = binom_test(
                                 int(num_exp_insertions + pseudocounts),
                                 n=num_exp_insertions_lam,
                                 p=((num_bg_insertions + pseudocounts) / num_exp_bg_lam),
@@ -1882,7 +2144,7 @@ def _callpeakscc_toolsnew2(
                                 lambdacurTTAA * num_TTAA_insertions + pseudocounts,
                             )
                         elif test_method == "binomial":
-                            pvalueTTAA = binomCCcaller(
+                            pvalueTTAA = binom_test(
                                 int(num_exp_insertions + pseudocounts),
                                 n=totalcurChrom,
                                 p=((num_TTAA_insertions + pseudocounts) / totalcurTTAA),
@@ -1906,7 +2168,7 @@ def _callpeakscc_toolsnew2(
                                 + pseudocounts,
                             )
                         elif test_method == "binomial":
-                            pvalueTTAA = binomCCcaller(
+                            pvalueTTAA = binom_test(
                                 int(num_exp_insertions + pseudocounts),
                                 n=num_exp_insertions_lam,
                                 p=(
@@ -2036,7 +2298,7 @@ def _callpeakscc_toolsnew2(
                         elif test_method == "binomial":
 
                             pvalue_list_TTAA.append(
-                                binomCCcaller(
+                                binom_test(
                                     int(num_exp_insertions + pseudocounts),
                                     n=totalcurChrom,
                                     p=(
@@ -2047,7 +2309,7 @@ def _callpeakscc_toolsnew2(
                                 ).pvalue
                             )
                             pvalue_list_background.append(
-                                binomCCcaller(
+                                binom_test(
                                     int(num_exp_insertions + pseudocounts),
                                     n=totalcurChrom,
                                     p=(
@@ -2113,7 +2375,7 @@ def _callpeakscc_toolsnew2(
                         elif test_method == "binomial":
 
                             pvalue_list_TTAA.append(
-                                binomCCcaller(
+                                binom_test(
                                     int(num_exp_insertions + pseudocounts),
                                     n=num_exp_insertions_lam,
                                     p=(
@@ -2127,7 +2389,7 @@ def _callpeakscc_toolsnew2(
                                 pvalue_list_background.append(0)
                             else:
                                 pvalue_list_background.append(
-                                    binomCCcaller(
+                                    binom_test(
                                         int(num_exp_insertions + pseudocounts),
                                         n=num_exp_insertions_lam,
                                         p=(
@@ -2231,7 +2493,7 @@ def call_peaks(
     extend: int = 200,
     maxbetween: int = 2000,
     minnum: int = 0,
-    test_method: _PeakCCcallerMethod = "poisson",
+    test_method: _PeakTestMethod = "poisson",
     window_size: int = 1500,
     lam_win_size: Optional[int] = 100000,
     step_size: int = 500,
