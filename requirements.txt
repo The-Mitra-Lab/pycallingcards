@@ -12,3 +12,4 @@ pyBigWig
 scikit-learn
 liftover
 mudata
+statsmodels
