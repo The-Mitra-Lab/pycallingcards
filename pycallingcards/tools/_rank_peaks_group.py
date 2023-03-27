@@ -9,7 +9,8 @@ from mudata import MuData
 _Method_rank_peak_groups = Optional[Literal["binomtest", "binomtest2", "fisher_exact"]]
 _alternative = Optional[Literal["two-sided", "greater"]]
 _alternative_no = Optional[Literal["two-sided", "greater", "None"]]
-_rankby = Optional[Literal["pvalues", "logfoldchanges"]]
+_rankby = Optional[Literal["pvalues", "logfoldchanges", "pvalues_adj"]]
+_by = Optional[Literal["sample", "group", "cell", "None"]]
 
 
 def DE_pvalue(
@@ -23,7 +24,6 @@ def DE_pvalue(
 
     """\
     Compare the peak difference between two groups for specific peak.
-
     :param number1:
         The total number of insertions (or the number of cells that contain insertions) in group 1.
     :param number2:
@@ -38,15 +38,11 @@ def DE_pvalue(
         fisher exact test.
     :param alternative:
         If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
-
-
     :return:
         Pvalue for the specific hypothesis.
-
     :example:
     >>> import pycallingcards as cc
     >>> cc.tl.DE_pvalue(10,456,261,491)
-
     """
 
     if method == "binomtest":
@@ -98,8 +94,6 @@ def diff2group_bygroup(
 
     """\
     Compare the peak difference between two groups for specific peak by group.
-
-
     :param adata_cc:
         Annotated data matrix.
     :param groupby:
@@ -116,12 +110,8 @@ def diff2group_bygroup(
         fisher exact test.
     :param alternative:
         If it has two clusters, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
-
-
     :return:
         Pvalue for the specific hypothesis.
-
-
     :example:
     >>> import pycallingcards as cc
     >>> adata_cc = cc.datasets.mousecortex_data(data="CC")
@@ -226,7 +216,6 @@ def diff2group_bysample(
     """\
     Comapare the peak difference between two groups for a specific peak by sample.
 
-
     :param adata_cc:
         Annotated data matrix.
     :param name1:
@@ -241,17 +230,12 @@ def diff2group_bysample(
         fisher exact test.
     :param alternative: `['two-sided', 'greater']`.
         If it has two samples, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
-
-
-
     :return:
         Pvalue for the specific hypothesis.
-
     :example:
     >>> import pycallingcards as cc
     >>> adata_cc = cc.datasets.mouse_brd4_data(data="CC")
     >>> cc.tl.diff2group_bysample(adata_cc,'F6_Brd4','M6_Brd4','chr1_4196845_4200095','fisher_exact')
-
     """
 
     if peakname != None:
@@ -324,14 +308,14 @@ def rank_peak_groups(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
-    rankby: _rankby = "pvalues",
+    rankby: _rankby = "pvalues_adj",
     method: _Method_rank_peak_groups = "fisher_exact",
     alternative: _alternative_no = "None",
+    by: _by = "None",
 ) -> Optional[AnnData]:
 
     """\
     Rank peaks for characterizing groups.
-
     :param adata_cc:
         Annotated data matrix.
     :param groupby:
@@ -358,9 +342,6 @@ def rank_peak_groups(
     :param alternative:
         If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
         For default (`'None'`), if groupby == "Index", it will be 'two-sided'. Otherwise, please use `'greater'`.
-
-
-
     :Returns:
         | **names** - structured `np.ndarray` (`.uns['rank_peaks_groups']`). Structured array is to be indexed by the group ID storing the peak names. It's ordered according to scores.
         | **return pvalues** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
@@ -369,65 +350,160 @@ def rank_peak_groups(
         | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells that contain peaks (depending on the method).
         | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells that contain peaks.
         | **total_rest** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells that contain peaks.
-
     :example:
     >>> import pycallingcards as cc
     >>> adata_cc = cc.datasets.mousecortex_data(data="CC")
     >>> cc.tl.rank_peak_groups(adata_cc,'cluster',method = 'binomtest',key_added = 'binomtest')
     """
 
-    if groupby == "Index":
-        if alternative == "None":
-            _rank_peak_groups_bygroup(
-                adata_cc=adata_cc,
-                groups=groups,
-                reference=reference,
-                n_peaks=n_peaks,
-                key_added=key_added,
-                copy=copy,
-                rankby=rankby,
-                method=method,
-                alternative="two-sided",
-            )
+    if by == "None":
+
+        if groupby == "Index":
+            if alternative == "None":
+                _rank_peak_groups_bygroup(
+                    adata_cc=adata_cc,
+                    groups=groups,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative="two-sided",
+                )
+            else:
+                _rank_peak_groups_bygroup(
+                    adata_cc=adata_cc,
+                    groups=groups,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative=alternative,
+                )
         else:
-            _rank_peak_groups_bygroup(
-                adata_cc=adata_cc,
-                groups=groups,
-                reference=reference,
-                n_peaks=n_peaks,
-                key_added=key_added,
-                copy=copy,
-                rankby=rankby,
-                method=method,
-                alternative=alternative,
-            )
+            if alternative == "None":
+                _rank_peak_groups_bycell(
+                    adata_cc=adata_cc,
+                    groupby=groupby,
+                    groups=groups,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative="greater",
+                )
+            else:
+                _rank_peak_groups_bycell(
+                    adata_cc=adata_cc,
+                    groupby=groupby,
+                    groups=groups,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative=alternative,
+                )
+
     else:
-        if alternative == "None":
-            _rank_peak_groups_bycell(
-                adata_cc=adata_cc,
-                groupby=groupby,
-                groups=groups,
-                reference=reference,
-                n_peaks=n_peaks,
-                key_added=key_added,
-                copy=copy,
-                rankby=rankby,
-                method=method,
-                alternative="greater",
-            )
-        else:
-            _rank_peak_groups_bycell(
-                adata_cc=adata_cc,
-                groupby=groupby,
-                groups=groups,
-                reference=reference,
-                n_peaks=n_peaks,
-                key_added=key_added,
-                copy=copy,
-                rankby=rankby,
-                method=method,
-                alternative=alternative,
-            )
+
+        if by == "sample":
+
+            if alternative == "None":
+
+                _rank_peak_groups_byrep(
+                    adata_cc=adata_cc,
+                    groupby=groupby,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative="two-sided",
+                )
+
+            else:
+
+                _rank_peak_groups_byrep(
+                    adata_cc=adata_cc,
+                    groupby=groupby,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative=alternative,
+                )
+
+        elif by == "group":
+
+            if alternative == "None":
+
+                _rank_peak_groups_bygroup(
+                    adata_cc=adata_cc,
+                    groups=groups,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative="two-sided",
+                )
+
+            else:
+
+                _rank_peak_groups_bygroup(
+                    adata_cc=adata_cc,
+                    groups=groups,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative=alternative,
+                )
+
+        elif by == "cell":
+
+            if alternative == "None":
+
+                _rank_peak_groups_bycell(
+                    adata_cc=adata_cc,
+                    groupby=groupby,
+                    groups=groups,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative="greater",
+                )
+
+            else:
+
+                _rank_peak_groups_bycell(
+                    adata_cc=adata_cc,
+                    groupby=groupby,
+                    groups=groups,
+                    reference=reference,
+                    n_peaks=n_peaks,
+                    key_added=key_added,
+                    copy=copy,
+                    rankby=rankby,
+                    method=method,
+                    alternative=alternative,
+                )
 
 
 def _rank_peak_groups_bycell(
@@ -442,6 +518,8 @@ def _rank_peak_groups_bycell(
     method: _Method_rank_peak_groups = None,
     alternative: _alternative = "greater",
 ) -> Optional[AnnData]:
+
+    from statsmodels.stats.multitest import multipletests
 
     avail_method = ["binomtest", "binomtest2", "fisher_exact"]
     if method == None:
@@ -491,6 +569,7 @@ def _rank_peak_groups_bycell(
 
     finalresult_name = np.empty([n_peaks, len(group_list)], dtype="<U100")
     finalresult_pvalue = np.empty([n_peaks, len(group_list)], dtype=float)
+    finalresult_pvalue_adj = np.empty([n_peaks, len(group_list)], dtype=float)
     finalresult_logfoldchanges = np.empty([n_peaks, len(group_list)], dtype=float)
     finalresult_number1 = np.empty([n_peaks, len(group_list)], dtype=int)
     finalresult_number2 = np.empty([n_peaks, len(group_list)], dtype=int)
@@ -552,6 +631,9 @@ def _rank_peak_groups_bycell(
             total2list.append(total2)
 
         pvaluelistnp = np.array(pvaluelist)
+        _, pvals_adjlistnp, _, _ = multipletests(
+            pvaluelistnp, alpha=0.05, method="fdr_bh"
+        )
         number1listnp = np.array(number1list)
         number2listnp = np.array(number2list)
         total1listnp = np.array(total1list)
@@ -561,15 +643,20 @@ def _rank_peak_groups_bycell(
             / ((number2listnp / total2listnp) + 0.000001)
         )
 
-        if rankby == "pvalues":
-            rankarg = pvaluelistnp.argsort()
+        if rankby == "pvalues_adj":
+            rankarg = pvals_adjlistnp.argsort()
         elif rankby == "logfoldchanges":
             rankarg = (-1 * logfoldchangenp).argsort()
+        elif rankby == "pvalues":
+            rankarg = pvaluelistnp.argsort()
         else:
-            raise ValueError(f"rankby method must be one of {_rankby}.")
+            raise ValueError(
+                f"rankby method must be one of ['pvalues', 'logfoldchanges','pvalues_adj']."
+            )
 
         finalresult_name[:, i] = np.array(peak_list)[rankarg][:n_peaks]
         finalresult_pvalue[:, i] = pvaluelistnp[rankarg][:n_peaks]
+        finalresult_pvalue_adj[:, i] = pvals_adjlistnp[rankarg][:n_peaks]
         finalresult_logfoldchanges[:, i] = logfoldchangenp[rankarg][:n_peaks]
         finalresult_number1[:, i] = number1listnp[rankarg][:n_peaks]
         finalresult_number2[:, i] = number2listnp[rankarg][:n_peaks]
@@ -587,6 +674,182 @@ def _rank_peak_groups_bycell(
     )
     adata_cc.uns[key_added]["pvalues"] = np.rec.array(
         list(map(tuple, finalresult_pvalue)), dtype=list(map(tuple, temppvalue))
+    )
+    adata_cc.uns[key_added]["pvalues_adj"] = np.rec.array(
+        list(map(tuple, finalresult_pvalue_adj)), dtype=list(map(tuple, temppvalue))
+    )
+    adata_cc.uns[key_added]["logfoldchanges"] = np.rec.array(
+        list(map(tuple, finalresult_logfoldchanges)), dtype=list(map(tuple, temppvalue))
+    )
+    adata_cc.uns[key_added]["number"] = np.rec.array(
+        list(map(tuple, finalresult_number1)), dtype=list(map(tuple, tempnamenumber))
+    )
+    adata_cc.uns[key_added]["number_rest"] = np.rec.array(
+        list(map(tuple, finalresult_number2)), dtype=list(map(tuple, tempnamenumber))
+    )
+    adata_cc.uns[key_added]["total"] = np.rec.array(
+        list(map(tuple, finalresult_total1)), dtype=list(map(tuple, tempnamenumber))
+    )
+    adata_cc.uns[key_added]["total_rest"] = np.rec.array(
+        list(map(tuple, finalresult_total2)), dtype=list(map(tuple, tempnamenumber))
+    )
+
+    return adata_cc if copy else None
+
+
+def _rank_peak_groups_byrep(
+    adata_cc: AnnData,
+    groupby: str,
+    reference: str = None,
+    n_peaks: Optional[int] = None,
+    key_added: Optional[str] = None,
+    copy: bool = False,
+    rankby: _rankby = "pvalues",
+    method: _Method_rank_peak_groups = None,
+    alternative: _alternative = "greater",
+) -> Optional[AnnData]:
+
+    from statsmodels.stats.multitest import multipletests
+
+    avail_method = ["binomtest", "binomtest2", "fisher_exact"]
+    if method == None:
+        method = "binomtest"
+    elif method not in avail_method:
+        raise ValueError(f"Correction method must be one of {avail_method}.")
+
+    possible_group = list(adata_cc.obs[groupby].unique())
+    possible_group.sort()
+
+    if reference == None:
+        reference = "rest"
+    elif reference not in possible_group:
+        raise ValueError(
+            f"Invalid reference, should be all or one of {possible_group}."
+        )
+
+    group_list = possible_group
+
+    if key_added == None:
+        key_added = "rank_peak_groups"
+    elif type(key_added) != str:
+        raise ValueError("key_added should be str.")
+
+    adata_cc = adata_cc.copy() if copy else adata_cc
+
+    adata_cc.uns[key_added] = {}
+    adata_cc.uns[key_added]["params"] = dict(
+        groupby=groupby, reference=reference, method=method
+    )
+
+    peak_list = list(adata_cc.var.index)
+
+    if n_peaks == None:
+        n_peaks = len(peak_list)
+    elif type(n_peaks) != int or n_peaks < 1 or n_peaks > len(peak_list):
+        raise ValueError(
+            "n_peaks should be a int larger than 0 and smaller than the total number of peaks "
+        )
+
+    finalresult_name = np.empty([n_peaks, len(group_list)], dtype="<U100")
+    finalresult_pvalue = np.empty([n_peaks, len(group_list)], dtype=float)
+    finalresult_pvalue_adj = np.empty([n_peaks, len(group_list)], dtype=float)
+    finalresult_logfoldchanges = np.empty([n_peaks, len(group_list)], dtype=float)
+    finalresult_number1 = np.empty([n_peaks, len(group_list)], dtype=int)
+    finalresult_number2 = np.empty([n_peaks, len(group_list)], dtype=int)
+    finalresult_total1 = np.empty([n_peaks, len(group_list)], dtype=int)
+    finalresult_total2 = np.empty([n_peaks, len(group_list)], dtype=int)
+
+    i = 0
+
+    for cluster in tqdm.tqdm(group_list):
+
+        if reference == "rest":
+            clusterdata = adata_cc[(adata_cc.obs[[groupby]] == cluster)[groupby]]
+            clusterdatarest = adata_cc[(adata_cc.obs[[groupby]] != cluster)[groupby]]
+        else:
+            clusterdata = adata_cc[(adata_cc.obs[[groupby]] == cluster)[groupby]]
+            clusterdatarest = adata_cc[(adata_cc.obs[[groupby]] == reference)[groupby]]
+
+        pvaluelist = []
+        number1list = []
+        number2list = []
+        total1list = []
+        total2list = []
+
+        total1 = clusterdata.X.sum()
+        total2 = clusterdatarest.X.sum()
+
+        for peak in peak_list:
+
+            cluster1 = clusterdata[:, adata_cc.var.index.get_loc(peak)].X
+
+            cluster2 = clusterdatarest[:, adata_cc.var.index.get_loc(peak)].X
+
+            number1 = cluster1.sum()
+            number2 = cluster2.sum()
+
+            pvaluelist.append(
+                DE_pvalue(
+                    number1,
+                    number2,
+                    total1,
+                    total2,
+                    method=method,
+                    alternative=alternative,
+                )
+            )
+            number1list.append(number1)
+            number2list.append(number2)
+            total1list.append(total1)
+            total2list.append(total2)
+
+        pvaluelistnp = np.array(pvaluelist)
+        _, pvals_adjlistnp, _, _ = multipletests(
+            pvaluelistnp, alpha=0.05, method="fdr_bh"
+        )
+        number1listnp = np.array(number1list)
+        number2listnp = np.array(number2list)
+        total1listnp = np.array(total1list)
+        total2listnp = np.array(total2list)
+        logfoldchangenp = np.log2(
+            ((number1listnp / total1listnp) + 0.000001)
+            / ((number2listnp / total2listnp) + 0.000001)
+        )
+
+        if rankby == "pvalues_adj":
+            rankarg = pvals_adjlistnp.argsort()
+        elif rankby == "logfoldchanges":
+            rankarg = (-1 * logfoldchangenp).argsort()
+        elif rankby == "pvalues":
+            rankarg = pvaluelistnp.argsort()
+        else:
+            raise ValueError(
+                f"rankby method must be one of ['pvalues', 'logfoldchanges','pvalues_adj']."
+            )
+
+        finalresult_name[:, i] = np.array(peak_list)[rankarg][:n_peaks]
+        finalresult_pvalue[:, i] = pvaluelistnp[rankarg][:n_peaks]
+        finalresult_pvalue_adj[:, i] = pvals_adjlistnp[rankarg][:n_peaks]
+        finalresult_logfoldchanges[:, i] = logfoldchangenp[rankarg][:n_peaks]
+        finalresult_number1[:, i] = number1listnp[rankarg][:n_peaks]
+        finalresult_number2[:, i] = number2listnp[rankarg][:n_peaks]
+        finalresult_total1[:, i] = total1listnp[rankarg][:n_peaks]
+        finalresult_total2[:, i] = total2listnp[rankarg][:n_peaks]
+
+        i += 1
+
+    temppvalue = np.array([group_list, ["float"] * len(group_list)]).transpose()
+    tempname = np.array([group_list, ["<U100"] * len(group_list)]).transpose()
+    tempnamenumber = np.array([group_list, ["int"] * len(group_list)]).transpose()
+
+    adata_cc.uns[key_added]["names"] = np.rec.array(
+        list(map(tuple, finalresult_name)), dtype=list(map(tuple, tempname))
+    )
+    adata_cc.uns[key_added]["pvalues"] = np.rec.array(
+        list(map(tuple, finalresult_pvalue)), dtype=list(map(tuple, temppvalue))
+    )
+    adata_cc.uns[key_added]["pvalues_adj"] = np.rec.array(
+        list(map(tuple, finalresult_pvalue_adj)), dtype=list(map(tuple, temppvalue))
     )
     adata_cc.uns[key_added]["logfoldchanges"] = np.rec.array(
         list(map(tuple, finalresult_logfoldchanges)), dtype=list(map(tuple, temppvalue))
@@ -618,6 +881,8 @@ def _rank_peak_groups_bygroup(
     method: _Method_rank_peak_groups = None,
     alternative: _alternative = "greater",
 ) -> Optional[AnnData]:
+
+    from statsmodels.stats.multitest import multipletests
 
     avail_method = ["binomtest", "binomtest2", "fisher_exact"]
     if method == None:
@@ -666,6 +931,7 @@ def _rank_peak_groups_bygroup(
 
     finalresult_name = np.empty([n_peaks, len(group_list)], dtype="<U100")
     finalresult_pvalue = np.empty([n_peaks, len(group_list)], dtype=float)
+    finalresult_pvalue_adj = np.empty([n_peaks, len(group_list)], dtype=float)
     finalresult_logfoldchanges = np.empty([n_peaks, len(group_list)], dtype=float)
     finalresult_number1 = np.empty([n_peaks, len(group_list)], dtype=int)
     finalresult_number2 = np.empty([n_peaks, len(group_list)], dtype=int)
@@ -715,6 +981,9 @@ def _rank_peak_groups_bygroup(
             total2list.append(total2)
 
         pvaluelistnp = np.array(pvaluelist)
+        _, pvals_adjlistnp, _, _ = multipletests(
+            pvaluelistnp, alpha=0.05, method="fdr_bh"
+        )
         number1listnp = np.array(number1list)
         number2listnp = np.array(number2list)
         total1listnp = np.array(total1list)
@@ -724,16 +993,21 @@ def _rank_peak_groups_bygroup(
             / ((number2listnp / total2listnp) + 0.000001)
         )
 
-        if rankby == "pvalues":
-            rankarg = pvaluelistnp.argsort()
+        if rankby == "pvalues_adj":
+            rankarg = pvals_adjlistnp.argsort()
         elif rankby == "logfoldchanges":
             rankarg = (-1 * logfoldchangenp).argsort()
+        elif rankby == "pvalues":
+            rankarg = pvaluelistnp.argsort()
         else:
-            raise ValueError(f"rankby method must be one of {_rankby}.")
+            raise ValueError(
+                f"rankby method must be one of ['pvalues', 'logfoldchanges','pvalues_adj']."
+            )
 
         finalresult_name[:, i] = np.array(peak_list)[rankarg][:n_peaks]
         finalresult_logfoldchanges[:, i] = logfoldchangenp[rankarg][:n_peaks]
         finalresult_pvalue[:, i] = pvaluelistnp[rankarg][:n_peaks]
+        finalresult_pvalue_adj[:, i] = pvals_adjlistnp[rankarg][:n_peaks]
         finalresult_number1[:, i] = number1listnp[rankarg][:n_peaks]
         finalresult_number2[:, i] = number2listnp[rankarg][:n_peaks]
         finalresult_total1[:, i] = total1listnp[rankarg][:n_peaks]
@@ -750,6 +1024,9 @@ def _rank_peak_groups_bygroup(
     )
     adata_cc.uns[key_added]["pvalues"] = np.rec.array(
         list(map(tuple, finalresult_pvalue)), dtype=list(map(tuple, temppvalue))
+    )
+    adata_cc.uns[key_added]["pvalues_adj"] = np.rec.array(
+        list(map(tuple, finalresult_pvalue_adj)), dtype=list(map(tuple, temppvalue))
     )
     adata_cc.uns[key_added]["logfoldchanges"] = np.rec.array(
         list(map(tuple, finalresult_logfoldchanges)), dtype=list(map(tuple, temppvalue))
@@ -775,6 +1052,7 @@ def rank_peak_groups_df(
     key: str = "rank_peak_groups",
     group: Optional[list] = None,
     pval_cutoff: Optional[float] = None,
+    pval_adj_cutoff: Optional[float] = None,
     logfc_min: Optional[float] = None,
     logfc_max: Optional[float] = None,
 ) -> pd.DataFrame:
@@ -793,6 +1071,8 @@ def rank_peak_groups_df(
         argument) to return results from. Can be a list. All groups are
         returned if groups is `None`.
     pval_cutoff
+        Return only p-values below the  cutoff.
+    pval_adj_cutoff
         Return only adjusted p-values below the  cutoff.
     logfc_min
         Minimum logfc to return.
@@ -815,6 +1095,7 @@ def rank_peak_groups_df(
         "names",
         "logfoldchanges",
         "pvalues",
+        "pvalues_adj",
         "number",
         "number_rest",
         "total",
@@ -842,6 +1123,8 @@ def rank_peak_groups_df(
 
     if pval_cutoff is not None:
         d = d[d["pvalues"] <= pval_cutoff]
+    if pval_adj_cutoff is not None:
+        d = d[d["pvalues_adj"] <= pval_cutoff]
     if logfc_min is not None:
         d = d[d["logfoldchanges"] >= logfc_min]
     if logfc_max is not None:
@@ -866,7 +1149,6 @@ def rank_peak_groups_mu(
 
     """\
     Rank peaks for characterizing groups. Designed for mudata object.
-
     :param mdata:
         mdata for both RNA and CC data.
     :param groupby:
@@ -895,9 +1177,6 @@ def rank_peak_groups_mu(
     :param alternative: `['two-sided', 'greater','None']`.
         If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
         For default (`'None'`), if groupby == "Index", it will be 'two-sided'. Otherwise, please use `'greater'`.
-
-
-
     :Returns:
         | **names** - structured `np.ndarray` (`.uns['rank_peaks_groups']`). Structured array is to be indexed by the group ID storing the peak names. Ordered according to scores.
         | **return pvalues** - structured `np.ndarray` (`.uns['rank_peaks_groups']`)
@@ -906,7 +1185,6 @@ def rank_peak_groups_mu(
         | **number_rest** - `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The number of peaks or the number of cells that contain peaks (depending on the method).
         | **total** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells that contain peaks.
         | **total_rest** -  `pandas.DataFrame` (`.uns['rank_peaks_groups']`). The total number of cells that contain peaks.
-
     :example:
     >>> import pycallingcards as cc
     >>> mdata = cc.datasets.mousecortex_data(data="Mudata")
@@ -952,10 +1230,12 @@ def _rank_peak_groups_bycell_mu(
     n_peaks: Optional[int] = None,
     key_added: Optional[str] = None,
     copy: bool = False,
-    rankby: _rankby = "pvalues",
+    rankby: _rankby = "pvalues_adj",
     method: _Method_rank_peak_groups = None,
     alternative: _alternative = "greater",
 ) -> Optional[AnnData]:
+
+    from statsmodels.stats.multitest import multipletests
 
     avail_method = ["binomtest", "binomtest2", "fisher_exact"]
     if method == None:
@@ -1003,6 +1283,7 @@ def _rank_peak_groups_bycell_mu(
 
     finalresult_name = np.empty([n_peaks, len(group_list)], dtype="<U100")
     finalresult_pvalue = np.empty([n_peaks, len(group_list)], dtype=float)
+    finalresult_pvalue_adj = np.empty([n_peaks, len(group_list)], dtype=float)
     finalresult_logfoldchanges = np.empty([n_peaks, len(group_list)], dtype=float)
     finalresult_number1 = np.empty([n_peaks, len(group_list)], dtype=int)
     finalresult_number2 = np.empty([n_peaks, len(group_list)], dtype=int)
@@ -1066,6 +1347,9 @@ def _rank_peak_groups_bycell_mu(
             total2list.append(total2)
 
         pvaluelistnp = np.array(pvaluelist)
+        _, pvals_adjlistnp, _, _ = multipletests(
+            pvaluelistnp, alpha=0.05, method="fdr_bh"
+        )
         number1listnp = np.array(number1list)
         number2listnp = np.array(number2list)
         total1listnp = np.array(total1list)
@@ -1075,15 +1359,18 @@ def _rank_peak_groups_bycell_mu(
             / ((number2listnp / total2listnp) + 0.000001)
         )
 
-        if rankby == "pvalues":
-            rankarg = pvaluelistnp.argsort()
+        if rankby == "pvalues_adj":
+            rankarg = pvals_adjlistnp.argsort()
         elif rankby == "logfoldchanges":
             rankarg = (-1 * logfoldchangenp).argsort()
+        elif rankby == "pvalues":
+            rankarg = pvaluelistnp.argsort()
         else:
             raise ValueError(f"rankby method must be one of {_rankby}.")
 
         finalresult_name[:, i] = np.array(peak_list)[rankarg][:n_peaks]
         finalresult_pvalue[:, i] = pvaluelistnp[rankarg][:n_peaks]
+        finalresult_pvalue_adj[:, i] = pvals_adjlistnp[rankarg][:n_peaks]
         finalresult_logfoldchanges[:, i] = logfoldchangenp[rankarg][:n_peaks]
         finalresult_number1[:, i] = number1listnp[rankarg][:n_peaks]
         finalresult_number2[:, i] = number2listnp[rankarg][:n_peaks]
@@ -1101,6 +1388,9 @@ def _rank_peak_groups_bycell_mu(
     )
     mdata[adata_cc].uns[key_added]["pvalues"] = np.rec.array(
         list(map(tuple, finalresult_pvalue)), dtype=list(map(tuple, temppvalue))
+    )
+    mdata[adata_cc].uns[key_added]["pvalues_adj"] = np.rec.array(
+        list(map(tuple, finalresult_pvalue_adj)), dtype=list(map(tuple, temppvalue))
     )
     mdata[adata_cc].uns[key_added]["logfoldchanges"] = np.rec.array(
         list(map(tuple, finalresult_logfoldchanges)), dtype=list(map(tuple, temppvalue))

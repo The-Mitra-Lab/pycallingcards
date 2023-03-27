@@ -85,10 +85,18 @@ def call_motif(
                     save_name = save_name + ".bed"
                 name = save_name
 
-            peaks_frame["ID"] = peaks_frame.index
-            peaks_frame[["Chr", "Start", "End", "ID"]].to_csv(
-                name, sep="\t", header=None, index=None
-            )
+            peaks_frame_temp = peaks_frame.copy()
+
+            peaks_frame_temp["ID"] = peaks_frame_temp.index
+
+            try:
+                peaks_frame_temp[["Chr", "Start", "End", "ID"]].to_csv(
+                    name, sep="\t", header=None, index=None
+                )
+            except:
+                peaks_frame_temp.iloc[:, [0, 1, 2, -1]].to_csv(
+                    name, sep="\t", header=None, index=None
+                )
 
         else:
             raise ValueError("Please input correct form of peaks_frame")

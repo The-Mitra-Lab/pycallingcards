@@ -19,7 +19,411 @@ def _myFuncsorting(e):
         return int(ord(e.split("_")[0][3:]))
 
 
-def dotplot_bulk(
+def _dotplot_bulk_bysample(
+    adata_cc: AnnData,
+    rna: pd.DataFrame,
+    selected_list: list,
+    num_list: list,
+    xticklabels: list = None,
+    rate: float = 50,
+    figsize: Tuple[int, int] = (12, 15),
+    dotsize: float = 5,
+    cmap: str = "Reds",
+    title: str = "DE binding & RNA",
+    topspace: float = 0.977,
+    sort_by_chrom: bool = False,
+    save: bool = False,
+):
+
+    """\
+    Plot ranking of peaks.
+    :param adata_cc:
+        Anndata of peak.
+    :param rna:
+        pd.DataFrame of RNA expression.
+    :param selected_list:
+        A list of peak to be shown.
+    :param num_list:
+        The distribution of samples in RNA.
+        eg. the first three columns for RNA is female and the following two columns is male data, then num_list should be [3,2]
+    :param xticklabels:
+        xticklabels for the column. If `None`, it will be the index of adata_cc.obs
+    :param rate:
+        Rate to control the dot size.
+    :param figsize:
+        The size of the figure.
+    :param dotsize:
+        The relative size of dots.
+    :param cmap:
+        The colormap of the plot.
+    :param title:
+        The title of the plot.
+    :param topspace:
+        Parameter to control the title position.
+    :param sort_by_chrom:
+        If `True`, it would sort by chr1, chr2, etc.
+        sort_by_chrom can not be applied to yeast data.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name would be given and the plot would be saved as a png file.
+    :example:
+    >>> import pycallingcards as cc
+    >>> adata_cc = cc.datasets.mouse_brd4_data(data = "CC")
+    >>> rna = cc.datasets.mouse_brd4_data(data = "RNA")
+    >>> cc.pl.dotplot_bulk(adata_cc,rna,
+                   selected_list = ['chr1_72823300_72830641', 'chr1_174913218_174921560',
+                    'chr4_68545354_68551370', 'chr5_13001870_13004057',
+                    'chr5_13124523_13131816', 'chr5_13276480_13283561',
+                    'chr5_16764617_16770523', 'chr5_17080322_17085124',
+                    'chr7_55291506_55293906', 'chr7_56523379_56528437',
+                    'chr8_102778665_102784309', 'chr10_57783900_57788071',
+                    'chr11_46057069_46059464', 'chr12_56507583_56514677',
+                    'chr14_88460574_88466755', 'chr14_88898126_88902522',
+                    'chr15_11743635_11745457', 'chr15_11781285_11785784',
+                    'chr15_11823522_11836910', 'chr19_59158212_59161670',
+                    'chrY_1241882_1246464', 'chrY_1282449_1287505'] ,
+                   num_list = [3,3],figsize = [12,8])
+    """
+
+    sns.set_theme()
+
+    if sort_by_chrom:
+        selected_list = list(selected_list)
+        selected_list.sort(key=_myFuncsorting)
+
+    length = rna.shape[1]
+    num_cluster = adata_cc.shape[0]
+    df = adata_cc.var[["Gene Name1", "Gene Name2"]]
+    rna_list = list(rna.index)
+
+    if xticklabels == None:
+        xticklabels = list(adata_cc.obs.index)
+
+    index0 = []
+    index1 = []
+    index2 = []
+    result_cc = []
+
+    for i in selected_list:
+
+        gene1 = df.loc[i][0]
+        gene2 = df.loc[i][1]
+        if gene1 in rna_list and gene2 in rna_list:
+            result_cc.append(
+                adata_cc[:, i].X.T.toarray()[0].tolist()
+                + list(rna.loc[gene1])
+                + list(rna.loc[gene2])
+            )
+            index0.append(i)
+            index1.append(gene1)
+            index2.append(gene2)
+        elif gene1 in rna_list and gene2 not in rna_list:
+            result_cc.append(
+                adata_cc[:, i].X.T.toarray()[0].tolist()
+                + list(rna.loc[gene1])
+                + [0] * length
+            )
+            index0.append(i)
+            index1.append(gene1)
+            index2.append(gene2)
+        elif gene1 not in rna_list and gene2 in rna_list:
+            result_cc.append(
+                adata_cc[:, i].X.T.toarray()[0].tolist()
+                + [0] * length
+                + list(rna.loc[gene2])
+            )
+            index0.append(i)
+            index1.append(gene1)
+            index2.append(gene2)
+
+    data = np.log2(np.array(result_cc) + 1)
+    selected_length = data.shape[0]
+
+    xticks = list(range(sum(num_list)))
+    yticks = list(range(selected_length - 1, -1, -1))
+
+    fig, ax = plt.subplots(1, 3, figsize=figsize, width_ratios=[2, 3, 3])
+
+    x = []
+    y = []
+    x0 = []
+    y0 = []
+    x1 = []
+    y1 = []
+    cs = []
+    cs0 = []
+    cs1 = []
+
+    for no in range(sum(num_list)):
+        x0 = x0 + [no] * selected_length
+        y0 = y0 + list(range(selected_length - 1, -1, -1))
+        cs0 = cs0 + list(data[:, num_cluster + no])
+
+    for no in range(sum(num_list)):
+        x1 = x1 + [no] * selected_length
+        y1 = y1 + list(range(selected_length - 1, -1, -1))
+        cs1 = cs1 + list(data[:, num_cluster + no + sum(num_list)])
+
+    for cluster in range(num_cluster):
+        cs = cs + list(data[:, cluster])
+
+        x = x + [cluster] * selected_length
+        y = y + list(range(selected_length - 1, -1, -1))
+
+    cs = np.array(cs)
+    cs = dotsize * cs / max(cs)
+
+    cs1 = np.array(cs1)
+    cs1 = dotsize * cs1 / max(cs1)
+
+    cs0 = np.array(cs0)
+    cs0 = dotsize * cs0 / max(cs0)
+
+    ax[0].scatter(x, y, c=cs, s=rate * np.array(cs), cmap=cmap)
+    ax[0].axis(xmin=-1, xmax=num_cluster)
+    ax[0].set_xticks(list(range(num_cluster)))
+    ax[0].set_xticklabels(xticklabels)
+    ax[0].set_yticks(yticks)
+    ax[0].set_yticklabels(index0)
+
+    ax[1].scatter(x0, y0, c=cs0, s=rate * np.array(cs0), cmap=cmap)
+    ax[1].axis(xmin=-1, xmax=sum(num_list))
+    ax[1].set_xticks(xticks)
+    ax[1].set_xticklabels(list(rna.columns))
+    ax[1].set_yticks(yticks)
+    ax[1].set_yticklabels(index1)
+
+    ax[2].scatter(x1, y1, c=cs1, s=rate * np.array(cs1), cmap=cmap)
+    ax[2].axis(xmin=-1, xmax=sum(num_list))
+    ax[2].set_xticks(xticks)
+    ax[2].set_xticklabels(list(rna.columns))
+    ax[2].set_yticks(yticks)
+    ax[2].set_yticklabels(index2)
+
+    plt.tight_layout()
+    plt.suptitle(title)
+    fig.subplots_adjust(top=topspace)
+
+    if save != False:
+        if save == True:
+            save = f"dotplot" + ".png"
+        plt.savefig(save, bbox_inches="tight")
+
+    mpl.rc_file_defaults()
+
+
+def _dotplot_bulk_bygroup_rep(
+    adata_cc: AnnData,
+    rna: pd.DataFrame,
+    selected_list: list,
+    num_list: list,
+    xticklabels: list = None,
+    group: Union[None, str] = None,
+    rate: float = 50,
+    figsize: Tuple[int, int] = (12, 15),
+    dotsize: float = 5,
+    cmap: str = "Reds",
+    title: str = "DE binding & RNA",
+    topspace: float = 0.977,
+    sort_by_chrom: bool = False,
+    save: bool = False,
+):
+
+    """\
+    Plot ranking of peaks.
+    :param adata_cc:
+        Anndata of peak.
+    :param rna:
+        pd.DataFrame of RNA expression.
+    :param selected_list:
+        A list of peak to be shown.
+    :param num_list:
+        The distribution of samples in RNA.
+        eg. the first three columns for RNA is female and the following two columns is male data, then num_list should be [3,2]
+    :param xticklabels:
+        xticklabels for the column. If `None`, it will be the index of adata_cc.obs
+    :param group:
+        The group information in anndata object if (replicate*sample). It will read anndata.obs[group].
+    :param rate:
+        Rate to control the dot size.
+    :param figsize:
+        The size of the figure.
+    :param dotsize:
+        The relative size of dots.
+    :param cmap:
+        The colormap of the plot.
+    :param title:
+        The title of the plot.
+    :param topspace:
+        Parameter to control the title position.
+    :param sort_by_chrom:
+        If `True`, it would sort by chr1, chr2, etc.
+        sort_by_chrom can not be applied to yeast data.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name would be given and the plot would be saved as a png file.
+    :example:
+    >>> import pycallingcards as cc
+    >>> adata_cc = cc.datasets.mouse_brd4_data(data = "CC")
+    >>> rna = cc.datasets.mouse_brd4_data(data = "RNA")
+    >>> cc.pl.dotplot_bulk(adata_cc,rna,
+                   selected_list = ['chr1_72823300_72830641', 'chr1_174913218_174921560',
+                    'chr4_68545354_68551370', 'chr5_13001870_13004057',
+                    'chr5_13124523_13131816', 'chr5_13276480_13283561',
+                    'chr5_16764617_16770523', 'chr5_17080322_17085124',
+                    'chr7_55291506_55293906', 'chr7_56523379_56528437',
+                    'chr8_102778665_102784309', 'chr10_57783900_57788071',
+                    'chr11_46057069_46059464', 'chr12_56507583_56514677',
+                    'chr14_88460574_88466755', 'chr14_88898126_88902522',
+                    'chr15_11743635_11745457', 'chr15_11781285_11785784',
+                    'chr15_11823522_11836910', 'chr19_59158212_59161670',
+                    'chrY_1241882_1246464', 'chrY_1282449_1287505'] ,
+                   num_list = [3,3],figsize = [12,8])
+    """
+
+    sns.set_theme()
+
+    if sort_by_chrom:
+        selected_list = list(selected_list)
+        selected_list.sort(key=_myFuncsorting)
+
+    length = rna.shape[1]
+    groups = list(adata_cc.obs[group].unique())
+    num_cluster = len(groups)
+
+    df = adata_cc.var[["Gene Name1", "Gene Name2"]]
+    rna_list = list(rna.index)
+
+    if xticklabels == None:
+        xticklabels = groups
+
+    index0 = []
+    index1 = []
+    index2 = []
+    result_cc = []
+
+    adata_cc0 = adata_cc[adata_cc.obs[group] == groups[0]]
+    adata_cc1 = adata_cc[adata_cc.obs[group] == groups[1]]
+
+    for i in selected_list:
+
+        gene1 = df.loc[i][0]
+        gene2 = df.loc[i][1]
+        if gene1 in rna_list and gene2 in rna_list:
+            result_cc.append(
+                [adata_cc0[:, i].X.mean()]
+                + [adata_cc1[:, i].X.mean()]
+                + list(rna.loc[gene1])
+                + list(rna.loc[gene2])
+            )
+            index0.append(i)
+            index1.append(gene1)
+            index2.append(gene2)
+        elif gene1 in rna_list and gene2 not in rna_list:
+            result_cc.append(
+                [adata_cc0[:, i].X.mean()]
+                + [adata_cc1[:, i].X.mean()]
+                + list(rna.loc[gene1])
+                + [0] * length
+            )
+            index0.append(i)
+            index1.append(gene1)
+            index2.append(gene2)
+        elif gene1 not in rna_list and gene2 in rna_list:
+            result_cc.append(
+                [adata_cc0[:, i].X.mean()]
+                + [adata_cc1[:, i].X.mean()]
+                + [0] * length
+                + list(rna.loc[gene2])
+            )
+            index0.append(i)
+            index1.append(gene1)
+            index2.append(gene2)
+
+    data = np.log2(np.array(result_cc) + 1)
+    selected_length = data.shape[0]
+
+    xticks = list(range(num_cluster))
+    yticks = list(range(selected_length - 1, -1, -1))
+
+    fig, ax = plt.subplots(1, 3, figsize=figsize)
+
+    x = []
+    y = []
+    cs = []
+    cs1 = []
+    cs2 = []
+
+    for cluster in range(num_cluster):
+        cs = cs + list(data[:, cluster])
+        x = x + [cluster] * selected_length
+        y = y + list(range(selected_length - 1, -1, -1))
+        cs1 = cs1 + list(
+            np.mean(
+                data[
+                    :,
+                    (num_cluster + sum(num_list[0:cluster])) : (
+                        num_cluster + sum(num_list[0 : cluster + 1])
+                    ),
+                ],
+                axis=1,
+            )
+        )
+        cs2 = cs2 + list(
+            np.mean(
+                data[
+                    :,
+                    (num_cluster + sum(num_list) + sum(num_list[0:cluster])) : (
+                        num_cluster + sum(num_list) + sum(num_list[0 : cluster + 1])
+                    ),
+                ],
+                axis=1,
+            )
+        )
+
+    cs = np.array(cs)
+    cs = dotsize * cs / max(cs)
+
+    cs1 = np.array(cs1)
+    cs1 = dotsize * cs1 / max(cs1)
+
+    cs2 = np.array(cs2)
+    cs2 = dotsize * cs2 / max(cs2)
+
+    ax[0].scatter(x, y, c=cs, s=rate * np.array(cs), cmap=cmap)
+    ax[0].axis(xmin=-1, xmax=num_cluster)
+    ax[0].set_xticks(xticks)
+    ax[0].set_xticklabels(xticklabels)
+    ax[0].set_yticks(yticks)
+    ax[0].set_yticklabels(index0)
+
+    ax[1].scatter(x, y, c=cs1, s=rate * np.array(cs1), cmap=cmap)
+    ax[1].axis(xmin=-1, xmax=num_cluster)
+    ax[1].set_xticks(xticks)
+    ax[1].set_xticklabels(xticklabels)
+    ax[1].set_yticks(yticks)
+    ax[1].set_yticklabels(index1)
+
+    ax[2].scatter(x, y, c=cs2, s=rate * np.array(cs2), cmap=cmap)
+    ax[2].axis(xmin=-1, xmax=num_cluster)
+    ax[2].set_xticks(xticks)
+    ax[2].set_xticklabels(xticklabels)
+    ax[2].set_yticks(yticks)
+    ax[2].set_yticklabels(index2)
+
+    plt.tight_layout()
+    plt.suptitle(title)
+    fig.subplots_adjust(top=topspace)
+
+    if save != False:
+        if save == True:
+            save = f"dotplot" + ".png"
+        plt.savefig(save, bbox_inches="tight")
+
+    mpl.rc_file_defaults()
+
+
+def _dotplot_bulk_bygroup_group(
     adata_cc: AnnData,
     rna: pd.DataFrame,
     selected_list: list,
@@ -220,6 +624,137 @@ def dotplot_bulk(
         plt.savefig(save, bbox_inches="tight")
 
     mpl.rc_file_defaults()
+
+
+def dotplot_bulk(
+    adata_cc: AnnData,
+    rna: pd.DataFrame,
+    selected_list: list,
+    num_list: list,
+    xticklabels: list = None,
+    group: Union[None, str] = None,
+    rate: float = 50,
+    figsize: Tuple[int, int] = (12, 15),
+    dotsize: float = 5,
+    cmap: str = "Reds",
+    title: str = "DE binding & RNA",
+    topspace: float = 0.977,
+    sort_by_chrom: bool = False,
+    bysample: bool = False,
+    save: bool = False,
+):
+
+    """\
+    Plot ranking of peaks.
+    :param adata_cc:
+        Anndata of peak.
+    :param rna:
+        pd.DataFrame of RNA expression.
+    :param selected_list:
+        A list of peak to be shown.
+    :param num_list:
+        The distribution of samples in RNA.
+        eg. the first three columns for RNA is female and the following two columns is male data, then num_list should be [3,2]
+    :param xticklabels:
+        xticklabels for the column. If `None`, it will be the index of adata_cc.obs.
+    :param group:
+        The group information in anndata object if (sample*peak). It will read anndata.obs[group].
+    :param rate:
+        Rate to control the dot size.
+    :param figsize:
+        The size of the figure.
+    :param dotsize:
+        The relative size of dots.
+    :param cmap:
+        The colormap of the plot.
+    :param title:
+        The title of the plot.
+    :param topspace:
+        Parameter to control the title position.
+    :param sort_by_chrom:
+        If `True`, it would sort by chr1, chr2, etc.
+        sort_by_chrom can not be applied to yeast data.
+    :param bysample:
+        If `True`, it display one column as a sample.
+        If `False`, it display one column as a group.
+    :param save:
+        Could be bool or str indicating the file name it would be saved as.
+        If `True`, a default name would be given and the plot would be saved as a png file.
+    :example:
+    >>> import pycallingcards as cc
+    >>> adata_cc = cc.datasets.mouse_brd4_data(data = "CC")
+    >>> rna = cc.datasets.mouse_brd4_data(data = "RNA")
+    >>> cc.pl.dotplot_bulk(adata_cc,rna,
+                   selected_list = ['chr1_72823300_72830641', 'chr1_174913218_174921560',
+                    'chr4_68545354_68551370', 'chr5_13001870_13004057',
+                    'chr5_13124523_13131816', 'chr5_13276480_13283561',
+                    'chr5_16764617_16770523', 'chr5_17080322_17085124',
+                    'chr7_55291506_55293906', 'chr7_56523379_56528437',
+                    'chr8_102778665_102784309', 'chr10_57783900_57788071',
+                    'chr11_46057069_46059464', 'chr12_56507583_56514677',
+                    'chr14_88460574_88466755', 'chr14_88898126_88902522',
+                    'chr15_11743635_11745457', 'chr15_11781285_11785784',
+                    'chr15_11823522_11836910', 'chr19_59158212_59161670',
+                    'chrY_1241882_1246464', 'chrY_1282449_1287505'] ,
+                   num_list = [3,3],figsize = [12,8])
+    """
+
+    if bysample == True:
+
+        _dotplot_bulk_bysample(
+            adata_cc=adata_cc,
+            rna=rna,
+            selected_list=selected_list,
+            num_list=num_list,
+            xticklabels=xticklabels,
+            rate=rate,
+            figsize=figsize,
+            dotsize=dotsize,
+            cmap=cmap,
+            title=title,
+            topspace=topspace,
+            sort_by_chrom=sort_by_chrom,
+            save=save,
+        )
+
+    else:
+
+        if group == None:
+
+            _dotplot_bulk_bygroup_group(
+                adata_cc=adata_cc,
+                rna=rna,
+                selected_list=selected_list,
+                num_list=num_list,
+                xticklabels=xticklabels,
+                rate=rate,
+                figsize=figsize,
+                dotsize=dotsize,
+                cmap=cmap,
+                title=title,
+                topspace=topspace,
+                sort_by_chrom=sort_by_chrom,
+                save=save,
+            )
+
+        else:
+
+            _dotplot_bulk_bygroup_rep(
+                adata_cc=adata_cc,
+                rna=rna,
+                selected_list=selected_list,
+                num_list=num_list,
+                xticklabels=xticklabels,
+                group=group,
+                rate=rate,
+                figsize=figsize,
+                dotsize=dotsize,
+                cmap=cmap,
+                title=title,
+                topspace=topspace,
+                sort_by_chrom=sort_by_chrom,
+                save=save,
+            )
 
 
 def dotplot_sc(

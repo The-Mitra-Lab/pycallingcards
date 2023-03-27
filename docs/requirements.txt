@@ -13,6 +13,7 @@ pyBigWig
 scikit-learn
 liftover
 mudata
+statsmodels
 # doc
 sphinx
 myst_parser

@@ -82,7 +82,6 @@ def signal_plot(
     color: str = "red",
     textbelow: float = 0,
     title: str = "Log2(FC) Chip-seq Signal",
-    bottom: float = 0.05,
     save: bool = False,
 ):
 
@@ -111,8 +110,6 @@ def signal_plot(
         The distance of the bottom text and the plot.
     :param title:
         The title of the plot.
-    :param bottom:
-        The relative distance between the bottom words and the plot.
     :param save:
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name will be given and the plot would be saved as a png file.
@@ -166,34 +163,9 @@ def signal_plot(
         )
 
     axis.get_xaxis().set_visible(False)
-    axis.text(
-        0.05,
-        bottom,
-        str(before) + "bp",
-        transform=axis.transAxes,
-        fontsize=fontsize,
-        ha="left",
-        va="bottom",
-    )
-    axis.text(
-        0.5,
-        bottom,
-        "Center",
-        transform=axis.transAxes,
-        fontsize=fontsize,
-        ha="center",
-        va="bottom",
-    )
-    axis.text(
-        0.95,
-        bottom,
-        str(after) + "bp",
-        transform=axis.transAxes,
-        fontsize=fontsize,
-        ha="right",
-        va="bottom",
-    )
-
+    axis.text(0, textbelow, "-" + str(before) + "bp", fontsize=fontsize)
+    axis.text(before * 0.9, textbelow, "Center", fontsize=fontsize)
+    axis.text((after + before) * 0.9, textbelow, str(after) + "bp", fontsize=fontsize)
     axis.set_title(title, fontsize=fontsize * 1.6)
 
     if save != False:

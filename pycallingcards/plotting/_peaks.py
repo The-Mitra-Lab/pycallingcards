@@ -393,7 +393,6 @@ def whole_peaks(
 
     """\
     Plot all the peaks in chromosomes.
-
     :param peak_data:
         Peak_data file from cc.pp.callpeaks.
     :param reference: `['mm10','hg38','sacCer3',None]`.
@@ -419,14 +418,11 @@ def whole_peaks(
     :param save:
         Could be bool or str indicating the file name It will be saved.
         If `True`, a default name will be given and the plot would be saved as a png file.
-
-
     :example:
     >>> import pycallingcards as cc
     >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
     >>> peak_data = cc.pp.callpeaks(qbed_data, method = "CCcaller", reference = "mm10", record = True)
     >>> cc.pl.whole_peaks(peak_data)
-
     """
 
     sortlist = list(peak_data["Chr"].unique())

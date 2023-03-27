@@ -16,6 +16,8 @@ def volcano_plot(
     colorleft: str = "indianred",
     colorright: str = "lightseagreen",
     title: str = "Volcano plot",
+    name: str = "fisher_exact",
+    label: Union[None, str] = None,
     labelleft: Union[None, List[float]] = None,
     labelright: Union[None, List[float]] = None,
     save: Union[bool, str] = False,
@@ -24,8 +26,6 @@ def volcano_plot(
     """\
     Plot the volcano plot comparing two sample/cluster.
     Please make sure that alternative equals to 'two-sided' for the differential binding analysis.
-
-
     :param figsize:
         The size of the figure.
     :param font_size:
@@ -40,6 +40,8 @@ def volcano_plot(
         The log fold change cutoff.
     :param title:
         The title of the plot.
+    :param label:
+        The name of label. If None, it will use the top two index.
     :param labelleft:
         The exact place for left label. Default will automatically give it a place on left top of the plot.
     :param labelright:
@@ -47,17 +49,17 @@ def volcano_plot(
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
-
-
     :example:
     >>> import pycallingcards as cc
     >>> adata_cc = cc.datasets.mouse_brd4_data(data = "CC")
     >>> cc.pl.volcano_plot(adata_cc,figsize = (6,10),labelright = (5,220),labelleft = (-9,220))
     """
 
-    label = list(adata_cc.obs.index)
-    pva = -np.log10(np.array(adata_cc.uns["fisher_exact"]["pvalues"].tolist())[:, 1])
-    fc = np.array(adata_cc.uns["fisher_exact"]["logfoldchanges"].tolist())[:, 1]
+    if label == None:
+        label = list(adata_cc.obs.index)
+
+    pva = -np.log10(np.array(adata_cc.uns[name]["pvalues"].tolist())[:, 1])
+    fc = np.array(adata_cc.uns[name]["logfoldchanges"].tolist())[:, 1]
 
     sns.set_theme()
     figure, axis = plt.subplots(1, 1, figsize=figsize)

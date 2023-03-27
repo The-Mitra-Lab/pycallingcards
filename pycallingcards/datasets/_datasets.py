@@ -156,7 +156,18 @@ def SP1_K562HCT116_data(data: _SP1) -> Union[pd.DataFrame, ad.AnnData]:
         raise ValueError(f"data must be one of {avail_data}.")
 
 
-_mouse_brd4 = Optional[Literal["Female_Brd4", "Male_Brd4", "RNA", "CC"]]
+_mouse_brd4 = Optional[
+    Literal[
+        "Female_Brd4",
+        "Male_Brd4",
+        "RNA",
+        "CC",
+        "Female_Brd4_rep1",
+        "Female_Brd4_rep2",
+        "Male_Brd4_rep1",
+        "Male_Brd4_rep2",
+    ]
+]
 
 
 def mouse_brd4_data(data: _mouse_brd4) -> Union[pd.DataFrame, ad.AnnData]:
@@ -184,7 +195,7 @@ def mouse_brd4_data(data: _mouse_brd4) -> Union[pd.DataFrame, ad.AnnData]:
         )
         return qbed_data
 
-    if data == "Male_Brd4":
+    elif data == "Male_Brd4":
         qbed_data = pd.read_csv(
             "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_M_Brd4.qbed",
             sep="\t",
@@ -193,21 +204,66 @@ def mouse_brd4_data(data: _mouse_brd4) -> Union[pd.DataFrame, ad.AnnData]:
         )
         return qbed_data
 
-    if data == "RNA":
+    elif data == "RNA":
         qbed_data = pd.read_csv(
             "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/dmso_MF.csv",
             index_col=0,
         )
         return qbed_data
 
-    if data == "CC":
+    elif data == "CC":
         filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "Brd4_bindings_bulk.h5ad")
         url = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/Brd4_bindings_bulk.h5ad"
         adata = sc.read(filename, backup_url=url)
         return adata
 
+    elif data == "Female_Brd4_rep1":
+        qbed_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_F6_Brd4_mBC.qbed",
+            sep="\t",
+            header=None,
+            names=["Chr", "Start", "End", "Reads", "Direction", "Barcodes"],
+        )
+        return qbed_data
+
+    elif data == "Female_Brd4_rep2":
+        qbed_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_F6_Brd4_pBC.qbed",
+            sep="\t",
+            header=None,
+            names=["Chr", "Start", "End", "Reads", "Direction", "Barcodes"],
+        )
+        return qbed_data
+
+    elif data == "Male_Brd4_rep1":
+        qbed_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_M6_Brd4_mBC.qbed",
+            sep="\t",
+            header=None,
+            names=["Chr", "Start", "End", "Reads", "Direction", "Barcodes"],
+        )
+        return qbed_data
+
+    elif data == "Male_Brd4_rep2":
+        qbed_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/GSE156678_M6_Brd4_pBC.qbed",
+            sep="\t",
+            header=None,
+            names=["Chr", "Start", "End", "Reads", "Direction", "Barcodes"],
+        )
+        return qbed_data
+
     else:
-        avail_data = ["Female_Brd4", "Male_Brd4", "RNA", "CC"]
+        avail_data = [
+            "Female_Brd4",
+            "Male_Brd4",
+            "RNA",
+            "CC",
+            "Female_Brd4_rep1",
+            "Female_Brd4_rep2",
+            "Male_Brd4_rep1",
+            "Male_Brd4_rep2",
+        ]
         raise ValueError(f"data must be one of {avail_data}.")
 
 
@@ -238,7 +294,7 @@ def SP1_Cre_data(data: _Cre) -> Union[pd.DataFrame, ad.AnnData]:
         )
         return qbed_data
 
-    if data == "SP1_P28":
+    elif data == "SP1_P28":
         qbed_data = pd.read_csv(
             "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_P28.txt",
             sep="\t",
@@ -247,7 +303,7 @@ def SP1_Cre_data(data: _Cre) -> Union[pd.DataFrame, ad.AnnData]:
         )
         return qbed_data
 
-    if data == "background":
+    elif data == "background":
         qbed_data = pd.read_csv(
             "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/SP1_bg.txt",
             sep="\t",

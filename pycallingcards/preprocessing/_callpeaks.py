@@ -2511,48 +2511,48 @@ def call_peaks(
         pd.DataFrame with the first three columns as chromosome, start and end.
     :param background: Default is `None` for backgound free situation.
         pd.DataFrame with the first three columns as chromosome, start and end.
-    :param method: Default method is `'CCcaller'`.
+    :param method:
         `'CCcaller'` is a method considering the maxdistance between insertions in the data,
         `'cc_tools'` uses the idea adapted from :cite:`zhang2008model` and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
         `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://blockify.readthedocs.io/en/latest/>`__.
-    :param reference:  `['hg38','mm10','sacCer3']`. Default is `'hg38'`.
+    :param reference:
         We currently have `'hg38'` for human data, `'mm10'` for mouse data and `'sacCer3'` for yeast data.
-    :param pvalue_cutoff: Default is 0.0001.
+    :param pvalue_cutoff:
         The P-value cutoff for a backgound free situation.
-    :param pvalue_cutoffbg: Default is 0.0001.
+    :param pvalue_cutoffbg:
         The P-value cutoff for backgound data when backgound exists.
-    :param pvalue_cutoffTTAA: Default is 0.00001.
+    :param pvalue_cutoffTTAA:
         The P-value cutoff for reference data when backgound exists.
         Note that pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg.
-    :param min_insertions: Default is 5.
+    :param min_insertions:
         The number of minimal insertions for each peak.
-    :param minlen:  Default is 0.
+    :param minlen:
         Valid only for method = `'CCcaller'`. The minimal length for a peak without extend.
-    :param extend:  Default is 200.
+    :param extend:
         Valid for method = `'CCcaller'` and `'cc_tools'`. The length (bp) that peaks extend for both sides.
-    :param maxbetween: Default is 2000.
+    :param maxbetween:
         Valid only for method = `'CCcaller'`. The maximum length of nearby position within one peak.
-    :param minnum: Default is 0.
+    :param minnum:
         Valid only for method = `'CCcaller'`. The minmum number of insertions for the nearby position.
-    :param test_method: `['poisson','binomial']`. Default is `'poisson'`.
-        The method for making hypothesis CCcaller.
-    :param window_size: Default is 1500.
+    :param test_method:
+        The method for making hypothesis.
+    :param window_size:
         Valid only for method = `'cc_tools'`. The length of window looking for.
-    :param lam_win_size: Default is 100000.
+    :param lam_win_size:
         Valid for  method = `'CCcaller'` and `'cc_tools'`. The length of peak area considered when performing a CCcaller.
-    :param step_size: Default is 500.
+    :param step_size:
         Valid only for `'cc_tools'`. The length of each step.
-    :param pseudocounts: Default is 0.2.
-        Number for pseudocounts added for the pyhothesis CCcaller.
-    :param min_length: Default is None.
+    :param pseudocounts:
+        Number for pseudocounts added for the pyhothesis.
+    :param min_length:
         minimum length of peak, valid for Blockify.
-    :param max_length: Default is None.
+    :param max_length:
         maximum length of peak, valid for Blockify.
-    :param record:  Default is `True`.
+    :param record:
         Controls if information is recorded.
         If `False`, the output would only have three columns: Chromosome, Start, End.
-    :param save: Default is `None`.
+    :param save:
         The file name for the file we saved.
 
 
@@ -2581,7 +2581,7 @@ def call_peaks(
     :Examples:
     >>> import pycallingcards as cc
     >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
-    >>> peak_data = cc.pp.callpeaks(qbed_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, pseudocounts = 1, record = True)
+    >>> peak_data = cc.pp.call_peaks(qbed_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, pseudocounts = 1, record = True)
 
     """
 
@@ -3197,3 +3197,2254 @@ def down_sample(
     qbed_ram = qbed_ram.sort_values(by=["Chr", "Start"])
 
     return qbed_ram
+
+
+def combine_peaks(
+    peak_data: pd.DataFrame,
+    index: int,
+    expdata: Optional[pd.DataFrame] = None,
+    background: Optional[pd.DataFrame] = None,
+    method: _Peakcalling_Method = "CCcaller",
+    reference: _reference = "hg38",
+    test_method: _Peakcalling_Method = "poisson",
+    lam_win_size: Optional[int] = 100000,
+    pvalue_cutoff: Optional[float] = None,
+    pvalue_cutoffbg: Optional[float] = None,
+    pvalue_cutoffTTAA: Optional[float] = None,
+    pseudocounts: float = 0.2,
+    return_whole: bool = False,
+):
+
+    """\
+    Combine two peaks.
+
+    This function combine the one and the next peak peaks.
+
+    :param peak_data:
+        pd.DataFrame for peak data. Please input the original data from call_peaks function.
+    :param index
+        The index for the first peak to combine. Will combine peak index and peak index+1.
+    :param expdata:
+        pd.DataFrame with the first three columns as chromosome, start and end.
+    :param background:
+        pd.DataFrame with the first three columns as chromosome, start and end.
+    :param method:
+        `'CCcaller'` is a method considering the maxdistance between insertions in the data,
+        `'cc_tools'` uses the idea adapted from :cite:`zhang2008model` and
+        `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
+        `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://blockify.readthedocs.io/en/latest/>`__.
+    :param reference:
+        We currently have `'hg38'` for human data, `'mm10'` for mouse data and `'sacCer3'` for yeast data.
+    :param pvalue_cutoff:
+        The P-value cutoff for a backgound free situation. If None, no filteration.
+    :param pvalue_cutoffbg:
+        The P-value cutoff for backgound data when backgound exists. If None, no filteration.
+    :param pvalue_cutoffTTAA:
+        The P-value cutoff for reference data when backgound exists.
+        Note that pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg. If None, no filteration.
+    :param pseudocounts:
+        Number for pseudocounts added for the pyhothesis.
+    :param return_whole:
+        If False, return only the combined peak.
+        If True, return the whole peak dataframe.
+
+    :Examples:
+    >>> import pycallingcards as cc
+    >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.call_peaks(qbed_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, pseudocounts = 1, record = True)
+    >>> peak_data = cc.pp.combine_peaks(peak_data, 1, qbed_data, method = "CCcaller", reference = "mm10",  pvalue_cutoff = 0.01, pseudocounts = 1, return_whole = True)
+
+
+    """
+
+    peak_data_temp = peak_data.copy()
+
+    if test_method == "binomial":
+        from scipy.stats import binom_test
+
+    chrom1 = peak_data_temp.iloc[index, 0]
+    chrom2 = peak_data_temp.iloc[index, 0]
+
+    if chrom1 != chrom2:
+        raise Exception("Cannot combine peaks from different chromosomes.")
+
+    start = peak_data_temp.iloc[index, 1]
+    end = peak_data_temp.iloc[index + 1, 2]
+
+    index_list = list(peak_data_temp.columns)
+    totallen = len(index_list)
+
+    if totallen == 3:
+
+        if return_whole == False:
+            return pd.DataFrame([[chrom1, start, end]], columns=index_list)
+        else:
+            peak_data_temp.iloc[index, 2] = end
+            peak_data_temp = peak_data_temp.drop(index + 1)
+            return peak_data_temp.reset_index(drop=True)
+
+    if reference == "hg38":
+        TTAA_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",
+            sep="\t",
+            header=None,
+        )
+        length = 4
+
+    elif reference == "mm10":
+        TTAA_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",
+            sep="\t",
+            header=None,
+        )
+        length = 4
+
+    elif reference == "sacCer3":
+        TTAA_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",
+            sep="\t",
+            header=None,
+        )
+        length = 1
+
+    if type(expdata) == pd.DataFrame:
+        expdatacounts = len(
+            expdata[
+                (expdata["Chr"] == chrom1)
+                & (expdata["Start"] >= start - length)
+                & (expdata["Start"] <= end)
+            ]
+        )
+    else:
+        raise Exception("Please input expdata.")
+
+    if method == "CCcaller":
+
+        TTAAcounts = len(
+            TTAA_data[
+                (TTAA_data[0] == chrom1)
+                & (TTAA_data[2] >= start - length)
+                & (TTAA_data[2] <= end)
+            ]
+        )
+        if lam_win_size == None:
+            expdatacounts_lam = len(expdata[(expdata["Chr"] == chrom1)])
+            TTAAcounts_lam = len(TTAA_data[(TTAA_data[0] == chrom1)])
+        else:
+            expdatacounts_lam = len(
+                expdata[
+                    (expdata["Chr"] == chrom1)
+                    & (expdata["Start"] >= start - length - lam_win_size / 2 + 1)
+                    & (expdata["Start"] <= end + lam_win_size / 2)
+                ]
+            )
+            TTAAcounts_lam = len(
+                TTAA_data[
+                    (TTAA_data[0] == chrom1)
+                    & (TTAA_data[2] >= start - length - lam_win_size / 2 + 1)
+                    & (TTAA_data[2] <= end + lam_win_size / 2)
+                ]
+            )
+
+        expinsertion_TTAA = expdatacounts_lam * (TTAAcounts / TTAAcounts_lam)
+
+        if test_method == "poisson":
+            pvalue = _compute_cumulative_poisson(
+                expdatacounts,
+                TTAAcounts,
+                expdatacounts_lam,
+                TTAAcounts_lam,
+                pseudocounts,
+            )
+        elif test_method == "binomial":
+            pvalue = binom_test(
+                int(expdatacounts + pseudocounts),
+                n=expdatacounts_lam,
+                p=((TTAAcounts + pseudocounts) / TTAAcounts_lam),
+                alternative="greater",
+            ).pvalue
+
+        if type(background) == pd.DataFrame:
+
+            backgroundcounts = len(
+                background[
+                    (background["Chr"] == chrom1)
+                    & (background["Start"] >= start - length)
+                    & (background["Start"] <= end)
+                ]
+            )
+            if lam_win_size == None:
+                backgroundcounts_lam = len(background[(background["Chr"] == chrom1)])
+            else:
+                backgroundcounts_lam = len(
+                    background[
+                        (background["Chr"] == chrom1)
+                        & (background["Start"] >= start - length - lam_win_size / 2 + 1)
+                        & (background["Start"] <= end + lam_win_size / 2)
+                    ]
+                )
+
+            expinsertion_bg = expdatacounts_lam * (
+                backgroundcounts / backgroundcounts_lam
+            )
+
+            if test_method == "poisson":
+                pvalue_bg = _compute_cumulative_poisson(
+                    expdatacounts,
+                    backgroundcounts,
+                    expdatacounts_lam,
+                    backgroundcounts_lam,
+                    pseudocounts,
+                )
+            elif test_method == "binomial":
+                pvalue_bg = binom_test(
+                    int(expdatacounts + pseudocounts),
+                    n=expdatacounts_lam,
+                    p=((backgroundcounts + pseudocounts) / backgroundcounts_lam),
+                    alternative="greater",
+                ).pvalue
+
+            if (
+                (pvalue_cutoffTTAA == None) or (pvalue <= float(pvalue_cutoffTTAA or 0))
+            ) and (
+                (pvalue_cutoffbg == None) or (pvalue_bg <= float(pvalue_cutoffbg or 0))
+            ):
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom1,
+                                start,
+                                end,
+                                expdatacounts,
+                                backgroundcounts,
+                                TTAAcounts,
+                                expinsertion_bg,
+                                expinsertion_TTAA,
+                                pvalue_bg,
+                                pvalue,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+                else:
+                    peak_data_temp.iloc[index, 2] = end
+                    peak_data_temp.iloc[index, 3] = expdatacounts
+                    peak_data_temp.iloc[index, 4] = backgroundcounts
+                    peak_data_temp.iloc[index, 5] = TTAAcounts
+                    peak_data_temp.iloc[index, 6] = expinsertion_bg
+                    peak_data_temp.iloc[index, 7] = expinsertion_TTAA
+                    peak_data_temp.iloc[index, 8] = pvalue_bg
+                    peak_data_temp.iloc[index, 9] = pvalue
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    if totallen == 10:
+                        return peak_data_temp.reset_index(drop=True)
+                    else:
+                        for i in range(10, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp.reset_index(drop=True)
+
+            else:
+
+                if return_whole == False:
+                    return None
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    return peak_data_temp.reset_index(drop=True)
+
+        else:
+
+            if (pvalue_cutoff == None) or (pvalue <= float(pvalue_cutoff or 0)):
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom1,
+                                start,
+                                end,
+                                expdatacounts,
+                                TTAAcounts,
+                                expinsertion_TTAA,
+                                pvalue,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+                    peak_data_temp.iloc[index, 2] = end
+                    peak_data_temp.iloc[index, 3] = expdatacounts
+                    peak_data_temp.iloc[index, 4] = TTAAcounts
+                    peak_data_temp.iloc[index, 5] = expinsertion_TTAA
+                    peak_data_temp.iloc[index, 6] = pvalue
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    if totallen == 7:
+                        return peak_data_temp.reset_index(drop=True)
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp.reset_index(drop=True)
+
+            else:
+
+                if return_whole == False:
+                    return None
+
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+                    return peak_data_temp.reset_index(drop=True)
+
+    elif method == "cc_tools":
+
+        multinumber = 100000000
+        sumcount_expdata = len(expdata)
+        TTAAcounts = len(
+            TTAA_data[
+                (TTAA_data[0] == chrom1)
+                & (TTAA_data[2] >= start - length)
+                & (TTAA_data[2] <= end)
+            ]
+        )
+
+        if lam_win_size == None:
+            expdatacounts_lam = len(expdata[(expdata["Chr"] == chrom1)])
+            TTAAcounts_lam = len(TTAA_data[(TTAA_data[0] == chrom1)])
+        else:
+            expdatacounts_lam = len(
+                expdata[
+                    (expdata["Chr"] == chrom1)
+                    & (expdata["Start"] >= start - length - lam_win_size / 2 + 1)
+                    & (expdata["Start"] <= end + lam_win_size / 2)
+                ]
+            )
+            TTAAcounts_lam = len(
+                TTAA_data[
+                    (TTAA_data[0] == chrom1)
+                    & (TTAA_data[2] >= start - length - lam_win_size / 2 + 1)
+                    & (TTAA_data[2] <= end + lam_win_size / 2)
+                ]
+            )
+
+        expinsertion_TTAA = expdatacounts_lam * (TTAAcounts / TTAAcounts_lam)
+        counts_median = np.median(
+            list(
+                expdata[
+                    (expdata["Chr"] == chrom1)
+                    & (expdata["Start"] >= start - length)
+                    & (expdata["Start"] <= end)
+                ].iloc[:, 1]
+            )
+        )
+        TPH = float(expdatacounts) * multinumber / sumcount_expdata
+        frac_exp = float(expdatacounts) / sumcount_expdata
+
+        if test_method == "poisson":
+            pvalue = _compute_cumulative_poisson(
+                expdatacounts,
+                TTAAcounts,
+                expdatacounts_lam,
+                TTAAcounts_lam,
+                pseudocounts,
+            )
+        elif test_method == "binomial":
+            pvalue = binom_test(
+                int(expdatacounts + pseudocounts),
+                n=expdatacounts_lam,
+                p=((TTAAcounts + pseudocounts) / TTAAcounts_lam),
+                alternative="greater",
+            ).pvalue
+
+        if type(background) == pd.DataFrame:
+
+            backgroundcounts = len(
+                background[
+                    (background["Chr"] == chrom1)
+                    & (background["Start"] >= start - length)
+                    & (background["Start"] <= end)
+                ]
+            )
+            sumcount_background = len(background)
+            if lam_win_size == None:
+                backgroundcounts_lam = len(background[(background["Chr"] == chrom1)])
+            else:
+                backgroundcounts_lam = len(
+                    background[
+                        (background["Chr"] == chrom1)
+                        & (background["Start"] >= start - length - lam_win_size / 2 + 1)
+                        & (background["Start"] <= end + lam_win_size / 2)
+                    ]
+                )
+
+            expinsertion_bg = expdatacounts_lam * (
+                backgroundcounts / backgroundcounts_lam
+            )
+            TPH_bg = float(backgroundcounts) * multinumber / sumcount_background
+            frac_exp_bg = float(backgroundcounts) / sumcount_background
+
+            if test_method == "poisson":
+                pvalue_bg = _compute_cumulative_poisson(
+                    expdatacounts,
+                    backgroundcounts,
+                    expdatacounts_lam,
+                    backgroundcounts_lam,
+                    pseudocounts,
+                )
+            elif test_method == "binomial":
+                pvalue_bg = binom_test(
+                    int(expdatacounts + pseudocounts),
+                    n=expdatacounts_lam,
+                    p=((backgroundcounts + pseudocounts) / backgroundcounts_lam),
+                    alternative="greater",
+                ).pvalue
+
+            if (
+                (pvalue_cutoffTTAA == None) or (pvalue <= float(pvalue_cutoffTTAA or 0))
+            ) and (
+                (pvalue_cutoffbg == None) or (pvalue_bg <= float(pvalue_cutoffbg or 0))
+            ):
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom1,
+                                start,
+                                end,
+                                counts_median,
+                                expdatacounts,
+                                backgroundcounts,
+                                TTAAcounts,
+                                pvalue,
+                                pvalue_bg,
+                                frac_exp,
+                                TPH,
+                                frac_exp_bg,
+                                TPH_bg,
+                                frac_exp - frac_exp_bg,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+                else:
+                    peak_data_temp.iloc[index, 2] = end
+                    peak_data_temp.iloc[index, 3] = counts_median
+                    peak_data_temp.iloc[index, 4] = expdatacounts
+                    peak_data_temp.iloc[index, 5] = backgroundcounts
+                    peak_data_temp.iloc[index, 6] = TTAAcounts
+                    peak_data_temp.iloc[index, 7] = pvalue
+                    peak_data_temp.iloc[index, 8] = pvalue_bg
+                    peak_data_temp.iloc[index, 9] = frac_exp
+                    peak_data_temp.iloc[index, 10] = TPH
+                    peak_data_temp.iloc[index, 11] = frac_exp_bg
+                    peak_data_temp.iloc[index, 12] = TPH_bg
+                    peak_data_temp.iloc[index, 13] = frac_exp - frac_exp_bg
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    if totallen == 14:
+                        return peak_data_temp.reset_index()
+                    else:
+                        for i in range(14, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp.reset_index()
+
+            else:
+
+                if return_whole == False:
+                    return None
+
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    return peak_data_temp.reset_index()
+
+        else:
+
+            if (pvalue_cutoff == None) or (pvalue <= float(pvalue_cutoff or 0)):
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom1,
+                                start,
+                                end,
+                                counts_median,
+                                pvalue,
+                                expdatacounts,
+                                TTAAcounts,
+                                frac_exp,
+                                TPH,
+                                expinsertion_TTAA,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+                else:
+                    peak_data_temp.iloc[index, 2] = end
+                    peak_data_temp.iloc[index, 3] = counts_median
+                    peak_data_temp.iloc[index, 4] = pvalue
+                    peak_data_temp.iloc[index, 5] = expdatacounts
+                    peak_data_temp.iloc[index, 6] = TTAAcounts
+                    peak_data_temp.iloc[index, 7] = frac_exp
+                    peak_data_temp.iloc[index, 8] = TPH
+                    peak_data_temp.iloc[index, 9] = expinsertion_TTAA
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    if totallen == 10:
+                        return peak_data_temp.reset_index(drop=True)
+                    else:
+                        for i in range(10, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp.reset_index(drop=True)
+
+            else:
+
+                if return_whole == False:
+                    return None
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    return peak_data_temp.reset_index(drop=True)
+
+    elif method == "Blockify":
+
+        if type(background) == pd.DataFrame:
+
+            backgroundcounts = len(
+                background[
+                    (background["Chr"] == chrom1)
+                    & (background["Start"] >= start - length)
+                    & (background["Start"] <= end)
+                ]
+            )
+
+            expdatacounts_lam = len(expdata[(expdata["Chr"] == chrom1)])
+            backgroundcounts_lam = len(background[(background["Chr"] == chrom1)])
+            expinsertion_background = expdatacounts_lam * (
+                backgroundcounts / backgroundcounts_lam
+            )
+
+            if test_method == "poisson":
+                pvalue = _compute_cumulative_poisson(
+                    expdatacounts,
+                    backgroundcounts,
+                    expdatacounts_lam,
+                    backgroundcounts_lam,
+                    pseudocounts,
+                )
+            elif test_method == "binomial":
+                pvalue = binom_test(
+                    int(expdatacounts + pseudocounts),
+                    n=expdatacounts_lam,
+                    p=((backgroundcounts + pseudocounts) / backgroundcounts_lam),
+                    alternative="greater",
+                ).pvalue
+
+            if (pvalue_cutoffbg == None) or (pvalue <= float(pvalue_cutoffbg or 0)):
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom1,
+                                start,
+                                end,
+                                expdatacounts,
+                                backgroundcounts,
+                                expinsertion_background,
+                                pvalue,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+                else:
+                    peak_data_temp.iloc[index, 2] = end
+                    peak_data_temp.iloc[index, 3] = expdatacounts
+                    peak_data_temp.iloc[index, 4] = backgroundcounts
+                    peak_data_temp.iloc[index, 5] = expinsertion_background
+                    peak_data_temp.iloc[index, 6] = pvalue
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    if totallen == 7:
+                        return peak_data_temp.reset_index(drop=True)
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp.reset_index(drop=True)
+
+            else:
+
+                if return_whole == False:
+                    return None
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    return peak_data_temp.reset_index(drop=True)
+
+        else:
+
+            TTAAcounts = len(
+                TTAA_data[
+                    (TTAA_data[0] == chrom1)
+                    & (TTAA_data[2] >= start - length)
+                    & (TTAA_data[2] <= end)
+                ]
+            )
+
+            expdatacounts_lam = len(expdata[(expdata["Chr"] == chrom1)])
+            TTAAcounts_lam = len(TTAA_data[(TTAA_data[0] == chrom1)])
+            expinsertion_TTAA = expdatacounts_lam * (TTAAcounts / TTAAcounts_lam)
+
+            if test_method == "poisson":
+                pvalue = _compute_cumulative_poisson(
+                    expdatacounts,
+                    TTAAcounts,
+                    expdatacounts_lam,
+                    TTAAcounts_lam,
+                    pseudocounts,
+                )
+            elif test_method == "binomial":
+                pvalue = binom_test(
+                    int(expdatacounts + pseudocounts),
+                    n=expdatacounts_lam,
+                    p=((TTAAcounts + pseudocounts) / TTAAcounts_lam),
+                    alternative="greater",
+                ).pvalue
+
+            if (pvalue_cutoff == None) or (pvalue <= float(pvalue_cutoff or 0)):
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom1,
+                                start,
+                                end,
+                                expdatacounts,
+                                TTAAcounts,
+                                expinsertion_TTAA,
+                                pvalue,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+                else:
+                    peak_data_temp.iloc[index, 2] = end
+                    peak_data_temp.iloc[index, 3] = expdatacounts
+                    peak_data_temp.iloc[index, 4] = TTAAcounts
+                    peak_data_temp.iloc[index, 5] = expinsertion_TTAA
+                    peak_data_temp.iloc[index, 6] = pvalue
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    if totallen == 7:
+                        return peak_data_temp.reset_index(drop=True)
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp.reset_index(drop=True)
+
+            else:
+
+                if return_whole == False:
+                    return None
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+                    peak_data_temp = peak_data_temp.drop(index + 1)
+
+                    return peak_data_temp.reset_index(drop=True)
+
+
+def separate_peaks(
+    peak_data: pd.DataFrame,
+    index: int,
+    middle_start: int,
+    middle_end: int,
+    expdata: Optional[pd.DataFrame] = None,
+    background: Optional[pd.DataFrame] = None,
+    method: _Peakcalling_Method = "CCcaller",
+    reference: _reference = "hg38",
+    test_method: _Peakcalling_Method = "poisson",
+    lam_win_size: Optional[int] = 100000,
+    pvalue_cutoff: Optional[float] = None,
+    pvalue_cutoffbg: Optional[float] = None,
+    pvalue_cutoffTTAA: Optional[float] = None,
+    pseudocounts: float = 0.2,
+    return_whole: bool = False,
+):
+
+    """\
+    Separate two peaks.
+
+    This function separate one peak into two.
+
+    :param peak_data:
+        pd.DataFrame for peak data. Please input the original data from call_peaks function.
+    :param index
+        The index for the peak to separate.
+    :param middle_start
+        The start point of the cutoff which is the end point of the first peak after separation.
+    :param middle_end
+        TThe end point of the cutoff which is the start point of the second peak after separation.
+    :param expdata:
+        pd.DataFrame with the first three columns as chromosome, start and end.
+    :param background:
+        pd.DataFrame with the first three columns as chromosome, start and end.
+    :param method:
+        `'CCcaller'` is a method considering the maxdistance between insertions in the data,
+        `'cc_tools'` uses the idea adapted from :cite:`zhang2008model` and
+        `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
+        `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://blockify.readthedocs.io/en/latest/>`__.
+    :param reference:
+        We currently have `'hg38'` for human data, `'mm10'` for mouse data and `'sacCer3'` for yeast data.
+    :param pvalue_cutoff:
+        The P-value cutoff for a backgound free situation. If None, no filteration.
+    :param pvalue_cutoffbg:
+        The P-value cutoff for backgound data when backgound exists. If None, no filteration.
+    :param pvalue_cutoffTTAA:
+        The P-value cutoff for reference data when backgound exists.
+        Note that pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg. If None, no filteration.
+    :param pseudocounts:
+        Number for pseudocounts added for the pyhothesis.
+    :param return_whole:
+        If False, return only the combined peak.
+        If True, return the whole peak dataframe.
+
+    :Examples:
+    >>> import pycallingcards as cc
+    >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
+    >>> peak_data = cc.pp.call_peaks(qbed_data, method = "CCcaller", reference = "mm10",  maxbetween = 2000,pvalue_cutoff = 0.01, pseudocounts = 1, record = True)
+    >>> cc.pp.separate_peaks(peak_data,1,4807673,4808049,expdata=qbed_data,reference='mm10',method = "CCcaller",test_method='poisson',pvalue_cutoff=0.01,pseudocounts=0.1,return_whole=False)
+
+
+    """
+
+    peak_data_temp = peak_data.copy()
+
+    if test_method == "poisson":
+        from scipy.stats import poisson
+    elif test_method == "binomial":
+        from scipy.stats import binom_test
+
+    chrom = peak_data_temp.iloc[index, 0]
+    start = peak_data_temp.iloc[index, 1]
+    end = peak_data_temp.iloc[index, 2]
+
+    index_list = list(peak_data_temp.columns)
+    totallen = len(index_list)
+
+    if totallen == 3:
+
+        if return_whole == False:
+            return pd.DataFrame(
+                [[chrom, start, middle_start], [chrom, middle_end, end]],
+                columns=index_list,
+            )
+        else:
+            peak_1 = peak_data_temp.iloc[
+                : index + 1,
+            ].copy()
+            peak_2 = peak_data_temp.iloc[
+                index:,
+            ].copy()
+            peak_1.iloc[index, 2] = middle_start
+            peak_2.iloc[0, 1] = middle_end
+            peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
+            return peak_data_temp.reset_index(drop=True)
+
+    if reference == "hg38":
+        TTAA_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_hg38_ccf.bed",
+            sep="\t",
+            header=None,
+        )
+        length = 4
+
+    elif reference == "mm10":
+        TTAA_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/TTAA_mm10_ccf.bed",
+            sep="\t",
+            header=None,
+        )
+        length = 4
+
+    elif reference == "sacCer3":
+        TTAA_data = pd.read_csv(
+            "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/yeast_Background.ccf",
+            sep="\t",
+            header=None,
+        )
+        length = 1
+
+    if type(expdata) == pd.DataFrame:
+        expdatacounts1 = len(
+            expdata[
+                (expdata["Chr"] == chrom)
+                & (expdata["Start"] >= start - length)
+                & (expdata["Start"] <= middle_start)
+            ]
+        )
+        expdatacounts2 = len(
+            expdata[
+                (expdata["Chr"] == chrom)
+                & (expdata["Start"] >= middle_end - length)
+                & (expdata["Start"] <= end)
+            ]
+        )
+    else:
+        raise Exception("Please input expdata.")
+
+    if method == "CCcaller":
+
+        TTAAcounts1 = len(
+            TTAA_data[
+                (TTAA_data[0] == chrom)
+                & (TTAA_data[2] >= start - length)
+                & (TTAA_data[2] <= middle_start)
+            ]
+        )
+        TTAAcounts2 = len(
+            TTAA_data[
+                (TTAA_data[0] == chrom)
+                & (TTAA_data[2] >= middle_end - length)
+                & (TTAA_data[2] <= end)
+            ]
+        )
+
+        if lam_win_size == None:
+            expdatacounts_lam1 = len(expdata[(expdata["Chr"] == chrom)])
+            TTAAcounts_lam1 = len(TTAA_data[(TTAA_data[0] == chrom)])
+            expdatacounts_lam2 = expdatacounts_lam1
+            TTAAcounts_lam2 = TTAAcounts_lam1
+        else:
+
+            expdatacounts_lam1 = len(
+                expdata[
+                    (expdata["Chr"] == chrom)
+                    & (expdata["Start"] >= start - length - lam_win_size / 2 + 1)
+                    & (expdata["Start"] <= middle_start + lam_win_size / 2)
+                ]
+            )
+            TTAAcounts_lam1 = len(
+                TTAA_data[
+                    (TTAA_data[0] == chrom)
+                    & (TTAA_data[2] >= start - length - lam_win_size / 2 + 1)
+                    & (TTAA_data[2] <= middle_start + lam_win_size / 2)
+                ]
+            )
+
+            expdatacounts_lam2 = len(
+                expdata[
+                    (expdata["Chr"] == chrom)
+                    & (expdata["Start"] >= middle_end - length - lam_win_size / 2 + 1)
+                    & (expdata["Start"] <= end + lam_win_size / 2)
+                ]
+            )
+            TTAAcounts_lam2 = len(
+                TTAA_data[
+                    (TTAA_data[0] == chrom)
+                    & (TTAA_data[2] >= middle_end - length - lam_win_size / 2 + 1)
+                    & (TTAA_data[2] <= end + lam_win_size / 2)
+                ]
+            )
+
+        expinsertion_TTAA1 = expdatacounts_lam1 * (TTAAcounts1 / TTAAcounts_lam1)
+        expinsertion_TTAA2 = expdatacounts_lam2 * (TTAAcounts2 / TTAAcounts_lam2)
+
+        if test_method == "poisson":
+
+            pvalue1 = _compute_cumulative_poisson(
+                expdatacounts1,
+                TTAAcounts1,
+                expdatacounts_lam1,
+                TTAAcounts_lam1,
+                pseudocounts,
+            )
+            pvalue2 = _compute_cumulative_poisson(
+                expdatacounts2,
+                TTAAcounts2,
+                expdatacounts_lam2,
+                TTAAcounts_lam2,
+                pseudocounts,
+            )
+
+        elif test_method == "binomial":
+
+            pvalue1 = binom_test(
+                int(expdatacounts1 + pseudocounts),
+                n=expdatacounts_lam1,
+                p=((TTAAcounts1 + pseudocounts) / TTAAcounts_lam1),
+                alternative="greater",
+            ).pvalue
+            pvalue1 = binom_test(
+                int(expdatacounts2 + pseudocounts),
+                n=expdatacounts_lam2,
+                p=((TTAAcounts2 + pseudocounts) / TTAAcounts_lam2),
+                alternative="greater",
+            ).pvalue
+
+        if type(background) == pd.DataFrame:
+
+            backgroundcounts1 = len(
+                background[
+                    (background["Chr"] == chrom)
+                    & (background["Start"] >= start - length)
+                    & (background["Start"] <= middle_start)
+                ]
+            )
+            backgroundcounts2 = len(
+                background[
+                    (background["Chr"] == chrom)
+                    & (background["Start"] >= middle_end - length)
+                    & (background["Start"] <= end)
+                ]
+            )
+
+            if lam_win_size == None:
+                backgroundcounts_lam1 = len(background[(background["Chr"] == chrom)])
+                backgroundcounts_lam2 = backgroundcounts_lam1
+            else:
+                backgroundcounts_lam1 = len(
+                    background[
+                        (background["Chr"] == chrom)
+                        & (background["Start"] >= start - length - lam_win_size / 2 + 1)
+                        & (background["Start"] <= middle_start + lam_win_size / 2)
+                    ]
+                )
+                backgroundcounts_lam2 = len(
+                    background[
+                        (background["Chr"] == chrom)
+                        & (
+                            background["Start"]
+                            >= middle_end - length - lam_win_size / 2 + 1
+                        )
+                        & (background["Start"] <= end + lam_win_size / 2)
+                    ]
+                )
+
+            expinsertion_bg1 = expdatacounts_lam1 * (
+                backgroundcounts1 / backgroundcounts_lam1
+            )
+            expinsertion_bg2 = expdatacounts_lam2 * (
+                backgroundcounts2 / backgroundcounts_lam2
+            )
+
+            if test_method == "poisson":
+
+                pvalue_bg1 = _compute_cumulative_poisson(
+                    expdatacounts1,
+                    backgroundcounts1,
+                    expdatacounts_lam1,
+                    backgroundcounts_lam1,
+                    pseudocounts,
+                )
+                pvalue_bg2 = _compute_cumulative_poisson(
+                    expdatacounts2,
+                    backgroundcounts2,
+                    expdatacounts_lam2,
+                    backgroundcounts_lam2,
+                    pseudocounts,
+                )
+
+            elif test_method == "binomial":
+
+                pvalue_bg1 = binom_test(
+                    int(expdatacounts1 + pseudocounts),
+                    n=expdatacounts_lam1,
+                    p=((backgroundcounts1 + pseudocounts) / backgroundcounts_lam1),
+                    alternative="greater",
+                ).pvalue
+                pvalue_bg2 = binom_test(
+                    int(expdatacounts2 + pseudocounts),
+                    n=expdatacounts_lam2,
+                    p=((backgroundcounts2 + pseudocounts) / backgroundcounts_lam2),
+                    alternative="greater",
+                ).pvalue
+
+            condition1 = (
+                (pvalue_cutoffTTAA == None)
+                or (pvalue1 <= float(pvalue_cutoffTTAA or 0))
+            ) and (
+                (pvalue_cutoffbg == None) or (pvalue_bg1 <= float(pvalue_cutoffbg or 0))
+            )
+            condition2 = (
+                (pvalue_cutoffTTAA == None)
+                or (pvalue2 <= float(pvalue_cutoffTTAA or 0))
+            ) and (
+                (pvalue_cutoffbg == None) or (pvalue_bg2 <= float(pvalue_cutoffbg or 0))
+            )
+
+            if condition1 and condition2:
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                expdatacounts1,
+                                backgroundcounts1,
+                                TTAAcounts1,
+                                expinsertion_bg1,
+                                expinsertion_TTAA1,
+                                pvalue_bg1,
+                                pvalue1,
+                            ],
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                expdatacounts2,
+                                backgroundcounts2,
+                                TTAAcounts2,
+                                expinsertion_bg2,
+                                expinsertion_TTAA2,
+                                pvalue_bg2,
+                                pvalue2,
+                            ],
+                        ],
+                        columns=index_list,
+                    )
+                else:
+
+                    peak_1 = peak_data_temp.iloc[
+                        : index + 1,
+                    ].copy()
+                    peak_2 = peak_data_temp.iloc[
+                        index:,
+                    ].copy()
+                    peak_1.iloc[index, 2] = middle_start
+                    peak_1.iloc[index, 3] = expdatacounts1
+                    peak_1.iloc[index, 4] = backgroundcounts1
+                    peak_1.iloc[index, 5] = TTAAcounts1
+                    peak_1.iloc[index, 6] = expinsertion_bg1
+                    peak_1.iloc[index, 7] = expinsertion_TTAA1
+                    peak_1.iloc[index, 8] = pvalue_bg1
+                    peak_1.iloc[index, 9] = pvalue1
+                    peak_2.iloc[0, 1] = middle_end
+                    peak_2.iloc[0, 3] = expdatacounts2
+                    peak_2.iloc[0, 4] = backgroundcounts2
+                    peak_2.iloc[0, 5] = TTAAcounts2
+                    peak_2.iloc[0, 6] = expinsertion_bg2
+                    peak_2.iloc[0, 7] = expinsertion_TTAA2
+                    peak_2.iloc[0, 8] = pvalue_bg2
+                    peak_2.iloc[0, 9] = pvalue2
+                    peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
+                    peak_data_temp = peak_data_temp.reset_index(drop=True)
+
+                    if totallen == 10:
+                        return peak_data_temp
+                    else:
+                        for i in range(10, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                            peak_data_temp.iloc[index + 1, i] = None
+                        return peak_data_temp
+
+            elif condition1 and not condition2:
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                expdatacounts1,
+                                backgroundcounts1,
+                                TTAAcounts1,
+                                expinsertion_bg1,
+                                expinsertion_TTAA1,
+                                pvalue_bg1,
+                                pvalue1,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+                else:
+
+                    peak_data_temp.iloc[index, 2] = middle_start
+                    peak_data_temp.iloc[index, 3] = expdatacounts1
+                    peak_data_temp.iloc[index, 4] = backgroundcounts1
+                    peak_data_temp.iloc[index, 5] = TTAAcounts1
+                    peak_data_temp.iloc[index, 6] = expinsertion_bg1
+                    peak_data_temp.iloc[index, 7] = expinsertion_TTAA1
+                    peak_data_temp.iloc[index, 8] = pvalue_bg1
+                    peak_data_temp.iloc[index, 9] = pvalue1
+
+                    if totallen == 10:
+                        return peak_data_temp
+                    else:
+                        for i in range(10, totallen):
+                            peak_data_temp.iloc[index, :][i] = None
+                        return peak_data_temp
+
+            elif not condition1 and condition2:
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                expdatacounts2,
+                                backgroundcounts2,
+                                TTAAcounts2,
+                                expinsertion_bg2,
+                                expinsertion_TTAA2,
+                                pvalue_bg2,
+                                pvalue2,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+                else:
+
+                    peak_data_temp.iloc[index, 1] = middle_end
+                    peak_data_temp.iloc[index, 3] = expdatacounts2
+                    peak_data_temp.iloc[index, 4] = backgroundcounts2
+                    peak_data_temp.iloc[index, 5] = TTAAcounts2
+                    peak_data_temp.iloc[index, 6] = expinsertion_bg2
+                    peak_data_temp.iloc[index, 7] = expinsertion_TTAA2
+                    peak_data_temp.iloc[index, 8] = pvalue_bg2
+                    peak_data_temp.iloc[index, 9] = pvalue2
+
+                    if totallen == 10:
+                        return peak_data_temp
+                    else:
+                        for i in range(10, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            else:
+
+                if return_whole == False:
+                    return None
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+                    return peak_data_temp.reset_index(drop=True)
+
+        else:
+
+            condition1 = (pvalue_cutoff == None) or (
+                pvalue1 <= float(pvalue_cutoff or 0)
+            )
+            condition2 = (pvalue_cutoff == None) or (
+                pvalue2 <= float(pvalue_cutoff or 0)
+            )
+
+            if condition1 and condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                expdatacounts1,
+                                TTAAcounts1,
+                                expinsertion_TTAA1,
+                                pvalue1,
+                            ],
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                expdatacounts2,
+                                TTAAcounts2,
+                                expinsertion_TTAA2,
+                                pvalue2,
+                            ],
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_1 = peak_data_temp.iloc[
+                        : index + 1,
+                    ].copy()
+                    peak_2 = peak_data_temp.iloc[
+                        index:,
+                    ].copy()
+                    peak_1.iloc[index, 2] = middle_start
+                    peak_1.iloc[index, 3] = expdatacounts1
+                    peak_1.iloc[index, 4] = TTAAcounts1
+                    peak_1.iloc[index, 5] = expinsertion_TTAA1
+                    peak_1.iloc[index, 6] = pvalue1
+
+                    peak_2.iloc[0, 1] = middle_end
+                    peak_2.iloc[0, 3] = expdatacounts2
+                    peak_2.iloc[0, 4] = TTAAcounts2
+                    peak_2.iloc[0, 5] = expinsertion_TTAA2
+                    peak_2.iloc[0, 6] = pvalue2
+
+                    peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
+                    peak_data_temp = peak_data_temp.reset_index(drop=True)
+
+                    if totallen == 7:
+                        return peak_data_temp
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                            peak_data_temp.iloc[index + 1, i] = None
+                        return peak_data_temp
+
+            elif condition1 and not condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                expdatacounts1,
+                                TTAAcounts1,
+                                expinsertion_TTAA1,
+                                pvalue1,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 2] = middle_start
+                    peak_data_temp.iloc[index, 3] = expdatacounts1
+                    peak_data_temp.iloc[index, 4] = TTAAcounts1
+                    peak_data_temp.iloc[index, 5] = expinsertion_TTAA1
+                    peak_data_temp.iloc[index, 6] = pvalue1
+
+                    if totallen == 7:
+                        return peak_data_temp
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            elif not condition1 and condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                expdatacounts2,
+                                TTAAcounts2,
+                                expinsertion_TTAA2,
+                                pvalue2,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 2] = middle_start
+                    peak_data_temp.iloc[index, 3] = expdatacounts2
+                    peak_data_temp.iloc[index, 4] = TTAAcounts2
+                    peak_data_temp.iloc[index, 5] = expinsertion_TTAA2
+                    peak_data_temp.iloc[index, 6] = pvalue2
+
+                    if totallen == 7:
+                        return peak_data_temp
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            else:
+
+                if return_whole == False:
+                    return None
+
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+                    return peak_data_temp.reset_index(drop=True)
+
+    elif method == "cc_tools":
+
+        multinumber = 100000000
+        sumcount_expdata = len(expdata)
+        TTAAcounts1 = len(
+            TTAA_data[
+                (TTAA_data[0] == chrom)
+                & (TTAA_data[2] >= start - length)
+                & (TTAA_data[2] <= middle_start)
+            ]
+        )
+        TTAAcounts2 = len(
+            TTAA_data[
+                (TTAA_data[0] == chrom)
+                & (TTAA_data[2] >= middle_end - length)
+                & (TTAA_data[2] <= end)
+            ]
+        )
+
+        if lam_win_size == None:
+            expdatacounts_lam1 = len(expdata[(expdata["Chr"] == chrom)])
+            TTAAcounts_lam1 = len(TTAA_data[(TTAA_data[0] == chrom)])
+            expdatacounts_lam2 = expdatacounts_lam1
+            TTAAcounts_lam2 = TTAAcounts_lam1
+        else:
+            expdatacounts_lam1 = len(
+                expdata[
+                    (expdata["Chr"] == chrom)
+                    & (expdata["Start"] >= start - length - lam_win_size / 2 + 1)
+                    & (expdata["Start"] <= middle_start + lam_win_size / 2)
+                ]
+            )
+            TTAAcounts_lam1 = len(
+                TTAA_data[
+                    (TTAA_data[0] == chrom)
+                    & (TTAA_data[2] >= start - length - lam_win_size / 2 + 1)
+                    & (TTAA_data[2] <= middle_start + lam_win_size / 2)
+                ]
+            )
+            expdatacounts_lam2 = len(
+                expdata[
+                    (expdata["Chr"] == chrom)
+                    & (expdata["Start"] >= middle_end - length - lam_win_size / 2 + 1)
+                    & (expdata["Start"] <= end + lam_win_size / 2)
+                ]
+            )
+            TTAAcounts_lam2 = len(
+                TTAA_data[
+                    (TTAA_data[0] == chrom)
+                    & (TTAA_data[2] >= middle_end - length - lam_win_size / 2 + 1)
+                    & (TTAA_data[2] <= end + lam_win_size / 2)
+                ]
+            )
+
+        expinsertion_TTAA1 = expdatacounts_lam1 * (TTAAcounts1 / TTAAcounts_lam1)
+        counts_median1 = np.median(
+            list(
+                expdata[
+                    (expdata["Chr"] == chrom)
+                    & (expdata["Start"] >= start - length)
+                    & (expdata["Start"] <= middle_start)
+                ].iloc[:, 1]
+            )
+        )
+        expinsertion_TTAA2 = expdatacounts_lam2 * (TTAAcounts2 / TTAAcounts_lam2)
+        counts_median2 = np.median(
+            list(
+                expdata[
+                    (expdata["Chr"] == chrom)
+                    & (expdata["Start"] >= middle_end - length)
+                    & (expdata["Start"] <= end)
+                ].iloc[:, 1]
+            )
+        )
+
+        TPH1 = float(expdatacounts1) * multinumber / sumcount_expdata
+        frac_exp1 = float(expdatacounts1) / sumcount_expdata
+        TPH2 = float(expdatacounts2) * multinumber / sumcount_expdata
+        frac_exp2 = float(expdatacounts2) / sumcount_expdata
+
+        if test_method == "poisson":
+
+            pvalue1 = _compute_cumulative_poisson(
+                expdatacounts1,
+                TTAAcounts1,
+                expdatacounts_lam1,
+                TTAAcounts_lam1,
+                pseudocounts,
+            )
+            pvalue2 = _compute_cumulative_poisson(
+                expdatacounts2,
+                TTAAcounts2,
+                expdatacounts_lam2,
+                TTAAcounts_lam2,
+                pseudocounts,
+            )
+
+        elif test_method == "binomial":
+
+            pvalue1 = binom_test(
+                int(expdatacounts1 + pseudocounts),
+                n=expdatacounts_lam1,
+                p=((TTAAcounts1 + pseudocounts) / TTAAcounts_lam1),
+                alternative="greater",
+            ).pvalue
+            pvalue2 = binom_test(
+                int(expdatacounts2 + pseudocounts),
+                n=expdatacounts_lam2,
+                p=((TTAAcounts2 + pseudocounts) / TTAAcounts_lam2),
+                alternative="greater",
+            ).pvalue
+
+        if type(background) == pd.DataFrame:
+
+            backgroundcounts1 = len(
+                background[
+                    (background["Chr"] == chrom)
+                    & (background["Start"] >= start - length)
+                    & (background["Start"] <= middle_start)
+                ]
+            )
+            backgroundcounts2 = len(
+                background[
+                    (background["Chr"] == chrom)
+                    & (background["Start"] >= middle_end - length)
+                    & (background["Start"] <= end)
+                ]
+            )
+
+            sumcount_background = len(background)
+
+            if lam_win_size == None:
+                backgroundcounts_lam1 = len(background[(background["Chr"] == chrom)])
+                backgroundcounts_lam2 = backgroundcounts_lam1
+            else:
+                backgroundcounts_lam1 = len(
+                    background[
+                        (background["Chr"] == chrom)
+                        & (background["Start"] >= start - length - lam_win_size / 2 + 1)
+                        & (background["Start"] <= middle_start + lam_win_size / 2)
+                    ]
+                )
+                backgroundcounts_lam2 = len(
+                    background[
+                        (background["Chr"] == chrom)
+                        & (
+                            background["Start"]
+                            >= middle_end - length - lam_win_size / 2 + 1
+                        )
+                        & (background["Start"] <= end + lam_win_size / 2)
+                    ]
+                )
+
+            expinsertion_bg1 = expdatacounts_lam1 * (
+                backgroundcounts1 / backgroundcounts_lam1
+            )
+            TPH_bg1 = float(backgroundcounts1) * multinumber / sumcount_background
+            frac_exp_bg1 = float(backgroundcounts1) / sumcount_background
+            expinsertion_bg2 = expdatacounts_lam2 * (
+                backgroundcounts2 / backgroundcounts_lam2
+            )
+            TPH_bg2 = float(backgroundcounts2) * multinumber / sumcount_background
+            frac_exp_bg2 = float(backgroundcounts2) / sumcount_background
+
+            if test_method == "poisson":
+
+                pvalue_bg1 = _compute_cumulative_poisson(
+                    expdatacounts1,
+                    backgroundcounts1,
+                    expdatacounts_lam1,
+                    backgroundcounts_lam1,
+                    pseudocounts,
+                )
+                pvalue_bg2 = _compute_cumulative_poisson(
+                    expdatacounts2,
+                    backgroundcounts2,
+                    expdatacounts_lam2,
+                    backgroundcounts_lam2,
+                    pseudocounts,
+                )
+
+            elif test_method == "binomial":
+
+                pvalue_bg1 = binom_test(
+                    int(expdatacounts1 + pseudocounts),
+                    n=expdatacounts_lam1,
+                    p=((backgroundcounts1 + pseudocounts) / backgroundcounts_lam1),
+                    alternative="greater",
+                ).pvalue
+                pvalue_bg2 = binom_test(
+                    int(expdatacounts2 + pseudocounts),
+                    n=expdatacounts_lam2,
+                    p=((backgroundcounts2 + pseudocounts) / backgroundcounts_lam2),
+                    alternative="greater",
+                ).pvalue
+
+            condition1 = (
+                (pvalue_cutoffTTAA == None)
+                or (pvalue1 <= float(pvalue_cutoffTTAA or 0))
+            ) and (
+                (pvalue_cutoffbg == None) or (pvalue_bg1 <= float(pvalue_cutoffbg or 0))
+            )
+            condition2 = (
+                (pvalue_cutoffTTAA == None)
+                or (pvalue2 <= float(pvalue_cutoffTTAA or 0))
+            ) and (
+                (pvalue_cutoffbg == None) or (pvalue_bg2 <= float(pvalue_cutoffbg or 0))
+            )
+
+            if condition1 and condition2:
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                counts_median1,
+                                expdatacounts1,
+                                backgroundcounts1,
+                                TTAAcounts1,
+                                pvalue1,
+                                pvalue_bg1,
+                                frac_exp1,
+                                TPH1,
+                                frac_exp_bg1,
+                                TPH_bg1,
+                                frac_exp1 - frac_exp_bg1,
+                            ],
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                counts_median2,
+                                expdatacounts2,
+                                backgroundcounts2,
+                                TTAAcounts2,
+                                pvalue2,
+                                pvalue_bg2,
+                                frac_exp2,
+                                TPH2,
+                                frac_exp_bg2,
+                                TPH_bg2,
+                                frac_exp2 - frac_exp_bg2,
+                            ],
+                        ],
+                        columns=index_list,
+                    )
+                else:
+
+                    peak_1 = peak_data_temp.iloc[
+                        : index + 1,
+                    ].copy()
+                    peak_2 = peak_data_temp.iloc[
+                        index:,
+                    ].copy()
+                    peak_1.iloc[index, 2] = middle_start
+                    peak_1.iloc[index, 3] = counts_median1
+                    peak_1.iloc[index, 4] = expdatacounts1
+                    peak_1.iloc[index, 5] = backgroundcounts1
+                    peak_1.iloc[index, 6] = TTAAcounts1
+                    peak_1.iloc[index, 7] = pvalue1
+                    peak_1.iloc[index, 8] = pvalue_bg1
+                    peak_1.iloc[index, 9] = frac_exp1
+                    peak_1.iloc[index, 10] = TPH1
+                    peak_1.iloc[index, 11] = frac_exp_bg1
+                    peak_1.iloc[index, 12] = TPH_bg1
+                    peak_1.iloc[index, 13] = frac_exp1 - frac_exp_bg1
+
+                    peak_2.iloc[index, 1] = middle_end
+                    peak_2.iloc[index, 3] = counts_median2
+                    peak_2.iloc[index, 4] = expdatacounts2
+                    peak_2.iloc[index, 5] = backgroundcounts2
+                    peak_2.iloc[index, 6] = TTAAcounts2
+                    peak_2.iloc[index, 7] = pvalue2
+                    peak_2.iloc[index, 8] = pvalue_bg2
+                    peak_2.iloc[index, 9] = frac_exp2
+                    peak_2.iloc[index, 10] = TPH2
+                    peak_2.iloc[index, 11] = frac_exp_bg2
+                    peak_2.iloc[index, 12] = TPH_bg2
+                    peak_2.iloc[index, 13] = frac_exp2 - frac_exp_bg2
+
+                    peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
+                    peak_data_temp = peak_data_temp.reset_index(drop=True)
+
+                    if totallen == 14:
+                        return peak_data_temp
+                    else:
+                        for i in range(14, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                            peak_data_temp.iloc[index + 1, i] = None
+                        return peak_data_temp
+
+            elif condition1 and not condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                counts_median1,
+                                expdatacounts1,
+                                backgroundcounts1,
+                                TTAAcounts1,
+                                pvalue1,
+                                pvalue_bg1,
+                                frac_exp1,
+                                TPH1,
+                                frac_exp_bg1,
+                                TPH_bg1,
+                                frac_exp1 - frac_exp_bg1,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 2] = middle_start
+                    peak_data_temp.iloc[index, 3] = counts_median1
+                    peak_data_temp.iloc[index, 4] = expdatacounts1
+                    peak_data_temp.iloc[index, 5] = backgroundcounts1
+                    peak_data_temp.iloc[index, 6] = TTAAcounts1
+                    peak_data_temp.iloc[index, 7] = pvalue1
+                    peak_data_temp.iloc[index, 8] = pvalue_bg1
+                    peak_data_temp.iloc[index, 9] = frac_exp1
+                    peak_data_temp.iloc[index, 10] = TTAAcounts1
+                    peak_data_temp.iloc[index, 11] = frac_exp_bg1
+                    peak_data_temp.iloc[index, 12] = TPH_bg1
+                    peak_data_temp.iloc[index, 13] = frac_exp1 - frac_exp_bg1
+
+                    if totallen == 14:
+                        return peak_data_temp
+                    else:
+                        for i in range(14, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            elif not condition1 and condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                counts_median2,
+                                expdatacounts2,
+                                backgroundcounts2,
+                                TTAAcounts2,
+                                pvalue2,
+                                pvalue_bg2,
+                                frac_exp2,
+                                TPH2,
+                                frac_exp_bg2,
+                                TPH_bg2,
+                                frac_exp2 - frac_exp_bg2,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 1] = middle_end
+                    peak_data_temp.iloc[index, 3] = counts_median2
+                    peak_data_temp.iloc[index, 4] = expdatacounts2
+                    peak_data_temp.iloc[index, 5] = backgroundcounts2
+                    peak_data_temp.iloc[index, 6] = TTAAcounts2
+                    peak_data_temp.iloc[index, 7] = pvalue2
+                    peak_data_temp.iloc[index, 8] = pvalue_bg2
+                    peak_data_temp.iloc[index, 9] = frac_exp2
+                    peak_data_temp.iloc[index, 10] = TTAAcounts2
+                    peak_data_temp.iloc[index, 11] = frac_exp_bg2
+                    peak_data_temp.iloc[index, 12] = TPH_bg2
+                    peak_data_temp.iloc[index, 13] = frac_exp2 - frac_exp_bg2
+
+                    if totallen == 14:
+                        return peak_data_temp
+                    else:
+                        for i in range(14, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            else:
+
+                if return_whole == False:
+                    return None
+
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+
+                    return peak_data_temp
+
+        else:
+
+            condition1 = (pvalue_cutoff == None) or (
+                pvalue1 <= float(pvalue_cutoff or 0)
+            )
+            condition2 = (pvalue_cutoff == None) or (
+                pvalue2 <= float(pvalue_cutoff or 0)
+            )
+
+            if condition1 and condition2:
+
+                if return_whole == False:
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                counts_median1,
+                                pvalue1,
+                                expdatacounts1,
+                                TTAAcounts1,
+                                frac_exp1,
+                                TPH1,
+                                expinsertion_TTAA1,
+                            ],
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                counts_median2,
+                                pvalue2,
+                                expdatacounts2,
+                                TTAAcounts2,
+                                frac_exp2,
+                                TPH2,
+                                expinsertion_TTAA2,
+                            ],
+                        ],
+                        columns=index_list,
+                    )
+                else:
+
+                    peak_1 = peak_data_temp.iloc[
+                        : index + 1,
+                    ].copy()
+                    peak_2 = peak_data_temp.iloc[
+                        index:,
+                    ].copy()
+                    peak_1.iloc[index, 2] = middle_start
+                    peak_1.iloc[index, 3] = counts_median1
+                    peak_1.iloc[index, 4] = pvalue1
+                    peak_1.iloc[index, 5] = expdatacounts1
+                    peak_1.iloc[index, 6] = TTAAcounts1
+                    peak_1.iloc[index, 7] = frac_exp1
+                    peak_1.iloc[index, 8] = TPH1
+                    peak_1.iloc[index, 9] = expinsertion_TTAA1
+
+                    peak_2.iloc[index, 1] = middle_end
+                    peak_2.iloc[index, 3] = counts_median2
+                    peak_2.iloc[index, 4] = pvalue2
+                    peak_2.iloc[index, 5] = expdatacounts2
+                    peak_2.iloc[index, 6] = TTAAcounts2
+                    peak_2.iloc[index, 7] = frac_exp2
+                    peak_2.iloc[index, 8] = TPH2
+                    peak_2.iloc[index, 9] = expinsertion_TTAA2
+
+                    peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
+                    peak_data_temp = peak_data_temp.reset_index(drop=True)
+
+                    if totallen == 10:
+                        return peak_data_temp.reset_index(drop=True)
+                    else:
+                        for i in range(10, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                            peak_data_temp.iloc[index + 1, i] = None
+                        return peak_data_temp.reset_index(drop=True)
+
+            elif condition1 and not condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                counts_median1,
+                                pvalue1,
+                                expdatacounts1,
+                                TTAAcounts1,
+                                frac_exp1,
+                                TPH1,
+                                expinsertion_TTAA1,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 2] = middle_start
+                    peak_data_temp.iloc[index, 3] = counts_median1
+                    peak_data_temp.iloc[index, 4] = pvalue1
+                    peak_data_temp.iloc[index, 5] = expdatacounts1
+                    peak_data_temp.iloc[index, 6] = TTAAcounts1
+                    peak_data_temp.iloc[index, 7] = frac_exp1
+                    peak_data_temp.iloc[index, 8] = TPH1
+                    peak_data_temp.iloc[index, 9] = expinsertion_TTAA1
+
+                    if totallen == 10:
+                        return peak_data_temp
+                    else:
+                        for i in range(10, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            elif not condition1 and condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                counts_median2,
+                                pvalue2,
+                                expdatacounts2,
+                                TTAAcounts2,
+                                frac_exp2,
+                                TPH2,
+                                expinsertion_TTAA2,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 1] = middle_end
+                    peak_data_temp.iloc[index, 3] = counts_median2
+                    peak_data_temp.iloc[index, 4] = pvalue2
+                    peak_data_temp.iloc[index, 5] = expdatacounts2
+                    peak_data_temp.iloc[index, 6] = TTAAcounts2
+                    peak_data_temp.iloc[index, 7] = frac_exp2
+                    peak_data_temp.iloc[index, 8] = TPH2
+                    peak_data_temp.iloc[index, 9] = expinsertion_TTAA2
+
+                    if totallen == 10:
+                        return peak_data_temp
+                    else:
+                        for i in range(10, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            else:
+
+                if return_whole == False:
+                    return None
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+
+                    return peak_data_temp.reset_index(drop=True)
+
+    elif method == "Blockify":
+
+        if type(background) == pd.DataFrame:
+
+            backgroundcounts1 = len(
+                background[
+                    (background["Chr"] == chrom)
+                    & (background["Start"] >= start - length)
+                    & (background["Start"] <= middle_start)
+                ]
+            )
+            backgroundcounts2 = len(
+                background[
+                    (background["Chr"] == chrom)
+                    & (background["Start"] >= middle_end - length)
+                    & (background["Start"] <= end)
+                ]
+            )
+
+            expdatacounts_lam = len(expdata[(expdata["Chr"] == chrom)])
+            backgroundcounts_lam = len(background[(background["Chr"] == chrom)])
+            expinsertion_background1 = expdatacounts_lam * (
+                backgroundcounts1 / backgroundcounts_lam
+            )
+            expinsertion_background2 = expdatacounts_lam * (
+                backgroundcounts2 / backgroundcounts_lam
+            )
+
+            if test_method == "poisson":
+
+                pvalue1 = _compute_cumulative_poisson(
+                    expdatacounts1,
+                    backgroundcounts1,
+                    expdatacounts_lam,
+                    backgroundcounts_lam,
+                    pseudocounts,
+                )
+                pvalue2 = _compute_cumulative_poisson(
+                    expdatacounts2,
+                    backgroundcounts2,
+                    expdatacounts_lam,
+                    backgroundcounts_lam,
+                    pseudocounts,
+                )
+
+            elif test_method == "binomial":
+
+                pvalue1 = binom_test(
+                    int(expdatacounts1 + pseudocounts),
+                    n=expdatacounts_lam,
+                    p=((backgroundcounts1 + pseudocounts) / backgroundcounts_lam),
+                    alternative="greater",
+                ).pvalue
+                pvalue2 = binom_test(
+                    int(expdatacounts2 + pseudocounts),
+                    n=expdatacounts_lam,
+                    p=((backgroundcounts2 + pseudocounts) / backgroundcounts_lam),
+                    alternative="greater",
+                ).pvalue
+
+            condition1 = (pvalue_cutoff == None) or (
+                pvalue1 <= float(pvalue_cutoff or 0)
+            )
+            condition2 = (pvalue_cutoff == None) or (
+                pvalue2 <= float(pvalue_cutoff or 0)
+            )
+
+            if condition1 and condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                expdatacounts1,
+                                backgroundcounts1,
+                                expinsertion_background1,
+                                pvalue1,
+                            ],
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                expdatacounts2,
+                                backgroundcounts2,
+                                expinsertion_background2,
+                                pvalue2,
+                            ],
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_1 = peak_data_temp.iloc[
+                        : index + 1,
+                    ].copy()
+                    peak_2 = peak_data_temp.iloc[
+                        index:,
+                    ].copy()
+                    peak_1.iloc[index, 2] = middle_start
+                    peak_1.iloc[index, 3] = expdatacounts1
+                    peak_1.iloc[index, 4] = backgroundcounts1
+                    peak_1.iloc[index, 5] = expinsertion_background1
+                    peak_1.iloc[index, 6] = pvalue1
+
+                    peak_2.iloc[index, 1] = middle_end
+                    peak_2.iloc[index, 3] = expdatacounts2
+                    peak_2.iloc[index, 4] = backgroundcounts2
+                    peak_2.iloc[index, 5] = expinsertion_background2
+                    peak_2.iloc[index, 6] = pvalue2
+
+                    peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
+                    peak_data_temp = peak_data_temp.reset_index(drop=True)
+
+                    if totallen == 7:
+                        return peak_data_temp.reset_index(drop=True)
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp.reset_index(drop=True)
+
+            if condition1 and not condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                expdatacounts1,
+                                backgroundcounts1,
+                                expinsertion_background1,
+                                pvalue1,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 2] = middle_start
+                    peak_data_temp.iloc[index, 3] = expdatacounts1
+                    peak_data_temp.iloc[index, 4] = backgroundcounts1
+                    peak_data_temp.iloc[index, 5] = expinsertion_background1
+                    peak_data_temp.iloc[index, 6] = pvalue1
+
+                    if totallen == 7:
+                        return peak_data_temp
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            if not condition1 and condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                expdatacounts2,
+                                backgroundcounts2,
+                                expinsertion_background2,
+                                pvalue2,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 1] = middle_end
+                    peak_data_temp.iloc[index, 3] = expdatacounts2
+                    peak_data_temp.iloc[index, 4] = backgroundcounts2
+                    peak_data_temp.iloc[index, 5] = expinsertion_background2
+                    peak_data_temp.iloc[index, 6] = pvalue2
+
+                    if totallen == 7:
+                        return peak_data_temp
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            else:
+
+                if return_whole == False:
+                    return None
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+
+                    return peak_data_temp.reset_index(drop=True)
+
+        else:
+
+            backgroundcounts1 = len(
+                TTAA_data[
+                    (TTAA_data["Chr"] == chrom)
+                    & (TTAA_data["Start"] >= start - length)
+                    & (TTAA_data["Start"] <= middle_start)
+                ]
+            )
+            backgroundcounts2 = len(
+                TTAA_data[
+                    (TTAA_data["Chr"] == chrom)
+                    & (TTAA_data["Start"] >= middle_end - length)
+                    & (TTAA_data["Start"] <= end)
+                ]
+            )
+
+            expdatacounts_lam = len(expdata[(expdata["Chr"] == chrom)])
+            backgroundcounts_lam = len(TTAA_data[(TTAA_data["Chr"] == chrom)])
+            expinsertion_background1 = expdatacounts_lam * (
+                backgroundcounts1 / backgroundcounts_lam
+            )
+            expinsertion_background2 = expdatacounts_lam * (
+                backgroundcounts2 / backgroundcounts_lam
+            )
+
+            if test_method == "poisson":
+
+                pvalue1 = _compute_cumulative_poisson(
+                    expdatacounts1,
+                    backgroundcounts1,
+                    expdatacounts_lam,
+                    backgroundcounts_lam,
+                    pseudocounts,
+                )
+                pvalue2 = _compute_cumulative_poisson(
+                    expdatacounts2,
+                    backgroundcounts2,
+                    expdatacounts_lam,
+                    backgroundcounts_lam,
+                    pseudocounts,
+                )
+
+            elif test_method == "binomial":
+
+                pvalue1 = binom_test(
+                    int(expdatacounts1 + pseudocounts),
+                    n=expdatacounts_lam,
+                    p=((backgroundcounts1 + pseudocounts) / backgroundcounts_lam),
+                    alternative="greater",
+                ).pvalue
+                pvalue2 = binom_test(
+                    int(expdatacounts2 + pseudocounts),
+                    n=expdatacounts_lam,
+                    p=((backgroundcounts2 + pseudocounts) / backgroundcounts_lam),
+                    alternative="greater",
+                ).pvalue
+
+            condition1 = (pvalue_cutoff == None) or (
+                pvalue1 <= float(pvalue_cutoff or 0)
+            )
+            condition2 = (pvalue_cutoff == None) or (
+                pvalue2 <= float(pvalue_cutoff or 0)
+            )
+
+            if condition1 and condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                expdatacounts1,
+                                backgroundcounts1,
+                                expinsertion_background1,
+                                pvalue1,
+                            ],
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                expdatacounts2,
+                                backgroundcounts2,
+                                expinsertion_background2,
+                                pvalue2,
+                            ],
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_1 = peak_data_temp.iloc[
+                        : index + 1,
+                    ].copy()
+                    peak_2 = peak_data_temp.iloc[
+                        index:,
+                    ].copy()
+                    peak_1.iloc[index, 2] = middle_start
+                    peak_1.iloc[index, 3] = expdatacounts1
+                    peak_1.iloc[index, 4] = backgroundcounts1
+                    peak_1.iloc[index, 5] = expinsertion_background1
+                    peak_1.iloc[index, 6] = pvalue1
+
+                    peak_2.iloc[index, 1] = middle_end
+                    peak_2.iloc[index, 3] = expdatacounts2
+                    peak_2.iloc[index, 4] = backgroundcounts2
+                    peak_2.iloc[index, 5] = expinsertion_background2
+                    peak_2.iloc[index, 6] = pvalue2
+
+                    peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
+                    peak_data_temp = peak_data_temp.reset_index(drop=True)
+
+                    if totallen == 7:
+                        return peak_data_temp.reset_index(drop=True)
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp.reset_index(drop=True)
+
+            if condition1 and not condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                start,
+                                middle_start,
+                                expdatacounts1,
+                                backgroundcounts1,
+                                expinsertion_background1,
+                                pvalue1,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 2] = middle_start
+                    peak_data_temp.iloc[index, 3] = expdatacounts1
+                    peak_data_temp.iloc[index, 4] = backgroundcounts1
+                    peak_data_temp.iloc[index, 5] = expinsertion_background1
+                    peak_data_temp.iloc[index, 6] = pvalue1
+
+                    if totallen == 7:
+                        return peak_data_temp
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            if not condition1 and condition2:
+
+                if return_whole == False:
+
+                    return pd.DataFrame(
+                        [
+                            [
+                                chrom,
+                                middle_end,
+                                end,
+                                expdatacounts2,
+                                backgroundcounts2,
+                                expinsertion_background2,
+                                pvalue2,
+                            ]
+                        ],
+                        columns=index_list,
+                    )
+
+                else:
+
+                    peak_data_temp.iloc[index, 1] = middle_end
+                    peak_data_temp.iloc[index, 3] = expdatacounts2
+                    peak_data_temp.iloc[index, 4] = backgroundcounts2
+                    peak_data_temp.iloc[index, 5] = expinsertion_background2
+                    peak_data_temp.iloc[index, 6] = pvalue2
+
+                    if totallen == 7:
+                        return peak_data_temp
+                    else:
+                        for i in range(7, totallen):
+                            peak_data_temp.iloc[index, i] = None
+                        return peak_data_temp
+
+            else:
+
+                if return_whole == False:
+                    return None
+                else:
+                    peak_data_temp = peak_data_temp.drop(index)
+
+                    return peak_data_temp.reset_index(drop=True)
