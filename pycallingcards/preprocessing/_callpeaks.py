@@ -3890,11 +3890,11 @@ def separate_peaks(
 
     :param peak_data:
         pd.DataFrame for peak data. Please input the original data from call_peaks function.
-    :param index
+    :param index:
         The index for the peak to separate.
-    :param middle_start
+    :param middle_start:
         The start point of the cutoff which is the end point of the first peak after separation.
-    :param middle_end
+    :param middle_end:
         TThe end point of the cutoff which is the start point of the second peak after separation.
     :param expdata:
         pd.DataFrame with the first three columns as chromosome, start and end.
