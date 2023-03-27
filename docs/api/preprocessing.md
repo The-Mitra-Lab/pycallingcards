@@ -18,6 +18,8 @@ import pycallingcards as cc
 
    preprocessing.clean_qbed
    preprocessing.call_peaks
+   preprocessing.combine_peaks
+   preprocessing.separate_peaks
    preprocessing.annotation
    preprocessing.make_Anndata
    preprocessing.filter_peaks
