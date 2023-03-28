@@ -24,5 +24,6 @@ import pycallingcards as cc
    preprocessing.make_Anndata
    preprocessing.filter_peaks
    preprocessing.adata_insertions
+   preprocessing.down_sample
 
 ```
