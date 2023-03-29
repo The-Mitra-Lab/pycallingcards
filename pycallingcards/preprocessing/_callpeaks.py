@@ -2488,6 +2488,7 @@ def call_peaks(
     pvalue_cutoff: float = 0.0001,
     pvalue_cutoffbg: float = 0.0001,
     pvalue_cutoffTTAA: float = 0.00001,
+    fdr_cutoff: float = 0.05,
     min_insertions: int = 5,
     minlen: int = 0,
     extend: int = 200,
@@ -2525,6 +2526,8 @@ def call_peaks(
     :param pvalue_cutoffTTAA:
         The P-value cutoff for reference data when backgound exists.
         Note that pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg.
+    :param fdr_cutoff:
+        The alfpha value for false discover rate.
     :param min_insertions:
         The number of minimal insertions for each peak.
     :param minlen:
@@ -2601,7 +2604,7 @@ def call_peaks(
         if method == "cc_tools":
 
             print(
-                "For the cc_tools method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
+                "For the cc_tools method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, fdr_cutoff, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
             )
 
             if reference == "hg38":
@@ -2634,51 +2637,38 @@ def call_peaks(
             min_insertions = _checkint(min_insertions, "min_insertions")
             min_insertions = max(min_insertions, 1)
 
+            return_data = _callpeakscc_toolsnew2(
+                expdata,
+                background,
+                TTAAframe,
+                length,
+                extend=extend,
+                lam_win_size=lam_win_size,
+                pvalue_cutoff_background=pvalue_cutoffbg,
+                pvalue_cutoff_TTAA=pvalue_cutoffTTAA,
+                window_size=window_size,
+                step_size=step_size,
+                pseudocounts=pseudocounts,
+                test_method=test_method,
+                min_insertions=min_insertions,
+                record=record,
+            ).reset_index(drop=True)
+
+            return_data = _fdrcorrection2(return_data, fdr_cutoff, reference)
+
             if save == None or save == False:
 
-                return _callpeakscc_toolsnew2(
-                    expdata,
-                    background,
-                    TTAAframe,
-                    length,
-                    extend=extend,
-                    lam_win_size=lam_win_size,
-                    pvalue_cutoff_background=pvalue_cutoffbg,
-                    pvalue_cutoff_TTAA=pvalue_cutoffTTAA,
-                    window_size=window_size,
-                    step_size=step_size,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    min_insertions=min_insertions,
-                    record=record,
-                ).reset_index(drop=True)
+                return return_data
             else:
 
-                data = _callpeakscc_toolsnew2(
-                    expdata,
-                    background,
-                    TTAAframe,
-                    length,
-                    extend=extend,
-                    lam_win_size=lam_win_size,
-                    pvalue_cutoff_background=pvalue_cutoffbg,
-                    pvalue_cutoff_TTAA=pvalue_cutoffTTAA,
-                    window_size=window_size,
-                    step_size=step_size,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    min_insertions=min_insertions,
-                    record=record,
-                ).reset_index(drop=True)
+                return_data.to_csv(save, sep="\t", header=None, index=None)
 
-                data.to_csv(save, sep="\t", header=None, index=None)
-
-                return data
+                return return_data
 
         elif method == "CCcaller":
 
             print(
-                "For the CCcaller method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_insertions, record] would be utilized."
+                "For the CCcaller method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, fdr_cutoff, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_insertions, record] would be utilized."
             )
 
             if reference == "hg38":
@@ -2716,53 +2706,39 @@ def call_peaks(
             min_insertions = _checkint(min_insertions, "min_insertions")
             min_insertions = max(min_insertions, 1)
 
+            return_data = _CCcaller2(
+                expdata,
+                background,
+                TTAAframe,
+                length,
+                pvalue_cutoffbg=pvalue_cutoffbg,
+                pvalue_cutoffTTAA=pvalue_cutoffTTAA,
+                mininser=min_insertions,
+                minlen=minlen,
+                extend=extend,
+                maxbetween=maxbetween,
+                lam_win_size=lam_win_size,
+                pseudocounts=pseudocounts,
+                test_method=test_method,
+                record=record,
+                minnum=minnum,
+            )
+
+            return_data = _fdrcorrection2(return_data, fdr_cutoff, reference)
+
             if save == None or save == False:
 
-                return _CCcaller2(
-                    expdata,
-                    background,
-                    TTAAframe,
-                    length,
-                    pvalue_cutoffbg=pvalue_cutoffbg,
-                    pvalue_cutoffTTAA=pvalue_cutoffTTAA,
-                    mininser=min_insertions,
-                    minlen=minlen,
-                    extend=extend,
-                    maxbetween=maxbetween,
-                    lam_win_size=lam_win_size,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    record=record,
-                    minnum=minnum,
-                )
+                return return_data
             else:
 
-                data = _CCcaller2(
-                    expdata,
-                    background,
-                    TTAAframe,
-                    length,
-                    pvalue_cutoffbg=pvalue_cutoffbg,
-                    pvalue_cutoffTTAA=pvalue_cutoffTTAA,
-                    mininser=min_insertions,
-                    minlen=minlen,
-                    extend=extend,
-                    maxbetween=maxbetween,
-                    lam_win_size=lam_win_size,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    record=record,
-                    minnum=minnum,
-                )
+                return_data.to_csv(save, sep="\t", header=None, index=None)
 
-                data.to_csv(save, sep="\t", header=None, index=None)
-
-                return data
+                return return_data
 
         elif method == "Blockify":
 
             print(
-                "For the Blockify method with background, [expdata, background, pvalue_cutoff, pseudocounts, test_method, min_length, min_length, record] would be utilized."
+                "For the Blockify method with background, [expdata, background, pvalue_cutoff, fdr_cutoff, pseudocounts, test_method, min_length, min_length, record] would be utilized."
             )
 
             if type(record) != bool:
@@ -2772,52 +2748,42 @@ def call_peaks(
             _checkpvalue(pvalue_cutoff, "pvalue_cutoff")
             _checkint(pseudocounts, "pseudocounts")
 
+            return_data = _Blockify(
+                expdata,
+                background,
+                length,
+                pvalue_cutoff=pvalue_cutoff,
+                pseudocounts=pseudocounts,
+                test_method=test_method,
+                record=record,
+            )
+
+            if max_length != None:
+                return_data = return_data[
+                    return_data["End"] - return_data["Start"] <= max_length
+                ]
+
+            if min_length != None:
+                return_data = return_data[
+                    return_data["End"] - return_data["Start"] >= min_length
+                ]
+
+            return_data = _fdrcorrection(return_data, fdr_cutoff, reference)
+
             if save == None or save == False:
 
-                data = _Blockify(
-                    expdata,
-                    background,
-                    length,
-                    pvalue_cutoff=pvalue_cutoff,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    record=record,
-                )
-
-                if max_length != None:
-                    data = data[data["End"] - data["Start"] <= max_length]
-
-                if min_length != None:
-                    data = data[data["End"] - data["Start"] >= min_length]
-
-                return data
+                return return_data
 
             else:
 
-                data = _Blockify(
-                    expdata,
-                    background,
-                    length,
-                    pvalue_cutoff=pvalue_cutoff,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    record=record,
-                )
+                return_data.to_csv(save, sep="\t", header=None, index=None)
 
-                if max_length != None:
-                    data = data[data["End"] - data["Start"] <= max_length]
-
-                if min_length != None:
-                    data = data[data["End"] - data["Start"] >= min_length]
-
-                data.to_csv(save, sep="\t", header=None, index=None)
-
-                return data
+                return return_data
 
         if method == "cc_tools_old":
 
             print(
-                "For the cc_tools method with background, [expdata, background, reference, pvalue, lam_win_size, window_size, step_size,pseudocounts,  record] would be utilized."
+                "For the cc_tools method with background, [expdata, background, reference, pvalue, fdr_cutoff, lam_win_size, window_size, step_size,pseudocounts,  record] would be utilized."
             )
 
             if reference == "hg38":
@@ -2843,38 +2809,30 @@ def call_peaks(
             lam_win_size = _checkint(lam_win_size, "lam_win_size")
             step_size = _checkint(step_size, "step_size")
 
+            return_data = _callpeakscc_tools(
+                expdata,
+                background,
+                TTAAframe,
+                length,
+                window_size=window_size,
+                lam_win_size=lam_win_size,
+                step_size=step_size,
+                pseudocounts=pseudocounts,
+                pvalue_cutoff=pvalue_cutoff,
+                record=record,
+            ).reset_index(drop=True)
+
+            return_data = _fdrcorrection2(return_data, fdr_cutoff, reference)
+
             if save == None or save == False:
 
-                return _callpeakscc_tools(
-                    expdata,
-                    background,
-                    TTAAframe,
-                    length,
-                    window_size=window_size,
-                    lam_win_size=lam_win_size,
-                    step_size=step_size,
-                    pseudocounts=pseudocounts,
-                    pvalue_cutoff=pvalue_cutoff,
-                    record=record,
-                ).reset_index(drop=True)
+                return return_data
+
             else:
 
-                data = _callpeakscc_tools(
-                    expdata,
-                    background,
-                    TTAAframe,
-                    length,
-                    window_size=window_size,
-                    lam_win_size=lam_win_size,
-                    step_size=step_size,
-                    pseudocounts=pseudocounts,
-                    pvalue_cutoff=pvalue_cutoff,
-                    record=record,
-                ).reset_index(drop=True)
+                return_data.to_csv(save, sep="\t", header=None, index=None)
 
-                data.to_csv(save, sep="\t", header=None, index=None)
-
-                return data
+                return return_data
 
         else:
 
@@ -2885,7 +2843,7 @@ def call_peaks(
         if method == "cc_tools":
 
             print(
-                "For the cc_tools method without background, [expdata, reference, pvalue_cutoff, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
+                "For the cc_tools method without background, [expdata, reference, pvalue_cutoff, fdr_cutoff, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
             )
 
             if reference == "hg38":
@@ -2919,7 +2877,7 @@ def call_peaks(
                     names=["Chr", "Start", "End", "Reads"],
                 )
                 length = 0
-                multinumber = 10000000
+                multinumber = 100000000
 
             else:
                 raise ValueError("Not valid reference.")
@@ -2937,49 +2895,43 @@ def call_peaks(
             min_insertions = _checkint(min_insertions, "min_insertions")
             min_insertions = max(min_insertions, 1)
 
+            return_data = _callpeakscc_tools_bfnew2(
+                expdata,
+                TTAAframe,
+                length,
+                extend=extend,
+                pvalue_cutoff=pvalue_cutoff,
+                window_size=window_size,
+                lam_win_size=lam_win_size,
+                step_size=step_size,
+                pseudocounts=pseudocounts,
+                test_method=test_method,
+                min_insertions=min_insertions,
+                record=record,
+                multinumber=multinumber,
+            ).reset_index(drop=True)
+
+            return_data = _fdrcorrection(
+                return_data,
+                fdr_cutoff,
+                reference,
+                pvalue_before="pvalue",
+                pvalue_after="pvalue_adj",
+            )
+
             if save == None or save == False:
 
-                return _callpeakscc_tools_bfnew2(
-                    expdata,
-                    TTAAframe,
-                    length,
-                    extend=extend,
-                    pvalue_cutoff=pvalue_cutoff,
-                    window_size=window_size,
-                    lam_win_size=lam_win_size,
-                    step_size=step_size,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    min_insertions=min_insertions,
-                    record=record,
-                    multinumber=multinumber,
-                ).reset_index(drop=True)
+                return return_data
             else:
 
-                data = _callpeakscc_tools_bfnew2(
-                    expdata,
-                    TTAAframe,
-                    length,
-                    extend=extend,
-                    pvalue_cutoff=pvalue_cutoff,
-                    window_size=window_size,
-                    lam_win_size=lam_win_size,
-                    step_size=step_size,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    min_insertions=min_insertions,
-                    record=record,
-                    multinumber=multinumber,
-                ).reset_index(drop=True)
+                return_data.to_csv(save, sep="\t", header=None, index=None)
 
-                data.to_csv(save, sep="\t", header=None, index=None)
-
-                return data
+                return return_data
 
         elif method == "CCcaller":
 
             print(
-                "For the CCcaller method without background, [expdata, reference, pvalue_cutoff, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_insertions, record] would be utilized."
+                "For the CCcaller method without background, [expdata, reference, pvalue_cutoff, fdr_cutoff, lam_win_size, pseudocounts, minlen, extend, maxbetween, test_method, min_insertions, record] would be utilized."
             )
 
             if reference == "hg38":
@@ -3032,49 +2984,44 @@ def call_peaks(
             min_insertions = _checkint(min_insertions, "min_insertions")
             min_insertions = max(min_insertions, 1)
 
+            return_data = _CCcaller_bf2(
+                expdata,
+                TTAAframe,
+                length,
+                pvalue_cutoff=pvalue_cutoff,
+                mininser=min_insertions,
+                minlen=minlen,
+                extend=extend,
+                maxbetween=maxbetween,
+                lam_win_size=lam_win_size,
+                pseudocounts=pseudocounts,
+                test_method=test_method,
+                record=record,
+                minnum=minnum,
+            )
+
+            return_data = _fdrcorrection(
+                return_data,
+                fdr_cutoff,
+                reference,
+                pvalue_before="pvalue",
+                pvalue_after="pvalue_adj",
+            )
+
             if save == None or save == False:
 
-                return _CCcaller_bf2(
-                    expdata,
-                    TTAAframe,
-                    length,
-                    pvalue_cutoff=pvalue_cutoff,
-                    mininser=min_insertions,
-                    minlen=minlen,
-                    extend=extend,
-                    maxbetween=maxbetween,
-                    lam_win_size=lam_win_size,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    record=record,
-                    minnum=minnum,
-                )
+                return return_data
+
             else:
 
-                data = _CCcaller_bf2(
-                    expdata,
-                    TTAAframe,
-                    length,
-                    pvalue_cutoff=pvalue_cutoff,
-                    mininser=min_insertions,
-                    minlen=minlen,
-                    extend=extend,
-                    maxbetween=maxbetween,
-                    lam_win_size=lam_win_size,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    record=record,
-                    minnum=minnum,
-                )
+                return_data.to_csv(save, sep="\t", header=None, index=None)
 
-                data.to_csv(save, sep="\t", header=None, index=None)
-
-                return data
+                return return_data
 
         elif method == "Blockify":
 
             print(
-                "For the Blockify method with background, [expdata, reference, pvalue_cutoff, pseudocounts, test_method,  record] would be utilized."
+                "For the Blockify method with background, [expdata, reference, pvalue_cutoff, fdr_cutoff, pseudocounts, test_method,  record] would be utilized."
             )
 
             if reference == "hg38":
@@ -3118,47 +3065,43 @@ def call_peaks(
             _check_test_method(test_method)
             _checkpvalue(pvalue_cutoff, "pvalue_cutoff")
 
+            return_data = _Blockify(
+                expdata,
+                TTAAframe,
+                length,
+                pvalue_cutoff=pvalue_cutoff,
+                pseudocounts=pseudocounts,
+                test_method=test_method,
+                record=record,
+            )
+
+            if max_length != None:
+                return_data = return_data[
+                    return_data["End"] - return_data["Start"] <= max_length
+                ]
+
+            if min_length != None:
+                return_data = return_data[
+                    return_data["End"] - return_data["Start"] >= min_length
+                ]
+
+            return_data = _fdrcorrection(
+                return_data,
+                fdr_cutoff,
+                reference,
+                pvalue_before="pvalue",
+                pvalue_after="pvalue_adj",
+            )
+
             if save == None or save == False:
 
-                data = _Blockify(
-                    expdata,
-                    TTAAframe,
-                    length,
-                    pvalue_cutoff=pvalue_cutoff,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    record=record,
-                )
-
-                if max_length != None:
-                    data = data[data["End"] - data["Start"] <= max_length]
-
-                if min_length != None:
-                    data = data[data["End"] - data["Start"] >= min_length]
-
-                return data
+                return return_data
 
             else:
 
-                data = _Blockify(
-                    expdata,
-                    TTAAframe,
-                    length,
-                    pvalue_cutoff=pvalue_cutoff,
-                    pseudocounts=pseudocounts,
-                    test_method=test_method,
-                    record=record,
-                )
+                return_data.to_csv(save, sep="\t", header=None, index=None)
 
-                if max_length != None:
-                    data = data[data["End"] - data["Start"] <= max_length]
-
-                if min_length != None:
-                    data = data[data["End"] - data["Start"] >= min_length]
-
-                data.to_csv(save, sep="\t", header=None, index=None)
-
-                return data
+                return return_data
 
         else:
 
@@ -3199,6 +3142,12 @@ def down_sample(
     return qbed_ram
 
 
+def _closest(lst, K):
+    lst = np.asarray(lst)
+    idx = (np.abs(lst - K)).argmin()
+    return idx
+
+
 def combine_peaks(
     peak_data: pd.DataFrame,
     index: int,
@@ -3222,7 +3171,7 @@ def combine_peaks(
 
     :param peak_data:
         pd.DataFrame for peak data. Please input the original data from call_peaks function.
-    :param index
+    :param index:
         The index for the first peak to combine. Will combine peak index and peak index+1.
     :param expdata:
         pd.DataFrame with the first three columns as chromosome, start and end.
@@ -3318,6 +3267,10 @@ def combine_peaks(
     else:
         raise Exception("Please input expdata.")
 
+    print(
+        "The new pvalue_adj is not the true one. It searches for the cloest one among the data."
+    )
+
     if method == "CCcaller":
 
         TTAAcounts = len(
@@ -3404,6 +3357,13 @@ def combine_peaks(
                     alternative="greater",
                 ).pvalue
 
+            pvalue_adj = peak_data["pvalue_adj Reference"][
+                _closest(list(peak_data["pvalue Reference"]), pvalue)
+            ]
+            pvalue_adj_bg = peak_data["pvalue_adj Background"][
+                _closest(list(peak_data["pvalue Background"]), pvalue_bg)
+            ]
+
             if (
                 (pvalue_cutoffTTAA == None) or (pvalue <= float(pvalue_cutoffTTAA or 0))
             ) and (
@@ -3424,6 +3384,8 @@ def combine_peaks(
                                 expinsertion_TTAA,
                                 pvalue_bg,
                                 pvalue,
+                                pvalue_adj_bg,
+                                pvalue_adj,
                             ]
                         ],
                         columns=index_list,
@@ -3437,12 +3399,14 @@ def combine_peaks(
                     peak_data_temp.iloc[index, 7] = expinsertion_TTAA
                     peak_data_temp.iloc[index, 8] = pvalue_bg
                     peak_data_temp.iloc[index, 9] = pvalue
+                    peak_data_temp.iloc[index, 10] = pvalue_adj_bg
+                    peak_data_temp.iloc[index, 11] = pvalue_adj
                     peak_data_temp = peak_data_temp.drop(index + 1)
 
-                    if totallen == 10:
+                    if totallen == 12:
                         return peak_data_temp.reset_index(drop=True)
                     else:
-                        for i in range(10, totallen):
+                        for i in range(12, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp.reset_index(drop=True)
 
@@ -3458,6 +3422,10 @@ def combine_peaks(
 
         else:
 
+            pvalue_adj = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue)
+            ]
+
             if (pvalue_cutoff == None) or (pvalue <= float(pvalue_cutoff or 0)):
 
                 if return_whole == False:
@@ -3472,6 +3440,7 @@ def combine_peaks(
                                 TTAAcounts,
                                 expinsertion_TTAA,
                                 pvalue,
+                                pvalue_adj,
                             ]
                         ],
                         columns=index_list,
@@ -3483,12 +3452,13 @@ def combine_peaks(
                     peak_data_temp.iloc[index, 4] = TTAAcounts
                     peak_data_temp.iloc[index, 5] = expinsertion_TTAA
                     peak_data_temp.iloc[index, 6] = pvalue
+                    peak_data_temp.iloc[index, 7] = pvalue_adj
                     peak_data_temp = peak_data_temp.drop(index + 1)
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp.reset_index(drop=True)
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp.reset_index(drop=True)
 
@@ -3605,6 +3575,13 @@ def combine_peaks(
                     alternative="greater",
                 ).pvalue
 
+            pvalue_adj = peak_data["pvalue_adj Reference"][
+                _closest(list(peak_data["pvalue Reference"]), pvalue)
+            ]
+            pvalue_adj_bg = peak_data["pvalue_adj Background"][
+                _closest(list(peak_data["pvalue Background"]), pvalue_bg)
+            ]
+
             if (
                 (pvalue_cutoffTTAA == None) or (pvalue <= float(pvalue_cutoffTTAA or 0))
             ) and (
@@ -3629,6 +3606,8 @@ def combine_peaks(
                                 frac_exp_bg,
                                 TPH_bg,
                                 frac_exp - frac_exp_bg,
+                                pvalue_adj_bg,
+                                pvalue_adj,
                             ]
                         ],
                         columns=index_list,
@@ -3646,12 +3625,14 @@ def combine_peaks(
                     peak_data_temp.iloc[index, 11] = frac_exp_bg
                     peak_data_temp.iloc[index, 12] = TPH_bg
                     peak_data_temp.iloc[index, 13] = frac_exp - frac_exp_bg
+                    peak_data_temp.iloc[index, 14] = pvalue_adj_bg
+                    peak_data_temp.iloc[index, 15] = pvalue_adj
                     peak_data_temp = peak_data_temp.drop(index + 1)
 
-                    if totallen == 14:
+                    if totallen == 16:
                         return peak_data_temp.reset_index()
                     else:
-                        for i in range(14, totallen):
+                        for i in range(16, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp.reset_index()
 
@@ -3667,6 +3648,10 @@ def combine_peaks(
                     return peak_data_temp.reset_index()
 
         else:
+
+            pvalue_adj = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue)
+            ]
 
             if (pvalue_cutoff == None) or (pvalue <= float(pvalue_cutoff or 0)):
 
@@ -3697,12 +3682,13 @@ def combine_peaks(
                     peak_data_temp.iloc[index, 7] = frac_exp
                     peak_data_temp.iloc[index, 8] = TPH
                     peak_data_temp.iloc[index, 9] = expinsertion_TTAA
+                    peak_data_temp.iloc[index, 10] = pvalue_adj
                     peak_data_temp = peak_data_temp.drop(index + 1)
 
-                    if totallen == 10:
+                    if totallen == 11:
                         return peak_data_temp.reset_index(drop=True)
                     else:
-                        for i in range(10, totallen):
+                        for i in range(11, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp.reset_index(drop=True)
 
@@ -3750,6 +3736,10 @@ def combine_peaks(
                     alternative="greater",
                 ).pvalue
 
+            pvalue_adj = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue)
+            ]
+
             if (pvalue_cutoffbg == None) or (pvalue <= float(pvalue_cutoffbg or 0)):
 
                 if return_whole == False:
@@ -3763,6 +3753,7 @@ def combine_peaks(
                                 backgroundcounts,
                                 expinsertion_background,
                                 pvalue,
+                                pvalue_adj,
                             ]
                         ],
                         columns=index_list,
@@ -3773,12 +3764,13 @@ def combine_peaks(
                     peak_data_temp.iloc[index, 4] = backgroundcounts
                     peak_data_temp.iloc[index, 5] = expinsertion_background
                     peak_data_temp.iloc[index, 6] = pvalue
+                    peak_data_temp.iloc[index, 7] = pvalue_adj
                     peak_data_temp = peak_data_temp.drop(index + 1)
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp.reset_index(drop=True)
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp.reset_index(drop=True)
 
@@ -3822,6 +3814,10 @@ def combine_peaks(
                     alternative="greater",
                 ).pvalue
 
+            pvalue_adj = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue)
+            ]
+
             if (pvalue_cutoff == None) or (pvalue <= float(pvalue_cutoff or 0)):
 
                 if return_whole == False:
@@ -3835,6 +3831,7 @@ def combine_peaks(
                                 TTAAcounts,
                                 expinsertion_TTAA,
                                 pvalue,
+                                pvalue_adj,
                             ]
                         ],
                         columns=index_list,
@@ -3845,12 +3842,13 @@ def combine_peaks(
                     peak_data_temp.iloc[index, 4] = TTAAcounts
                     peak_data_temp.iloc[index, 5] = expinsertion_TTAA
                     peak_data_temp.iloc[index, 6] = pvalue
+                    peak_data_temp.iloc[index, 7] = pvalue_adj
                     peak_data_temp = peak_data_temp.drop(index + 1)
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp.reset_index(drop=True)
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp.reset_index(drop=True)
 
@@ -3890,11 +3888,11 @@ def separate_peaks(
 
     :param peak_data:
         pd.DataFrame for peak data. Please input the original data from call_peaks function.
-    :param index:
+    :param index
         The index for the peak to separate.
-    :param middle_start:
+    :param middle_start
         The start point of the cutoff which is the end point of the first peak after separation.
-    :param middle_end:
+    :param middle_end
         TThe end point of the cutoff which is the start point of the second peak after separation.
     :param expdata:
         pd.DataFrame with the first three columns as chromosome, start and end.
@@ -4003,6 +4001,10 @@ def separate_peaks(
         )
     else:
         raise Exception("Please input expdata.")
+
+    print(
+        "The new pvalue_adj is not the true one. It searches for the cloest one among the data."
+    )
 
     if method == "CCcaller":
 
@@ -4171,6 +4173,19 @@ def separate_peaks(
                     alternative="greater",
                 ).pvalue
 
+            pvalue_adj1 = peak_data["pvalue_adj Reference"][
+                _closest(list(peak_data["pvalue Reference"]), pvalue1)
+            ]
+            pvalue_adj_bg1 = peak_data["pvalue_adj Background"][
+                _closest(list(peak_data["pvalue Background"]), pvalue_bg1)
+            ]
+            pvalue_adj2 = peak_data["pvalue_adj Reference"][
+                _closest(list(peak_data["pvalue Reference"]), pvalue2)
+            ]
+            pvalue_adj_bg2 = peak_data["pvalue_adj Background"][
+                _closest(list(peak_data["pvalue Background"]), pvalue_bg2)
+            ]
+
             condition1 = (
                 (pvalue_cutoffTTAA == None)
                 or (pvalue1 <= float(pvalue_cutoffTTAA or 0))
@@ -4200,6 +4215,8 @@ def separate_peaks(
                                 expinsertion_TTAA1,
                                 pvalue_bg1,
                                 pvalue1,
+                                pvalue_adj_bg1,
+                                pvalue_adj1,
                             ],
                             [
                                 chrom,
@@ -4212,6 +4229,8 @@ def separate_peaks(
                                 expinsertion_TTAA2,
                                 pvalue_bg2,
                                 pvalue2,
+                                pvalue_adj_bg2,
+                                pvalue_adj2,
                             ],
                         ],
                         columns=index_list,
@@ -4232,21 +4251,23 @@ def separate_peaks(
                     peak_1.iloc[index, 7] = expinsertion_TTAA1
                     peak_1.iloc[index, 8] = pvalue_bg1
                     peak_1.iloc[index, 9] = pvalue1
+                    peak_1.iloc[index, 10] = pvalue_adj_bg1
+                    peak_1.iloc[index, 11] = pvalue_adj1
                     peak_2.iloc[0, 1] = middle_end
                     peak_2.iloc[0, 3] = expdatacounts2
                     peak_2.iloc[0, 4] = backgroundcounts2
                     peak_2.iloc[0, 5] = TTAAcounts2
                     peak_2.iloc[0, 6] = expinsertion_bg2
                     peak_2.iloc[0, 7] = expinsertion_TTAA2
-                    peak_2.iloc[0, 8] = pvalue_bg2
-                    peak_2.iloc[0, 9] = pvalue2
+                    peak_2.iloc[0, 10] = pvalue_adj_bg2
+                    peak_2.iloc[0, 11] = pvalue_adj2
                     peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
                     peak_data_temp = peak_data_temp.reset_index(drop=True)
 
-                    if totallen == 10:
+                    if totallen == 12:
                         return peak_data_temp
                     else:
-                        for i in range(10, totallen):
+                        for i in range(12, totallen):
                             peak_data_temp.iloc[index, i] = None
                             peak_data_temp.iloc[index + 1, i] = None
                         return peak_data_temp
@@ -4267,6 +4288,8 @@ def separate_peaks(
                                 expinsertion_TTAA1,
                                 pvalue_bg1,
                                 pvalue1,
+                                pvalue_adj_bg1,
+                                pvalue_adj1,
                             ]
                         ],
                         columns=index_list,
@@ -4281,11 +4304,13 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 7] = expinsertion_TTAA1
                     peak_data_temp.iloc[index, 8] = pvalue_bg1
                     peak_data_temp.iloc[index, 9] = pvalue1
+                    peak_data_temp.iloc[index, 10] = pvalue_adj_bg1
+                    peak_data_temp.iloc[index, 11] = pvalue_adj1
 
-                    if totallen == 10:
+                    if totallen == 12:
                         return peak_data_temp
                     else:
-                        for i in range(10, totallen):
+                        for i in range(12, totallen):
                             peak_data_temp.iloc[index, :][i] = None
                         return peak_data_temp
 
@@ -4305,6 +4330,8 @@ def separate_peaks(
                                 expinsertion_TTAA2,
                                 pvalue_bg2,
                                 pvalue2,
+                                pvalue_adj_bg2,
+                                pvalue_adj2,
                             ]
                         ],
                         columns=index_list,
@@ -4319,11 +4346,13 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 7] = expinsertion_TTAA2
                     peak_data_temp.iloc[index, 8] = pvalue_bg2
                     peak_data_temp.iloc[index, 9] = pvalue2
+                    peak_data_temp.iloc[index, 10] = pvalue_adj_bg2
+                    peak_data_temp.iloc[index, 11] = pvalue_adj2
 
-                    if totallen == 10:
+                    if totallen == 12:
                         return peak_data_temp
                     else:
-                        for i in range(10, totallen):
+                        for i in range(12, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -4336,6 +4365,13 @@ def separate_peaks(
                     return peak_data_temp.reset_index(drop=True)
 
         else:
+
+            pvalue_adj1 = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue1)
+            ]
+            pvalue_adj2 = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue2)
+            ]
 
             condition1 = (pvalue_cutoff == None) or (
                 pvalue1 <= float(pvalue_cutoff or 0)
@@ -4358,6 +4394,7 @@ def separate_peaks(
                                 TTAAcounts1,
                                 expinsertion_TTAA1,
                                 pvalue1,
+                                pvalue_adj1,
                             ],
                             [
                                 chrom,
@@ -4367,6 +4404,7 @@ def separate_peaks(
                                 TTAAcounts2,
                                 expinsertion_TTAA2,
                                 pvalue2,
+                                pvalue_adj2,
                             ],
                         ],
                         columns=index_list,
@@ -4385,20 +4423,22 @@ def separate_peaks(
                     peak_1.iloc[index, 4] = TTAAcounts1
                     peak_1.iloc[index, 5] = expinsertion_TTAA1
                     peak_1.iloc[index, 6] = pvalue1
+                    peak_1.iloc[index, 7] = pvalue_adj1
 
                     peak_2.iloc[0, 1] = middle_end
                     peak_2.iloc[0, 3] = expdatacounts2
                     peak_2.iloc[0, 4] = TTAAcounts2
                     peak_2.iloc[0, 5] = expinsertion_TTAA2
                     peak_2.iloc[0, 6] = pvalue2
+                    peak_2.iloc[0, 7] = pvalue_adj2
 
                     peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
                     peak_data_temp = peak_data_temp.reset_index(drop=True)
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                             peak_data_temp.iloc[index + 1, i] = None
                         return peak_data_temp
@@ -4417,6 +4457,7 @@ def separate_peaks(
                                 TTAAcounts1,
                                 expinsertion_TTAA1,
                                 pvalue1,
+                                pvalue_adj1,
                             ]
                         ],
                         columns=index_list,
@@ -4429,11 +4470,12 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 4] = TTAAcounts1
                     peak_data_temp.iloc[index, 5] = expinsertion_TTAA1
                     peak_data_temp.iloc[index, 6] = pvalue1
+                    peak_data_temp.iloc[index, 7] = pvalue_adj1
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -4451,6 +4493,7 @@ def separate_peaks(
                                 TTAAcounts2,
                                 expinsertion_TTAA2,
                                 pvalue2,
+                                pvalue_adj2,
                             ]
                         ],
                         columns=index_list,
@@ -4463,11 +4506,12 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 4] = TTAAcounts2
                     peak_data_temp.iloc[index, 5] = expinsertion_TTAA2
                     peak_data_temp.iloc[index, 6] = pvalue2
+                    peak_data_temp.iloc[index, 7] = pvalue_adj2
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -4498,6 +4542,9 @@ def separate_peaks(
                 & (TTAA_data[2] <= end)
             ]
         )
+
+        print(TTAAcounts1)
+        print(TTAAcounts2)
 
         if lam_win_size == None:
             expdatacounts_lam1 = len(expdata[(expdata["Chr"] == chrom)])
@@ -4676,6 +4723,19 @@ def separate_peaks(
                     alternative="greater",
                 ).pvalue
 
+            pvalue_adj1 = peak_data["pvalue_adj Reference"][
+                _closest(list(peak_data["pvalue Reference"]), pvalue1)
+            ]
+            pvalue_adj_bg1 = peak_data["pvalue_adj Background"][
+                _closest(list(peak_data["pvalue Background"]), pvalue_bg1)
+            ]
+            pvalue_adj2 = peak_data["pvalue_adj Reference"][
+                _closest(list(peak_data["pvalue Reference"]), pvalue2)
+            ]
+            pvalue_adj_bg2 = peak_data["pvalue_adj Background"][
+                _closest(list(peak_data["pvalue Background"]), pvalue_bg2)
+            ]
+
             condition1 = (
                 (pvalue_cutoffTTAA == None)
                 or (pvalue1 <= float(pvalue_cutoffTTAA or 0))
@@ -4709,6 +4769,8 @@ def separate_peaks(
                                 frac_exp_bg1,
                                 TPH_bg1,
                                 frac_exp1 - frac_exp_bg1,
+                                pvalue_adj_bg1,
+                                pvalue_adj1,
                             ],
                             [
                                 chrom,
@@ -4725,6 +4787,8 @@ def separate_peaks(
                                 frac_exp_bg2,
                                 TPH_bg2,
                                 frac_exp2 - frac_exp_bg2,
+                                pvalue_adj_bg2,
+                                pvalue_adj2,
                             ],
                         ],
                         columns=index_list,
@@ -4749,6 +4813,8 @@ def separate_peaks(
                     peak_1.iloc[index, 11] = frac_exp_bg1
                     peak_1.iloc[index, 12] = TPH_bg1
                     peak_1.iloc[index, 13] = frac_exp1 - frac_exp_bg1
+                    peak_1.iloc[index, 14] = pvalue_adj_bg1
+                    peak_1.iloc[index, 15] = pvalue_adj1
 
                     peak_2.iloc[index, 1] = middle_end
                     peak_2.iloc[index, 3] = counts_median2
@@ -4762,14 +4828,16 @@ def separate_peaks(
                     peak_2.iloc[index, 11] = frac_exp_bg2
                     peak_2.iloc[index, 12] = TPH_bg2
                     peak_2.iloc[index, 13] = frac_exp2 - frac_exp_bg2
+                    peak_2.iloc[index, 14] = pvalue_adj_bg2
+                    peak_2.iloc[index, 15] = pvalue_adj2
 
                     peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
                     peak_data_temp = peak_data_temp.reset_index(drop=True)
 
-                    if totallen == 14:
+                    if totallen == 16:
                         return peak_data_temp
                     else:
-                        for i in range(14, totallen):
+                        for i in range(16, totallen):
                             peak_data_temp.iloc[index, i] = None
                             peak_data_temp.iloc[index + 1, i] = None
                         return peak_data_temp
@@ -4795,6 +4863,8 @@ def separate_peaks(
                                 frac_exp_bg1,
                                 TPH_bg1,
                                 frac_exp1 - frac_exp_bg1,
+                                pvalue_adj_bg1,
+                                pvalue_adj1,
                             ]
                         ],
                         columns=index_list,
@@ -4814,11 +4884,13 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 11] = frac_exp_bg1
                     peak_data_temp.iloc[index, 12] = TPH_bg1
                     peak_data_temp.iloc[index, 13] = frac_exp1 - frac_exp_bg1
+                    peak_data_temp.iloc[index, 14] = pvalue_adj_bg1
+                    peak_data_temp.iloc[index, 15] = pvalue_adj1
 
-                    if totallen == 14:
+                    if totallen == 16:
                         return peak_data_temp
                     else:
-                        for i in range(14, totallen):
+                        for i in range(16, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -4843,6 +4915,8 @@ def separate_peaks(
                                 frac_exp_bg2,
                                 TPH_bg2,
                                 frac_exp2 - frac_exp_bg2,
+                                pvalue_adj_bg2,
+                                pvalue_adj2,
                             ]
                         ],
                         columns=index_list,
@@ -4862,11 +4936,13 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 11] = frac_exp_bg2
                     peak_data_temp.iloc[index, 12] = TPH_bg2
                     peak_data_temp.iloc[index, 13] = frac_exp2 - frac_exp_bg2
+                    peak_data_temp.iloc[index, 14] = pvalue_adj_bg2
+                    peak_data_temp.iloc[index, 15] = pvalue_adj2
 
-                    if totallen == 14:
+                    if totallen == 16:
                         return peak_data_temp
                     else:
-                        for i in range(14, totallen):
+                        for i in range(16, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -4881,6 +4957,13 @@ def separate_peaks(
                     return peak_data_temp
 
         else:
+
+            pvalue_adj1 = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue1)
+            ]
+            pvalue_adj2 = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue2)
+            ]
 
             condition1 = (pvalue_cutoff == None) or (
                 pvalue1 <= float(pvalue_cutoff or 0)
@@ -4905,6 +4988,7 @@ def separate_peaks(
                                 frac_exp1,
                                 TPH1,
                                 expinsertion_TTAA1,
+                                pvalue_adj1,
                             ],
                             [
                                 chrom,
@@ -4917,6 +5001,7 @@ def separate_peaks(
                                 frac_exp2,
                                 TPH2,
                                 expinsertion_TTAA2,
+                                pvalue_adj2,
                             ],
                         ],
                         columns=index_list,
@@ -4937,6 +5022,7 @@ def separate_peaks(
                     peak_1.iloc[index, 7] = frac_exp1
                     peak_1.iloc[index, 8] = TPH1
                     peak_1.iloc[index, 9] = expinsertion_TTAA1
+                    peak_1.iloc[index, 10] = pvalue_adj1
 
                     peak_2.iloc[index, 1] = middle_end
                     peak_2.iloc[index, 3] = counts_median2
@@ -4946,14 +5032,15 @@ def separate_peaks(
                     peak_2.iloc[index, 7] = frac_exp2
                     peak_2.iloc[index, 8] = TPH2
                     peak_2.iloc[index, 9] = expinsertion_TTAA2
+                    peak_2.iloc[index, 10] = pvalue_adj2
 
                     peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
                     peak_data_temp = peak_data_temp.reset_index(drop=True)
 
-                    if totallen == 10:
+                    if totallen == 11:
                         return peak_data_temp.reset_index(drop=True)
                     else:
-                        for i in range(10, totallen):
+                        for i in range(11, totallen):
                             peak_data_temp.iloc[index, i] = None
                             peak_data_temp.iloc[index + 1, i] = None
                         return peak_data_temp.reset_index(drop=True)
@@ -4975,6 +5062,7 @@ def separate_peaks(
                                 frac_exp1,
                                 TPH1,
                                 expinsertion_TTAA1,
+                                pvalue_adj1,
                             ]
                         ],
                         columns=index_list,
@@ -4990,11 +5078,12 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 7] = frac_exp1
                     peak_data_temp.iloc[index, 8] = TPH1
                     peak_data_temp.iloc[index, 9] = expinsertion_TTAA1
+                    peak_data_temp.iloc[index, 10] = pvalue_adj1
 
-                    if totallen == 10:
+                    if totallen == 11:
                         return peak_data_temp
                     else:
-                        for i in range(10, totallen):
+                        for i in range(11, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -5015,6 +5104,7 @@ def separate_peaks(
                                 frac_exp2,
                                 TPH2,
                                 expinsertion_TTAA2,
+                                pvalue_adj2,
                             ]
                         ],
                         columns=index_list,
@@ -5030,11 +5120,12 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 7] = frac_exp2
                     peak_data_temp.iloc[index, 8] = TPH2
                     peak_data_temp.iloc[index, 9] = expinsertion_TTAA2
+                    peak_data_temp.iloc[index, 10] = pvalue_adj2
 
-                    if totallen == 10:
+                    if totallen == 11:
                         return peak_data_temp
                     else:
-                        for i in range(10, totallen):
+                        for i in range(11, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -5107,6 +5198,13 @@ def separate_peaks(
                     alternative="greater",
                 ).pvalue
 
+            pvalue_adj1 = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue1)
+            ]
+            pvalue_adj2 = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue2)
+            ]
+
             condition1 = (pvalue_cutoff == None) or (
                 pvalue1 <= float(pvalue_cutoff or 0)
             )
@@ -5128,6 +5226,7 @@ def separate_peaks(
                                 backgroundcounts1,
                                 expinsertion_background1,
                                 pvalue1,
+                                pvalue_adj1,
                             ],
                             [
                                 chrom,
@@ -5137,6 +5236,7 @@ def separate_peaks(
                                 backgroundcounts2,
                                 expinsertion_background2,
                                 pvalue2,
+                                pvalue_adj2,
                             ],
                         ],
                         columns=index_list,
@@ -5155,20 +5255,22 @@ def separate_peaks(
                     peak_1.iloc[index, 4] = backgroundcounts1
                     peak_1.iloc[index, 5] = expinsertion_background1
                     peak_1.iloc[index, 6] = pvalue1
+                    peak_1.iloc[index, 7] = pvalue_adj1
 
                     peak_2.iloc[index, 1] = middle_end
                     peak_2.iloc[index, 3] = expdatacounts2
                     peak_2.iloc[index, 4] = backgroundcounts2
                     peak_2.iloc[index, 5] = expinsertion_background2
                     peak_2.iloc[index, 6] = pvalue2
+                    peak_2.iloc[index, 7] = pvalue_adj2
 
                     peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
                     peak_data_temp = peak_data_temp.reset_index(drop=True)
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp.reset_index(drop=True)
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp.reset_index(drop=True)
 
@@ -5186,6 +5288,7 @@ def separate_peaks(
                                 backgroundcounts1,
                                 expinsertion_background1,
                                 pvalue1,
+                                pvalue_adj1,
                             ]
                         ],
                         columns=index_list,
@@ -5198,11 +5301,12 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 4] = backgroundcounts1
                     peak_data_temp.iloc[index, 5] = expinsertion_background1
                     peak_data_temp.iloc[index, 6] = pvalue1
+                    peak_data_temp.iloc[index, 7] = pvalue_adj1
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -5220,6 +5324,7 @@ def separate_peaks(
                                 backgroundcounts2,
                                 expinsertion_background2,
                                 pvalue2,
+                                pvalue_adj2,
                             ]
                         ],
                         columns=index_list,
@@ -5232,11 +5337,12 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 4] = backgroundcounts2
                     peak_data_temp.iloc[index, 5] = expinsertion_background2
                     peak_data_temp.iloc[index, 6] = pvalue2
+                    peak_data_temp.iloc[index, 7] = pvalue_adj2
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -5307,6 +5413,13 @@ def separate_peaks(
                     alternative="greater",
                 ).pvalue
 
+            pvalue_adj1 = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue1)
+            ]
+            pvalue_adj2 = peak_data["pvalue_adj"][
+                _closest(list(peak_data["pvalue"]), pvalue2)
+            ]
+
             condition1 = (pvalue_cutoff == None) or (
                 pvalue1 <= float(pvalue_cutoff or 0)
             )
@@ -5328,6 +5441,7 @@ def separate_peaks(
                                 backgroundcounts1,
                                 expinsertion_background1,
                                 pvalue1,
+                                pvalue_adj1,
                             ],
                             [
                                 chrom,
@@ -5337,6 +5451,7 @@ def separate_peaks(
                                 backgroundcounts2,
                                 expinsertion_background2,
                                 pvalue2,
+                                pvalue_adj2,
                             ],
                         ],
                         columns=index_list,
@@ -5355,20 +5470,22 @@ def separate_peaks(
                     peak_1.iloc[index, 4] = backgroundcounts1
                     peak_1.iloc[index, 5] = expinsertion_background1
                     peak_1.iloc[index, 6] = pvalue1
+                    peak_1.iloc[index, 7] = pvalue_adj1
 
                     peak_2.iloc[index, 1] = middle_end
                     peak_2.iloc[index, 3] = expdatacounts2
                     peak_2.iloc[index, 4] = backgroundcounts2
                     peak_2.iloc[index, 5] = expinsertion_background2
                     peak_2.iloc[index, 6] = pvalue2
+                    peak_2.iloc[index, 7] = pvalue_adj2
 
                     peak_data_temp = pd.concat([peak_1, peak_2], ignore_index=True)
                     peak_data_temp = peak_data_temp.reset_index(drop=True)
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp.reset_index(drop=True)
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp.reset_index(drop=True)
 
@@ -5386,6 +5503,7 @@ def separate_peaks(
                                 backgroundcounts1,
                                 expinsertion_background1,
                                 pvalue1,
+                                pvalue_adj1,
                             ]
                         ],
                         columns=index_list,
@@ -5398,11 +5516,12 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 4] = backgroundcounts1
                     peak_data_temp.iloc[index, 5] = expinsertion_background1
                     peak_data_temp.iloc[index, 6] = pvalue1
+                    peak_data_temp.iloc[index, 7] = pvalue_adj1
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -5420,6 +5539,7 @@ def separate_peaks(
                                 backgroundcounts2,
                                 expinsertion_background2,
                                 pvalue2,
+                                pvalue_adj2,
                             ]
                         ],
                         columns=index_list,
@@ -5432,11 +5552,12 @@ def separate_peaks(
                     peak_data_temp.iloc[index, 4] = backgroundcounts2
                     peak_data_temp.iloc[index, 5] = expinsertion_background2
                     peak_data_temp.iloc[index, 6] = pvalue2
+                    peak_data_temp.iloc[index, 7] = pvalue_adj2
 
-                    if totallen == 7:
+                    if totallen == 8:
                         return peak_data_temp
                     else:
-                        for i in range(7, totallen):
+                        for i in range(8, totallen):
                             peak_data_temp.iloc[index, i] = None
                         return peak_data_temp
 
@@ -5448,3 +5569,114 @@ def separate_peaks(
                     peak_data_temp = peak_data_temp.drop(index)
 
                     return peak_data_temp.reset_index(drop=True)
+
+
+def _fdrcorrection(
+    peak_data,
+    alpha=0.05,
+    reference="mm10",
+    pvalue_before="pvalue",
+    pvalue_after="pvalue_adj",
+):
+
+    peak_data_temp = peak_data.copy()
+    pvals = np.array(peak_data_temp[pvalue_before])
+
+    if reference == "mm10":
+        total_length = 2730871774
+    elif reference == "hg38":
+        total_length = 3137300923
+    elif reference == "sacCer3":
+        total_length = 12157105
+
+    pvals_sortind = np.argsort(pvals)
+    pvals_sorted = np.take(pvals, pvals_sortind)
+    obs = int(
+        total_length / np.array(peak_data_temp["End"] - peak_data_temp["Start"]).mean()
+    )
+    ecdffactor = (np.arange(1, obs + 1) / float(obs))[: len(pvals)]
+    reject = pvals_sorted <= ecdffactor * alpha
+
+    if reject.any():
+        rejectmax = max(np.nonzero(reject)[0])
+        reject[:rejectmax] = True
+
+    pvals_corrected_raw = pvals_sorted / ecdffactor
+    pvals_corrected = np.minimum.accumulate(pvals_corrected_raw[::-1])[::-1]
+    del pvals_corrected_raw
+    pvals_corrected[pvals_corrected > 1] = 1
+
+    pvals_corrected_ = np.empty_like(pvals_corrected)
+    pvals_corrected_[pvals_sortind] = pvals_corrected
+    del pvals_corrected
+    reject_ = np.empty_like(reject)
+    reject_[pvals_sortind] = reject
+
+    peak_data_temp[pvalue_after] = pvals_corrected_
+
+    return peak_data_temp[reject_].reset_index(drop=True)
+
+
+def _fdrcorrection2(
+    peak_data,
+    alpha=0.05,
+    reference="mm10",
+    pvalue_before1="pvalue Reference",
+    pvalue_before2="pvalue Background",
+    pvalue_after1="pvalue_adj Reference",
+    pvalue_after2="pvalue_adj Background",
+):
+
+    peak_data_temp = peak_data.copy()
+    pvals1 = np.array(peak_data_temp[pvalue_before1])
+    pvals2 = np.array(peak_data_temp[pvalue_before2])
+
+    if reference == "mm10":
+        total_length = 2730871774
+    elif reference == "hg38":
+        total_length = 3137300923
+    elif reference == "sacCer3":
+        total_length = 12157105
+
+    obs = int(
+        total_length / np.array(peak_data_temp["End"] - peak_data_temp["Start"]).mean()
+    )
+
+    r1, p1 = _one_shot(pvals1, alpha, obs)
+    r2, p2 = _one_shot(pvals2, alpha, obs)
+
+    peak_data_temp[pvalue_after2] = p2
+    peak_data_temp[pvalue_after1] = p1
+    peak_data_temp["temp1"] = r1
+    peak_data_temp["temp2"] = r2
+
+    peak_data_temp = peak_data_temp[peak_data_temp.temp1]
+    peak_data_temp = peak_data_temp[peak_data_temp.temp2]
+    peak_data_temp = peak_data_temp.drop(columns=["temp1", "temp2"])
+
+    return peak_data_temp.reset_index(drop=True)
+
+
+def _one_shot(pvals, alpha, obs):
+
+    pvals_sortind = np.argsort(pvals)
+    pvals_sorted = np.take(pvals, pvals_sortind)
+    ecdffactor = (np.arange(1, obs + 1) / float(obs))[: len(pvals)]
+    reject = pvals_sorted <= ecdffactor * alpha
+
+    if reject.any():
+        rejectmax = max(np.nonzero(reject)[0])
+        reject[:rejectmax] = True
+
+    pvals_corrected_raw = pvals_sorted / ecdffactor
+    pvals_corrected = np.minimum.accumulate(pvals_corrected_raw[::-1])[::-1]
+    del pvals_corrected_raw
+    pvals_corrected[pvals_corrected > 1] = 1
+
+    pvals_corrected_ = np.empty_like(pvals_corrected)
+    pvals_corrected_[pvals_sortind] = pvals_corrected
+    del pvals_corrected
+    reject_ = np.empty_like(reject)
+    reject_[pvals_sortind] = reject
+
+    return reject_, pvals_corrected_
