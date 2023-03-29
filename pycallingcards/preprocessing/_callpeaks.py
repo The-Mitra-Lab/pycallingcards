@@ -3669,6 +3669,7 @@ def combine_peaks(
                                 frac_exp,
                                 TPH,
                                 expinsertion_TTAA,
+                                pvalue_adj,
                             ]
                         ],
                         columns=index_list,
@@ -4542,9 +4543,6 @@ def separate_peaks(
                 & (TTAA_data[2] <= end)
             ]
         )
-
-        print(TTAAcounts1)
-        print(TTAAcounts2)
 
         if lam_win_size == None:
             expdatacounts_lam1 = len(expdata[(expdata["Chr"] == chrom)])
@@ -5579,6 +5577,9 @@ def _fdrcorrection(
     pvalue_after="pvalue_adj",
 ):
 
+    if len(peak_data) == 0:
+        return peak_data
+
     peak_data_temp = peak_data.copy()
     pvals = np.array(peak_data_temp[pvalue_before])
 
@@ -5626,6 +5627,9 @@ def _fdrcorrection2(
     pvalue_after1="pvalue_adj Reference",
     pvalue_after2="pvalue_adj Background",
 ):
+
+    if len(peak_data) == 0:
+        return peak_data
 
     peak_data_temp = peak_data.copy()
     pvals1 = np.array(peak_data_temp[pvalue_before1])
