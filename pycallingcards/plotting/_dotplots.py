@@ -37,6 +37,7 @@ def _dotplot_bulk_bysample(
 
     """\
     Plot ranking of peaks.
+
     :param adata_cc:
         Anndata of peak.
     :param rna:
@@ -231,6 +232,7 @@ def _dotplot_bulk_bygroup_rep(
 
     """\
     Plot ranking of peaks.
+
     :param adata_cc:
         Anndata of peak.
     :param rna:

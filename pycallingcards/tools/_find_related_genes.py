@@ -11,8 +11,10 @@ def pair_peak_gene_sc(
     adata_cc: AnnData,
     adata: AnnData,
     peak_annotation: pd.DataFrame,
-    pvalue_cutoff_cc: float = 0.001,
-    pvalue_cutoff_rna: float = 0.001,
+    pvalue_adj_cutoff_cc: Optional[float] = 0.01,
+    pvalue_adj_cutoff_rna: Optional[float] = 0.01,
+    pvalue_cutoff_cc: Optional[float] = None,
+    pvalue_cutoff_rna: Optional[float] = None,
     lfc_cutoff: float = 3,
     score_cutoff: float = 3,
     group_cc: str = "binomtest",
@@ -31,6 +33,10 @@ def pair_peak_gene_sc(
         Anndata for RNA.
     :param peak_annotation:
         peak_annotation gotten from cc.pp.annotation and cc.pp.combine_annotation
+    :param pvalue_adj_cutoff_cc:
+        The cut off value for the adjusted pvalues of adata_cc.
+    :param pvalue_adj_cutoff_rna:
+        The cut off value for the adjusted pvalues of adata.
     :param pvalue_cutoff_cc:
         The cut off value for the pvalues of adata_cc.
     :param pvalue_cutoff_rna:
@@ -63,10 +69,12 @@ def pair_peak_gene_sc(
     """
 
     pvalue_cc = np.array(adata_cc.uns[group_cc]["pvalues"].tolist())
+    pvalue_adj_cc = np.array(adata_cc.uns[group_cc]["pvalues_adj"].tolist())
     name_cc = np.array(adata_cc.uns[group_cc]["names"].tolist())
     lfg_cc = np.array(adata_cc.uns[group_cc]["logfoldchanges"].tolist())
     score_adata = np.array(adata.uns[group_adata]["scores"].tolist())
     pvalue_adata = np.array(adata.uns[group_adata]["pvals"].tolist())
+    pvalue_adj_adata = np.array(adata.uns[group_adata]["pvals_adj"].tolist())
     name_adata = np.array(adata.uns[group_adata]["names"].tolist())
     peak_annotation["name"] = (
         peak_annotation["Chr"].astype(str)
@@ -84,8 +92,9 @@ def pair_peak_gene_sc(
     for cluster in range(pvalue_cc.shape[1]):
         for peak in range(pvalue_cc.shape[0]):
             if (
-                pvalue_cc[peak, cluster] <= pvalue_cutoff_cc
+                pvalue_cc[peak, cluster] <= float(pvalue_cutoff_cc or 1)
                 and abs(lfg_cc[peak, cluster]) >= lfc_cutoff
+                and pvalue_adj_cc[peak, cluster] <= float(pvalue_adj_cutoff_cc or 1)
             ):
                 rnalist = list(
                     peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
@@ -96,11 +105,15 @@ def pair_peak_gene_sc(
                     if rna in rnalists:
                         if (
                             pvalue_adata[:, cluster][name_adata[:, cluster] == rna]
-                            <= pvalue_cutoff_rna
+                            <= float(pvalue_cutoff_rna or 1)
                             and abs(
                                 score_adata[:, cluster][name_adata[:, cluster] == rna]
                             )
                             >= score_cutoff
+                            and pvalue_adj_adata[:, cluster][
+                                name_adata[:, cluster] == rna
+                            ]
+                            <= float(pvalue_adj_cutoff_rna or 1)
                         ):
 
                             result.append(
@@ -109,11 +122,15 @@ def pair_peak_gene_sc(
                                     name_cc[peak, cluster],
                                     lfg_cc[peak, cluster],
                                     pvalue_cc[peak, cluster],
+                                    pvalue_adj_cc[peak, cluster],
                                     rna,
                                     score_adata[:, cluster][
                                         name_adata[:, cluster] == rna
                                     ][0],
                                     pvalue_adata[:, cluster][
+                                        name_adata[:, cluster] == rna
+                                    ][0],
+                                    pvalue_adj_adata[:, cluster][
                                         name_adata[:, cluster] == rna
                                     ][0],
                                 ]
@@ -128,9 +145,11 @@ def pair_peak_gene_sc(
             "Peak",
             "Logfoldchanges",
             "Pvalue_peak",
+            "Pvalue_adj_peak",
             "Gene",
             "Score_gene",
             "Pvalue_gene",
+            "Pvalue_adj_gene",
         ],
     )
 
@@ -138,12 +157,15 @@ def pair_peak_gene_sc(
 def pair_peak_gene_bulk(
     adata_cc: AnnData,
     deresult: Union[str, pd.DataFrame],
-    pvalue_cutoff_cc: float = 0.001,
-    pvalue_cutoff_rna: float = 0.001,
+    pvalue_adj_cutoff_cc: Optional[float] = 0.01,
+    pvalue_adj_cutoff_rna: Optional[float] = 0.01,
+    pvalue_cutoff_cc: Optional[float] = None,
+    pvalue_cutoff_rna: Optional[float] = None,
     lfc_cutoff_cc: float = 3,
     lfc_cutoff_rna: float = 3,
     group_cc: str = "fisher_exact",
     name_cc: str = "logfoldchanges",
+    name_bulk: list = ["pvalue", "padj", "log2FoldChange"],
 ) -> pd.DataFrame:
 
     """\
@@ -154,6 +176,10 @@ def pair_peak_gene_bulk(
         Anndata for callingcards
     :param deresult:
         Results from DEseq2 could be a pandas dataframe or the path to the csv file.
+    :param pvalue_adj_cutoff_cc:
+        The cut off value for the adjusted pvalues of adata_cc.
+    :param pvalue_adj_cutoff_rna:
+        The cut off value for the adjusted pvalues of adata.
     :param pvalue_cutoff_cc:
         The cut off value for the pvalues of adata_cc.
     :param pvalue_cutoff_rna:
@@ -184,6 +210,9 @@ def pair_peak_gene_bulk(
     ind = 0
     de_dic["names"] = np.array(adata_cc.uns[group_cc]["names"].tolist())[:, ind]
     de_dic["pvalues"] = np.array(adata_cc.uns[group_cc]["pvalues"].tolist())[:, ind]
+    de_dic["pvalues_adj"] = np.array(adata_cc.uns[group_cc]["pvalues_adj"].tolist())[
+        :, ind
+    ]
     de_dic[name_cc] = np.array(adata_cc.uns[group_cc][name_cc].tolist())[:, ind]
     de_pd = pd.DataFrame.from_dict(de_dic).set_index("names").loc[adata_cc.var.index]
     de_pd.reset_index(inplace=True)
@@ -195,25 +224,33 @@ def pair_peak_gene_bulk(
     peak_rna = adata_cc.var[["Gene Name1", "Gene Name2"]]
 
     for peak in range(len(peaks)):
-        if (de_pd.iloc[peak, 1] <= pvalue_cutoff_cc) and (
-            abs(de_pd.iloc[peak, 2]) >= lfc_cutoff_cc
+        if (
+            (de_pd.iloc[peak, 1] <= float(pvalue_cutoff_cc or 1))
+            and (abs(de_pd.iloc[peak, 3]) >= lfc_cutoff_cc)
+            and (de_pd.iloc[peak, 2] <= float(pvalue_adj_cutoff_cc or 1))
         ):
 
             genes = list(peak_rna.iloc[peak])
             for gene in genes:
                 if (
                     (gene in rna_list)
-                    and (rnade.loc[gene]["pvalue"] <= pvalue_cutoff_rna)
-                    and (abs(rnade.loc[gene]["log2FoldChange"]) >= lfc_cutoff_rna)
+                    and (rnade.loc[gene][name_bulk[0]] <= float(pvalue_cutoff_cc or 1))
+                    and (
+                        rnade.loc[gene][name_bulk[1]]
+                        <= float(pvalue_adj_cutoff_cc or 1)
+                    )
+                    and (abs(rnade.loc[gene][name_bulk[2]]) >= lfc_cutoff_rna)
                 ):
                     result.append(
                         [
                             peaks[peak],
-                            de_pd.iloc[peak, 2],
+                            de_pd.iloc[peak, 3],
                             de_pd.iloc[peak, 1],
+                            de_pd.iloc[peak, 2],
                             gene,
-                            rnade.loc[gene]["log2FoldChange"],
-                            rnade.loc[gene]["pvalue"],
+                            rnade.loc[gene][name_bulk[2]],
+                            rnade.loc[gene][name_bulk[0]],
+                            rnade.loc[gene][name_bulk[1]],
                         ]
                     )
 
@@ -223,9 +260,11 @@ def pair_peak_gene_bulk(
             "Peak",
             name_cc + "_peak",
             "Pvalue_peak",
+            "Pvalue_adj_peak",
             "Gene",
             "Score_gene",
-            "Pvalue_peak",
+            "Pvalue_gene",
+            "Pvalue_adj_gene",
         ],
     )
 
@@ -235,8 +274,10 @@ def pair_peak_gene_sc_mu(
     adata_cc: str = "CC",
     adata: str = "RNA",
     peak_annotation: Optional[pd.DataFrame] = None,
-    pvalue_cutoff_cc: float = 0.001,
-    pvalue_cutoff_rna: float = 0.001,
+    pvalue_adj_cutoff_cc: Optional[float] = 0.01,
+    pvalue_adj_cutoff_rna: Optional[float] = 0.01,
+    pvalue_cutoff_cc: Optional[float] = None,
+    pvalue_cutoff_rna: Optional[float] = None,
     lfc_cutoff: float = 3,
     score_cutoff: float = 3,
     group_cc: str = "binomtest",
@@ -257,6 +298,10 @@ def pair_peak_gene_sc_mu(
         Name for RNA data. Anndata is mdata[adata].
     :param peak_annotation:
         peak_annotation gotten from cc.pp.annotation and cc.pp.combine_annotation
+    :param pvalue_adj_cutoff_cc:
+        The cut off value for the adjusted pvalues of adata_cc.
+    :param pvalue_adj_cutoff_rna:
+        The cut off value for the adjusted pvalues of adata.
     :param pvalue_cutoff_cc:
         The cut off value for the pvalues of adata_cc.
     :param pvalue_cutoff_rna:
@@ -290,10 +335,12 @@ def pair_peak_gene_sc_mu(
     adata = mdata[adata]
 
     pvalue_cc = np.array(adata_cc.uns[group_cc]["pvalues"].tolist())
+    pvalue_adj_cc = np.array(adata_cc.uns[group_cc]["pvalues_adj"].tolist())
     name_cc = np.array(adata_cc.uns[group_cc]["names"].tolist())
     lfg_cc = np.array(adata_cc.uns[group_cc]["logfoldchanges"].tolist())
     score_adata = np.array(adata.uns[group_adata]["scores"].tolist())
     pvalue_adata = np.array(adata.uns[group_adata]["pvals"].tolist())
+    pvalue_adj_adata = np.array(adata.uns[group_adata]["pvals_adj"].tolist())
     name_adata = np.array(adata.uns[group_adata]["names"].tolist())
     peak_annotation["name"] = (
         peak_annotation["Chr"].astype(str)
@@ -311,8 +358,9 @@ def pair_peak_gene_sc_mu(
     for cluster in range(pvalue_cc.shape[1]):
         for peak in range(pvalue_cc.shape[0]):
             if (
-                pvalue_cc[peak, cluster] <= pvalue_cutoff_cc
+                pvalue_cc[peak, cluster] <= float(pvalue_cutoff_cc or 1)
                 and abs(lfg_cc[peak, cluster]) >= lfc_cutoff
+                and pvalue_adj_cc[peak, cluster] <= float(pvalue_adj_cutoff_cc or 1)
             ):
                 rnalist = list(
                     peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
@@ -323,11 +371,15 @@ def pair_peak_gene_sc_mu(
                     if rna in rnalists:
                         if (
                             pvalue_adata[:, cluster][name_adata[:, cluster] == rna]
-                            <= pvalue_cutoff_rna
+                            <= float(pvalue_cutoff_rna or 1)
                             and abs(
                                 score_adata[:, cluster][name_adata[:, cluster] == rna]
                             )
                             >= score_cutoff
+                            and pvalue_adj_adata[:, cluster][
+                                name_adata[:, cluster] == rna
+                            ]
+                            <= float(pvalue_adj_cutoff_rna or 1)
                         ):
 
                             result.append(
@@ -336,11 +388,15 @@ def pair_peak_gene_sc_mu(
                                     name_cc[peak, cluster],
                                     lfg_cc[peak, cluster],
                                     pvalue_cc[peak, cluster],
+                                    pvalue_adj_cc[peak, cluster],
                                     rna,
                                     score_adata[:, cluster][
                                         name_adata[:, cluster] == rna
                                     ][0],
                                     pvalue_adata[:, cluster][
+                                        name_adata[:, cluster] == rna
+                                    ][0],
+                                    pvalue_adj_adata[:, cluster][
                                         name_adata[:, cluster] == rna
                                     ][0],
                                 ]
@@ -355,9 +411,11 @@ def pair_peak_gene_sc_mu(
             "Peak",
             "Logfoldchanges",
             "Pvalue_peak",
+            "Pvalue_adj_peak",
             "Gene",
             "Score_gene",
             "Pvalue_gene",
+            "Pvalue_adj_gene",
         ],
     )
 

@@ -393,6 +393,8 @@ def whole_peaks(
 
     """\
     Plot all the peaks in chromosomes.
+
+
     :param peak_data:
         Peak_data file from cc.pp.callpeaks.
     :param reference: `['mm10','hg38','sacCer3',None]`.

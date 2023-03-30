@@ -24,6 +24,8 @@ def DE_pvalue(
 
     """\
     Compare the peak difference between two groups for specific peak.
+
+
     :param number1:
         The total number of insertions (or the number of cells that contain insertions) in group 1.
     :param number2:
@@ -38,8 +40,10 @@ def DE_pvalue(
         fisher exact test.
     :param alternative:
         If it has two samples/cluster, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
+
     :return:
         Pvalue for the specific hypothesis.
+
     :example:
     >>> import pycallingcards as cc
     >>> cc.tl.DE_pvalue(10,456,261,491)
@@ -94,6 +98,8 @@ def diff2group_bygroup(
 
     """\
     Compare the peak difference between two groups for specific peak by group.
+
+
     :param adata_cc:
         Annotated data matrix.
     :param groupby:
@@ -110,8 +116,10 @@ def diff2group_bygroup(
         fisher exact test.
     :param alternative:
         If it has two clusters, `'two-sided'` is recommended. Otherwise, please use `'greater'`.
+
     :return:
         Pvalue for the specific hypothesis.
+
     :example:
     >>> import pycallingcards as cc
     >>> adata_cc = cc.datasets.mousecortex_data(data="CC")
@@ -316,6 +324,8 @@ def rank_peak_groups(
 
     """\
     Rank peaks for characterizing groups.
+
+
     :param adata_cc:
         Annotated data matrix.
     :param groupby:
@@ -1149,6 +1159,8 @@ def rank_peak_groups_mu(
 
     """\
     Rank peaks for characterizing groups. Designed for mudata object.
+
+
     :param mdata:
         mdata for both RNA and CC data.
     :param groupby:

@@ -23,6 +23,7 @@ def heatmap(
 
     """\
     Plot ranking of peaks.
+
     :param adata_cc:
         Annotated data matrix.
     :param ran: pd.DataFrame.
@@ -146,10 +147,6 @@ def heatmap(
 
         if cclabels == None:
             cclabels = groups
-
-        print(groups)
-        print(["Ref gene1 " + s for s in rnalabels])
-        print(["Ref gene2 " + s for s in rnalabels])
 
         if rnalabels != None:
             yticklabels = (

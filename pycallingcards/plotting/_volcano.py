@@ -20,12 +20,16 @@ def volcano_plot(
     label: Union[None, str] = None,
     labelleft: Union[None, List[float]] = None,
     labelright: Union[None, List[float]] = None,
+    pvalue_name: str = "pvalues",
+    lfc_name: str = "logfoldchanges",
     save: Union[bool, str] = False,
 ):
 
     """\
     Plot the volcano plot comparing two sample/cluster.
     Please make sure that alternative equals to 'two-sided' for the differential binding analysis.
+
+
     :param figsize:
         The size of the figure.
     :param font_size:
@@ -46,9 +50,14 @@ def volcano_plot(
         The exact place for left label. Default will automatically give it a place on left top of the plot.
     :param labelright:
         The exact place for left label. Default will automatically give it a place on right top of the plots.
+    :param pvalue_name:
+        The name The name stored in for pvalue/pvalue_adj in adata_cc.uns[name][pvalue_name].
+    :param lfc_name:
+        The name The name stored in for lfc/lfc_adj in adata_cc.uns[name][lfc_name].
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
+
     :example:
     >>> import pycallingcards as cc
     >>> adata_cc = cc.datasets.mouse_brd4_data(data = "CC")
@@ -58,8 +67,8 @@ def volcano_plot(
     if label == None:
         label = list(adata_cc.obs.index)
 
-    pva = -np.log10(np.array(adata_cc.uns[name]["pvalues"].tolist())[:, 1])
-    fc = np.array(adata_cc.uns[name]["logfoldchanges"].tolist())[:, 1]
+    pva = -np.log10(np.array(adata_cc.uns[name][pvalue_name].tolist())[:, 1])
+    fc = np.array(adata_cc.uns[name][lfc_name].tolist())[:, 1]
 
     sns.set_theme()
     figure, axis = plt.subplots(1, 1, figsize=figsize)
