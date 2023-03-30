@@ -648,6 +648,7 @@ def dotplot_bulk(
 
     """\
     Plot ranking of peaks.
+
     :param adata_cc:
         Anndata of peak.
     :param rna:
