@@ -2527,7 +2527,7 @@ def call_peaks(
         The P-value cutoff for reference data when backgound exists.
         Note that pvalue_cutoffTTAA is recommended to be lower than pvalue_cutoffbg.
     :param pvalue_adj_cutoff:
-        The cutoff for the adjusted pvalue.
+        The cutoff for the adjusted pvalue. If None, no adjusted pvalue will be the same is pvalue_cutoff (for backgound free) or pvalue_cutoffTTAA (for with backgound) .
     :param min_insertions:
         The number of minimal insertions for each peak.
     :param minlen:
