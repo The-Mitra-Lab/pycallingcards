@@ -17,13 +17,13 @@ def heatmap(
     group: Union[None, str] = None,
     cclabels: list = None,
     log: bool = True,
+    normalize_cc: bool = True,
     title: str = "Relative calling cards and RNA information",
     save: Union[bool, str] = False,
 ):
 
     """\
     Plot ranking of peaks.
-
     :param adata_cc:
         Annotated data matrix.
     :param ran: pd.DataFrame.
@@ -57,6 +57,11 @@ def heatmap(
     sns.set(rc={"figure.figsize": figsize})
     sns.set(font_scale=font_scale)
 
+    if normalize_cc:
+        adata_ccX = adata_cc.X.todense() / adata_cc.X.todense().sum(axis=1)
+    else:
+        adata_ccX = adata_cc.X.todense()
+
     if type(rna) == pd.DataFrame:
 
         print(
@@ -75,7 +80,7 @@ def heatmap(
 
         if group == None:
 
-            ccf = np.array((adata_cc.X.todense()))
+            ccf = np.array((adata_ccX.todense()))
             groupnumber = ccf.shape[0]
             groups = list(adata_cc.obs.index)
 
@@ -197,7 +202,7 @@ def heatmap(
 
         yticklabels = list(adata_cc.obs.index)
 
-        data = np.log2(np.array(adata_cc.X.todense()) + 1)
+        data = np.log2(np.array(adata_ccX) + 1)
         data = data / data.sum(axis=0)
         data = data[:, np.lexsort(data[::-1])]
 
