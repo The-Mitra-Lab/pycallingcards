@@ -47,8 +47,6 @@ def draw_area(
     If backgound is the input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
     If backgound is not the input and adata/name/key is provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
     The bottom section composes of reference genes and peaks.
-
-
     :param chromosome:
         The chromosome plotted.
     :param start:
@@ -105,15 +103,12 @@ def draw_area(
     :param save:
         Could be bool or str indicating the file name It will be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
-
-
     :example:
     >>> import pycallingcards as cc
     >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
     >>> peak_data = cc.pp.callpeaks(qbed_data, method = "CCcaller", reference = "mm10", record = True)
     >>> adata_cc = cc.datasets.mousecortex_data(data="CC")
     >>> cc.pl.draw_area("chr12",50102917,50124960,400000,peak_data,qbed_data,"mm10",adata_cc,"Neuron_Excit",'cluster',figsize = (30,6),peak_line = 4,color = "red")
-
     """
 
     if color == "blue":
@@ -220,12 +215,49 @@ def draw_area(
             & (backgroundchr.iloc[:, 2] <= end + extend)
         ]
 
-    figure, axis = plt.subplots(
-        3, 1, figsize=figsize, gridspec_kw={"height_ratios": plotsize}
-    )
-
     if type(background) == pd.DataFrame:
+
+        figure, axis = plt.subplots(
+            5,
+            1,
+            figsize=figsize,
+            gridspec_kw={
+                "height_ratios": [
+                    plotsize[0] / 2,
+                    plotsize[0] / 2,
+                    plotsize[1] / 2,
+                    plotsize[1] / 2,
+                    plotsize[2],
+                ]
+            },
+        )
+
         axis[0].plot(
+            list(d1.iloc[:, 1]),
+            list(np.log(d1.iloc[:, 3] + 1)),
+            color_cc,
+            marker="o",
+            linestyle="None",
+            markersize=6,
+        )
+        # axis[0].axis("off")
+        axis[0].set_xlim([start - extend, end + extend])
+        axis[0].axes.get_xaxis().set_visible(False)
+        axis[0].axes.get_yaxis().set_visible(False)
+        axis[0].spines.top.set(visible=False)
+        axis[0].spines.right.set(visible=False)
+        axis[0].spines.left.set(visible=False)
+        axis[0].text(
+            1,
+            0.01,
+            "Experiment Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[0].transAxes,
+            size=13 * font_size,
+        )
+
+        axis[1].plot(
             list(b1.iloc[:, 1]),
             list(np.log(b1.iloc[:, 3] + 1)),
             color_background,
@@ -233,14 +265,197 @@ def draw_area(
             linestyle="None",
             markersize=6,
         )
+        # axis[1].axis("off")
+        axis[1].set_xlim([start - extend, end + extend])
+        axis[1].axes.get_xaxis().set_visible(False)
+        axis[1].axes.get_yaxis().set_visible(False)
+        axis[1].spines.top.set(visible=False)
+        axis[1].spines.right.set(visible=False)
+        axis[1].spines.left.set(visible=False)
+        axis[1].text(
+            1,
+            0.01,
+            "Backgound Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[1].transAxes,
+            size=13 * font_size,
+        )
+
+        counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
+        axis[2].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
+        axis[2].set_xlim([start - extend, end + extend])
+        # axis[2].axis("off")
+        axis[2].axes.get_xaxis().set_visible(False)
+        axis[2].axes.get_yaxis().set_visible(False)
+        axis[2].spines.top.set(visible=False)
+        axis[2].spines.right.set(visible=False)
+        axis[2].spines.left.set(visible=False)
+        axis[2].text(
+            1,
+            0.01,
+            "Experiment Density",
+            ha="left",
+            va="bottom",
+            transform=axis[2].transAxes,
+            size=13 * font_size,
+        )
+
         counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
-        axis[1].hist(
+        axis[3].hist(
             binsbg[:-1], binsbg, weights=np.log(counts + 1), color=color_background
         )
+        axis[3].set_xlim([start - extend, end + extend])
+        # axis[3].axis("off")
+        axis[3].axes.get_xaxis().set_visible(False)
+        axis[3].axes.get_yaxis().set_visible(False)
+        axis[3].spines.top.set(visible=False)
+        axis[3].spines.right.set(visible=False)
+        axis[3].spines.left.set(visible=False)
+        axis[3].text(
+            1,
+            0.01,
+            "Background Density",
+            ha="left",
+            va="bottom",
+            transform=axis[3].transAxes,
+            size=13 * font_size,
+        )
+
+        pnumber = 0
+
+        for i in range(len(p1)):
+
+            axis[4].plot(
+                [p1[i, 1], p1[i, 2]],
+                [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
+                linewidth=10,
+                c=color_peak,
+            )
+            axis[4].text(
+                (p1[i, 2] + extend / 40),
+                -1 * (pnumber % peak_line) + 0.15,
+                "  " + p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
+                fontsize=14 * font_size,
+            )
+            pnumber += 1
+
+        for i in range(len(r1)):
+
+            axis[4].plot(
+                [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
+                [1 + i, 1 + i],
+                linewidth=5,
+                c=color_genes,
+            )
+            axis[4].text(
+                min(r1[i, 2] + extend / 40, end + extend),
+                1 + i,
+                " " + r1[i, 3] + ", " + r1[i, 4],
+                fontsize=12 * font_size,
+            )
+
+            if r1[i, 5] == "-":
+                axis[4].annotate(
+                    "",
+                    xytext=(min(r1[i, 2], end + extend), 1 + i),
+                    xy=(max(r1[i, 1], start - extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+            elif r1[i, 5] == "+":
+                axis[4].annotate(
+                    "",
+                    xytext=(max(r1[i, 1], start - extend), 1 + i),
+                    xy=(min(r1[i, 2], end + extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+
+        axis[4].set_xlim([start - extend, end + extend])
+        axis[4].axis("off")
+
+        if example_length != None:
+            axis[4].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length / 5,
+                ],
+                [-1 - peak_line, -1 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length - example_length / 5,
+                ],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].plot(
+                [end + extend - example_length / 5, end + extend - example_length / 5],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].text(
+                end + extend,
+                -1 - peak_line,
+                str(example_length) + "bp",
+                fontsize=12 * font_size,
+            )
 
     elif name != None:
 
+        figure, axis = plt.subplots(
+            5,
+            1,
+            figsize=figsize,
+            gridspec_kw={
+                "height_ratios": [
+                    plotsize[0] / 2,
+                    plotsize[0] / 2,
+                    plotsize[1] / 2,
+                    plotsize[1] / 2,
+                    plotsize[2],
+                ]
+            },
+        )
+
         axis[0].plot(
+            list(d1.iloc[:, 1]),
+            list(np.log(d1.iloc[:, 3] + 1)),
+            color_cc,
+            marker="o",
+            linestyle="None",
+            markersize=6,
+        )
+        # axis[0].axis("off")
+        axis[0].set_xlim([start - extend, end + extend])
+        axis[0].axes.get_xaxis().set_visible(False)
+        axis[0].axes.get_yaxis().set_visible(False)
+        axis[0].spines.top.set(visible=False)
+        axis[0].spines.right.set(visible=False)
+        axis[0].spines.left.set(visible=False)
+        axis[0].text(
+            1,
+            0.01,
+            "Experiment Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[0].transAxes,
+            size=13 * font_size,
+        )
+
+        axis[1].plot(
             list(b1.iloc[:, 1]),
             list(np.log(b1.iloc[:, 3] + 1)),
             color_background,
@@ -248,118 +463,296 @@ def draw_area(
             linestyle="None",
             markersize=6,
         )
+        # axis[1].axis("off")
+        axis[1].set_xlim([start - extend, end + extend])
+        axis[1].set_xlim([start - extend, end + extend])
+        axis[1].axes.get_xaxis().set_visible(False)
+        axis[1].axes.get_yaxis().set_visible(False)
+        axis[1].spines.top.set(visible=False)
+        axis[1].spines.right.set(visible=False)
+        axis[1].spines.left.set(visible=False)
+        axis[1].text(
+            1,
+            0.01,
+            "Backgound Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[1].transAxes,
+            size=13 * font_size,
+        )
+
+        counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
+        axis[2].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
+        axis[2].set_xlim([start - extend, end + extend])
+        # axis[2].axis("off")
+        axis[2].axes.get_xaxis().set_visible(False)
+        axis[2].axes.get_yaxis().set_visible(False)
+        axis[2].spines.top.set(visible=False)
+        axis[2].spines.right.set(visible=False)
+        axis[2].spines.left.set(visible=False)
+        axis[2].text(
+            1,
+            0.01,
+            "Experiment Density",
+            ha="left",
+            va="bottom",
+            transform=axis[2].transAxes,
+            size=13 * font_size,
+        )
+
         counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
-        axis[1].hist(binsbg[:-1], binsbg, weights=counts, color=color_background)
-
-    axis[0].plot(
-        list(d1.iloc[:, 1]),
-        list(np.log(d1.iloc[:, 3] + 1)),
-        color_cc,
-        marker="o",
-        linestyle="None",
-        markersize=6,
-    )
-    axis[0].axis("off")
-    axis[0].set_xlim([start - extend, end + extend])
-
-    counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
-    axis[1].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
-    axis[1].set_xlim([start - extend, end + extend])
-    axis[1].axis("off")
-
-    pnumber = 0
-
-    for i in range(len(p1)):
-
-        axis[2].plot(
-            [p1[i, 1], p1[i, 2]],
-            [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
-            linewidth=10,
-            c=color_peak,
-        )
-        axis[2].text(
-            (p1[i, 2] + extend / 40),
-            -1 * (pnumber % peak_line) + 0.15,
-            "  " + p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
-            fontsize=14 * font_size,
-        )
-        pnumber += 1
-
-    for i in range(len(r1)):
-
-        axis[2].plot(
-            [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
-            [1 + i, 1 + i],
-            linewidth=5,
-            c=color_genes,
-        )
-        axis[2].text(
-            min(r1[i, 2] + extend / 40, end + extend),
-            1 + i,
-            " " + r1[i, 3] + ", " + r1[i, 4],
-            fontsize=12 * font_size,
+        axis[3].hist(binsbg[:-1], binsbg, weights=counts, color=color_background)
+        axis[3].set_xlim([start - extend, end + extend])
+        # axis[3].axis("off")
+        axis[3].axes.get_xaxis().set_visible(False)
+        axis[3].axes.get_yaxis().set_visible(False)
+        axis[3].spines.top.set(visible=False)
+        axis[3].spines.right.set(visible=False)
+        axis[3].spines.left.set(visible=False)
+        axis[3].text(
+            1,
+            0.01,
+            "Background Density",
+            ha="left",
+            va="bottom",
+            transform=axis[3].transAxes,
+            size=13 * font_size,
         )
 
-        if r1[i, 5] == "-":
-            axis[2].annotate(
-                "",
-                xytext=(min(r1[i, 2], end + extend), 1 + i),
-                xy=(max(r1[i, 1], start - extend), 1 + i),
-                xycoords="data",
-                va="center",
-                ha="center",
-                size=20,
-                arrowprops=dict(arrowstyle="simple", color=color_genes),
+        pnumber = 0
+
+        for i in range(len(p1)):
+
+            axis[4].plot(
+                [p1[i, 1], p1[i, 2]],
+                [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
+                linewidth=10,
+                c=color_peak,
             )
-        elif r1[i, 5] == "+":
-            axis[2].annotate(
-                "",
-                xytext=(max(r1[i, 1], start - extend), 1 + i),
-                xy=(min(r1[i, 2], end + extend), 1 + i),
-                xycoords="data",
-                va="center",
-                ha="center",
-                size=20,
-                arrowprops=dict(arrowstyle="simple", color=color_genes),
+            axis[4].text(
+                (p1[i, 2] + extend / 40),
+                -1 * (pnumber % peak_line) + 0.15,
+                "  " + p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
+                fontsize=14 * font_size,
+            )
+            pnumber += 1
+
+        for i in range(len(r1)):
+
+            axis[4].plot(
+                [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
+                [1 + i, 1 + i],
+                linewidth=5,
+                c=color_genes,
+            )
+            axis[4].text(
+                min(r1[i, 2] + extend / 40, end + extend),
+                1 + i,
+                " " + r1[i, 3] + ", " + r1[i, 4],
+                fontsize=12 * font_size,
             )
 
-    axis[2].set_xlim([start - extend, end + extend])
-    axis[2].axis("off")
+            if r1[i, 5] == "-":
+                axis[4].annotate(
+                    "",
+                    xytext=(min(r1[i, 2], end + extend), 1 + i),
+                    xy=(max(r1[i, 1], start - extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+            elif r1[i, 5] == "+":
+                axis[4].annotate(
+                    "",
+                    xytext=(max(r1[i, 1], start - extend), 1 + i),
+                    xy=(min(r1[i, 2], end + extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+
+        axis[4].set_xlim([start - extend, end + extend])
+        axis[4].axis("off")
+
+        if example_length != None:
+            axis[4].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length / 5,
+                ],
+                [-1 - peak_line, -1 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length - example_length / 5,
+                ],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].plot(
+                [end + extend - example_length / 5, end + extend - example_length / 5],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].text(
+                end + extend,
+                -1 - peak_line,
+                str(example_length) + "bp",
+                fontsize=12 * font_size,
+            )
+
+    else:
+
+        figure, axis = plt.subplots(
+            3, 1, figsize=figsize, gridspec_kw={"height_ratios": plotsize}
+        )
+
+        axis[0].plot(
+            list(d1.iloc[:, 1]),
+            list(np.log(d1.iloc[:, 3] + 1)),
+            color_cc,
+            marker="o",
+            linestyle="None",
+            markersize=6,
+        )
+        # axis[0].axis("off")
+        axis[0].set_xlim([start - extend, end + extend])
+        axis[0].axes.get_xaxis().set_visible(False)
+        axis[0].axes.get_yaxis().set_visible(False)
+        axis[0].spines.top.set(visible=False)
+        axis[0].spines.right.set(visible=False)
+        axis[0].spines.left.set(visible=False)
+        axis[0].text(
+            1,
+            0.01,
+            "Experiment Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[0].transAxes,
+            size=13 * font_size,
+        )
+
+        counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
+        axis[1].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
+        axis[1].set_xlim([start - extend, end + extend])
+        # axis[1].axis("off")
+        axis[1].axes.get_xaxis().set_visible(False)
+        axis[1].axes.get_yaxis().set_visible(False)
+        axis[1].spines.top.set(visible=False)
+        axis[1].spines.right.set(visible=False)
+        axis[1].spines.left.set(visible=False)
+        axis[1].text(
+            1,
+            0.01,
+            "Experiment Density",
+            ha="left",
+            va="bottom",
+            transform=axis[1].transAxes,
+            size=13 * font_size,
+        )
+
+        pnumber = 0
+
+        for i in range(len(p1)):
+
+            axis[2].plot(
+                [p1[i, 1], p1[i, 2]],
+                [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
+                linewidth=10,
+                c=color_peak,
+            )
+            axis[2].text(
+                (p1[i, 2] + extend / 40),
+                -1 * (pnumber % peak_line) + 0.15,
+                "  " + p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
+                fontsize=14 * font_size,
+            )
+            pnumber += 1
+
+        for i in range(len(r1)):
+
+            axis[2].plot(
+                [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
+                [1 + i, 1 + i],
+                linewidth=5,
+                c=color_genes,
+            )
+            axis[2].text(
+                min(r1[i, 2] + extend / 40, end + extend),
+                1 + i,
+                " " + r1[i, 3] + ", " + r1[i, 4],
+                fontsize=12 * font_size,
+            )
+
+            if r1[i, 5] == "-":
+                axis[2].annotate(
+                    "",
+                    xytext=(min(r1[i, 2], end + extend), 1 + i),
+                    xy=(max(r1[i, 1], start - extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+            elif r1[i, 5] == "+":
+                axis[2].annotate(
+                    "",
+                    xytext=(max(r1[i, 1], start - extend), 1 + i),
+                    xy=(min(r1[i, 2], end + extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+
+        axis[2].set_xlim([start - extend, end + extend])
+        axis[2].axis("off")
+
+        if example_length != None:
+            axis[2].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length / 5,
+                ],
+                [-1 - peak_line, -1 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[2].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length - example_length / 5,
+                ],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[2].plot(
+                [end + extend - example_length / 5, end + extend - example_length / 5],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[2].text(
+                end + extend,
+                -1 - peak_line,
+                str(example_length) + "bp",
+                fontsize=12 * font_size,
+            )
 
     if title != None:
         figure.suptitle(title, fontsize=16 * font_size)
-
-    if example_length != None:
-        axis[2].plot(
-            [
-                end + extend - example_length - example_length / 5,
-                end + extend - example_length / 5,
-            ],
-            [-1 - peak_line, -1 - peak_line],
-            linewidth=2,
-            c="k",
-        )
-        axis[2].plot(
-            [
-                end + extend - example_length - example_length / 5,
-                end + extend - example_length - example_length / 5,
-            ],
-            [-1 - peak_line, -0.6 - peak_line],
-            linewidth=2,
-            c="k",
-        )
-        axis[2].plot(
-            [end + extend - example_length / 5, end + extend - example_length / 5],
-            [-1 - peak_line, -0.6 - peak_line],
-            linewidth=2,
-            c="k",
-        )
-        axis[2].text(
-            end + extend,
-            -1 - peak_line,
-            str(example_length) + "bp",
-            fontsize=12 * font_size,
-        )
 
     if save != False:
         if save == True:
@@ -393,8 +786,6 @@ def whole_peaks(
 
     """\
     Plot all the peaks in chromosomes.
-
-
     :param peak_data:
         Peak_data file from cc.pp.callpeaks.
     :param reference: `['mm10','hg38','sacCer3',None]`.
@@ -788,8 +1179,6 @@ def draw_area_mu(
     If backgound is the input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
     If backgound is not the input and mdata/name/key is provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
     The third section composes of reference genes and peaks.
-
-
     :param chromosome:
         The chromosome plotted.
     :param start:
@@ -846,8 +1235,6 @@ def draw_area_mu(
     :param save: Default is `False`.
         Could be bool or str indicating the file name It will be saved.
         If `True`, a default name would be given and the plot would be saved as a png file.
-
-
     :example:
     >>> import pycallingcards as cc
     >>> mdata = cc.datasets.mousecortex_data(data="Mudata")
@@ -927,11 +1314,11 @@ def draw_area_mu(
         (refchr.iloc[:, 2] >= start - extend) & (refchr.iloc[:, 1] <= end + extend)
     ].to_numpy()
     d1 = insertionschr[
-        (insertionschr.iloc[:, 1] >= start - extend)
-        & (insertionschr.iloc[:, 2] <= end + extend)
+        (insertionschr.iloc[:, 2] >= start - extend)
+        & (insertionschr.iloc[:, 1] <= end + extend)
     ]
     p1 = peakschr[
-        (peakschr.iloc[:, 1] >= start - extend) & (peakschr.iloc[:, 2] <= end + extend)
+        (peakschr.iloc[:, 2] >= start - extend) & (peakschr.iloc[:, 1] <= end + extend)
     ].to_numpy()
 
     if bins == None:
@@ -959,12 +1346,49 @@ def draw_area_mu(
             & (backgroundchr.iloc[:, 2] <= end + extend)
         ]
 
-    figure, axis = plt.subplots(
-        3, 1, figsize=figsize, gridspec_kw={"height_ratios": plotsize}
-    )
-
     if type(background) == pd.DataFrame:
+
+        figure, axis = plt.subplots(
+            5,
+            1,
+            figsize=figsize,
+            gridspec_kw={
+                "height_ratios": [
+                    plotsize[0] / 2,
+                    plotsize[0] / 2,
+                    plotsize[1] / 2,
+                    plotsize[1] / 2,
+                    plotsize[2],
+                ]
+            },
+        )
+
         axis[0].plot(
+            list(d1.iloc[:, 1]),
+            list(np.log(d1.iloc[:, 3] + 1)),
+            color_cc,
+            marker="o",
+            linestyle="None",
+            markersize=6,
+        )
+        # axis[0].axis("off")
+        axis[0].set_xlim([start - extend, end + extend])
+        axis[0].axes.get_xaxis().set_visible(False)
+        axis[0].axes.get_yaxis().set_visible(False)
+        axis[0].spines.top.set(visible=False)
+        axis[0].spines.right.set(visible=False)
+        axis[0].spines.left.set(visible=False)
+        axis[0].text(
+            1,
+            0.01,
+            "Experiment Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[0].transAxes,
+            size=13 * font_size,
+        )
+
+        axis[1].plot(
             list(b1.iloc[:, 1]),
             list(np.log(b1.iloc[:, 3] + 1)),
             color_background,
@@ -972,14 +1396,207 @@ def draw_area_mu(
             linestyle="None",
             markersize=6,
         )
-        counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
-        axis[1].hist(
-            binsbg[:-1], binsbg, weights=np.log(counts + 1), color=color_background
+        # axis[1].axis("off")
+        axis[1].set_xlim([start - extend, end + extend])
+        axis[1].axes.get_xaxis().set_visible(False)
+        axis[1].axes.get_yaxis().set_visible(False)
+        axis[1].spines.top.set(visible=False)
+        axis[1].spines.right.set(visible=False)
+        axis[1].spines.left.set(visible=False)
+        axis[1].text(
+            1,
+            0.01,
+            "Backgound Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[1].transAxes,
+            size=13 * font_size,
         )
+
+        maxheight = max(
+            max(list(np.log(d1.iloc[:, 3] + 1))), max(list(np.log(b1.iloc[:, 3] + 1)))
+        )
+        axis[0].set_ylim([0, maxheight + 1])
+        axis[1].set_ylim([0, maxheight + 1])
+
+        counts2, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
+        axis[2].hist(binsqbed[:-1], binsqbed, weights=counts2, color=color_cc)
+        axis[2].set_xlim([start - extend, end + extend])
+        # axis[2].axis("off")
+        axis[2].axes.get_xaxis().set_visible(False)
+        axis[2].axes.get_yaxis().set_visible(False)
+        axis[2].spines.top.set(visible=False)
+        axis[2].spines.right.set(visible=False)
+        axis[2].spines.left.set(visible=False)
+        axis[2].text(
+            1,
+            0.01,
+            "Experiment Density",
+            ha="left",
+            va="bottom",
+            transform=axis[2].transAxes,
+            size=13 * font_size,
+        )
+
+        counts3, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
+        axis[3].hist(
+            binsbg[:-1], binsbg, weights=np.log(counts3 + 1), color=color_background
+        )
+        axis[3].set_xlim([start - extend, end + extend])
+        # axis[3].axis("off")
+        axis[3].axes.get_xaxis().set_visible(False)
+        axis[3].axes.get_yaxis().set_visible(False)
+        axis[3].spines.top.set(visible=False)
+        axis[3].spines.right.set(visible=False)
+        axis[3].spines.left.set(visible=False)
+        axis[3].text(
+            1,
+            0.01,
+            "Background Density",
+            ha="left",
+            va="bottom",
+            transform=axis[3].transAxes,
+            size=13 * font_size,
+        )
+
+        maxheight = max(counts2.max(), counts3.max())
+        axis[2].set_ylim([0, maxheight + 1])
+        axis[3].set_ylim([0, maxheight + 1])
+
+        pnumber = 0
+
+        for i in range(len(p1)):
+
+            axis[4].plot(
+                [p1[i, 1], p1[i, 2]],
+                [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
+                linewidth=10,
+                c=color_peak,
+            )
+            axis[4].text(
+                (p1[i, 2] + extend / 40),
+                -1 * (pnumber % peak_line) + 0.15,
+                "  " + p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
+                fontsize=14 * font_size,
+            )
+            pnumber += 1
+
+        for i in range(len(r1)):
+
+            axis[4].plot(
+                [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
+                [1 + i, 1 + i],
+                linewidth=5,
+                c=color_genes,
+            )
+            axis[4].text(
+                min(r1[i, 2] + extend / 40, end + extend),
+                1 + i,
+                " " + r1[i, 3] + ", " + r1[i, 4],
+                fontsize=12 * font_size,
+            )
+
+            if r1[i, 5] == "-":
+                axis[4].annotate(
+                    "",
+                    xytext=(min(r1[i, 2], end + extend), 1 + i),
+                    xy=(max(r1[i, 1], start - extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+            elif r1[i, 5] == "+":
+                axis[4].annotate(
+                    "",
+                    xytext=(max(r1[i, 1], start - extend), 1 + i),
+                    xy=(min(r1[i, 2], end + extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+
+        axis[4].set_xlim([start - extend, end + extend])
+        axis[4].axis("off")
+
+        if example_length != None:
+            axis[4].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length / 5,
+                ],
+                [-1 - peak_line, -1 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length - example_length / 5,
+                ],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].plot(
+                [end + extend - example_length / 5, end + extend - example_length / 5],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].text(
+                end + extend,
+                -1 - peak_line,
+                str(example_length) + "bp",
+                fontsize=12 * font_size,
+            )
 
     elif name != None:
 
+        figure, axis = plt.subplots(
+            5,
+            1,
+            figsize=figsize,
+            gridspec_kw={
+                "height_ratios": [
+                    plotsize[0] / 2,
+                    plotsize[0] / 2,
+                    plotsize[1] / 2,
+                    plotsize[1] / 2,
+                    plotsize[2],
+                ]
+            },
+        )
+
         axis[0].plot(
+            list(d1.iloc[:, 1]),
+            list(np.log(d1.iloc[:, 3] + 1)),
+            color_cc,
+            marker="o",
+            linestyle="None",
+            markersize=6,
+        )
+        # axis[0].axis("off")
+        axis[0].set_xlim([start - extend, end + extend])
+        axis[0].axes.get_xaxis().set_visible(False)
+        axis[0].axes.get_yaxis().set_visible(False)
+        axis[0].spines.top.set(visible=False)
+        axis[0].spines.right.set(visible=False)
+        axis[0].spines.left.set(visible=False)
+        axis[0].text(
+            1,
+            0.01,
+            "Experiment Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[0].transAxes,
+            size=13 * font_size,
+        )
+
+        axis[1].plot(
             list(b1.iloc[:, 1]),
             list(np.log(b1.iloc[:, 3] + 1)),
             color_background,
@@ -987,118 +1604,296 @@ def draw_area_mu(
             linestyle="None",
             markersize=6,
         )
+        # axis[1].axis("off")
+        axis[1].set_xlim([start - extend, end + extend])
+        axis[1].set_xlim([start - extend, end + extend])
+        axis[1].axes.get_xaxis().set_visible(False)
+        axis[1].axes.get_yaxis().set_visible(False)
+        axis[1].spines.top.set(visible=False)
+        axis[1].spines.right.set(visible=False)
+        axis[1].spines.left.set(visible=False)
+        axis[1].text(
+            1,
+            0.01,
+            "Backgound Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[1].transAxes,
+            size=13 * font_size,
+        )
+
+        counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
+        axis[2].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
+        axis[2].set_xlim([start - extend, end + extend])
+        # axis[2].axis("off")
+        axis[2].axes.get_xaxis().set_visible(False)
+        axis[2].axes.get_yaxis().set_visible(False)
+        axis[2].spines.top.set(visible=False)
+        axis[2].spines.right.set(visible=False)
+        axis[2].spines.left.set(visible=False)
+        axis[2].text(
+            1,
+            0.01,
+            "Experiment Density",
+            ha="left",
+            va="bottom",
+            transform=axis[2].transAxes,
+            size=13 * font_size,
+        )
+
         counts, binsbg = np.histogram(np.array(b1.iloc[:, 1]), bins=bins)
-        axis[1].hist(binsbg[:-1], binsbg, weights=counts, color=color_background)
-
-    axis[0].plot(
-        list(d1.iloc[:, 1]),
-        list(np.log(d1.iloc[:, 3] + 1)),
-        color_cc,
-        marker="o",
-        linestyle="None",
-        markersize=6,
-    )
-    axis[0].axis("off")
-    axis[0].set_xlim([start - extend, end + extend])
-
-    counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
-    axis[1].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
-    axis[1].set_xlim([start - extend, end + extend])
-    axis[1].axis("off")
-
-    pnumber = 0
-
-    for i in range(len(p1)):
-
-        axis[2].plot(
-            [p1[i, 1], p1[i, 2]],
-            [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
-            linewidth=10,
-            c=color_peak,
-        )
-        axis[2].text(
-            (p1[i, 2] + extend / 40),
-            -1 * (pnumber % peak_line) + 0.15,
-            p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
-            fontsize=14 * font_size,
-        )
-        pnumber += 1
-
-    for i in range(len(r1)):
-
-        axis[2].plot(
-            [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
-            [1 + i, 1 + i],
-            linewidth=5,
-            c=color_genes,
-        )
-        axis[2].text(
-            min(r1[i, 2] + extend / 40, end + extend),
-            1 + i,
-            r1[i, 3] + ", " + r1[i, 4],
-            fontsize=12 * font_size,
+        axis[3].hist(binsbg[:-1], binsbg, weights=counts, color=color_background)
+        axis[3].set_xlim([start - extend, end + extend])
+        # axis[3].axis("off")
+        axis[3].axes.get_xaxis().set_visible(False)
+        axis[3].axes.get_yaxis().set_visible(False)
+        axis[3].spines.top.set(visible=False)
+        axis[3].spines.right.set(visible=False)
+        axis[3].spines.left.set(visible=False)
+        axis[3].text(
+            1,
+            0.01,
+            "Background Density",
+            ha="left",
+            va="bottom",
+            transform=axis[3].transAxes,
+            size=13 * font_size,
         )
 
-        if r1[i, 5] == "-":
-            axis[2].annotate(
-                "",
-                xytext=(min(r1[i, 2], end + extend), 1 + i),
-                xy=(max(r1[i, 1], start - extend), 1 + i),
-                xycoords="data",
-                va="center",
-                ha="center",
-                size=20,
-                arrowprops=dict(arrowstyle="simple", color=color_genes),
+        pnumber = 0
+
+        for i in range(len(p1)):
+
+            axis[4].plot(
+                [p1[i, 1], p1[i, 2]],
+                [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
+                linewidth=10,
+                c=color_peak,
             )
-        elif r1[i, 5] == "+":
-            axis[2].annotate(
-                "",
-                xytext=(max(r1[i, 1], start - extend), 1 + i),
-                xy=(min(r1[i, 2], end + extend), 1 + i),
-                xycoords="data",
-                va="center",
-                ha="center",
-                size=20,
-                arrowprops=dict(arrowstyle="simple", color=color_genes),
+            axis[4].text(
+                (p1[i, 2] + extend / 40),
+                -1 * (pnumber % peak_line) + 0.15,
+                "  " + p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
+                fontsize=14 * font_size,
+            )
+            pnumber += 1
+
+        for i in range(len(r1)):
+
+            axis[4].plot(
+                [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
+                [1 + i, 1 + i],
+                linewidth=5,
+                c=color_genes,
+            )
+            axis[4].text(
+                min(r1[i, 2] + extend / 40, end + extend),
+                1 + i,
+                " " + r1[i, 3] + ", " + r1[i, 4],
+                fontsize=12 * font_size,
             )
 
-    axis[2].set_xlim([start - extend, end + extend])
-    axis[2].axis("off")
+            if r1[i, 5] == "-":
+                axis[4].annotate(
+                    "",
+                    xytext=(min(r1[i, 2], end + extend), 1 + i),
+                    xy=(max(r1[i, 1], start - extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+            elif r1[i, 5] == "+":
+                axis[4].annotate(
+                    "",
+                    xytext=(max(r1[i, 1], start - extend), 1 + i),
+                    xy=(min(r1[i, 2], end + extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+
+        axis[4].set_xlim([start - extend, end + extend])
+        axis[4].axis("off")
+
+        if example_length != None:
+            axis[4].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length / 5,
+                ],
+                [-1 - peak_line, -1 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length - example_length / 5,
+                ],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].plot(
+                [end + extend - example_length / 5, end + extend - example_length / 5],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[4].text(
+                end + extend,
+                -1 - peak_line,
+                str(example_length) + "bp",
+                fontsize=12 * font_size,
+            )
+
+    else:
+
+        figure, axis = plt.subplots(
+            3, 1, figsize=figsize, gridspec_kw={"height_ratios": plotsize}
+        )
+
+        axis[0].plot(
+            list(d1.iloc[:, 1]),
+            list(np.log(d1.iloc[:, 3] + 1)),
+            color_cc,
+            marker="o",
+            linestyle="None",
+            markersize=6,
+        )
+        # axis[0].axis("off")
+        axis[0].set_xlim([start - extend, end + extend])
+        axis[0].axes.get_xaxis().set_visible(False)
+        axis[0].axes.get_yaxis().set_visible(False)
+        axis[0].spines.top.set(visible=False)
+        axis[0].spines.right.set(visible=False)
+        axis[0].spines.left.set(visible=False)
+        axis[0].text(
+            1,
+            0.01,
+            "Experiment Insertions",
+            ha="left",
+            va="bottom",
+            transform=axis[0].transAxes,
+            size=13 * font_size,
+        )
+
+        counts, binsqbed = np.histogram(np.array(d1.iloc[:, 1]), bins=bins)
+        axis[1].hist(binsqbed[:-1], binsqbed, weights=counts, color=color_cc)
+        axis[1].set_xlim([start - extend, end + extend])
+        # axis[1].axis("off")
+        axis[1].axes.get_xaxis().set_visible(False)
+        axis[1].axes.get_yaxis().set_visible(False)
+        axis[1].spines.top.set(visible=False)
+        axis[1].spines.right.set(visible=False)
+        axis[1].spines.left.set(visible=False)
+        axis[1].text(
+            1,
+            0.01,
+            "Experiment Density",
+            ha="left",
+            va="bottom",
+            transform=axis[1].transAxes,
+            size=13 * font_size,
+        )
+
+        pnumber = 0
+
+        for i in range(len(p1)):
+
+            axis[2].plot(
+                [p1[i, 1], p1[i, 2]],
+                [-1 * (pnumber % peak_line) + 0.15, -1 * (pnumber % peak_line) + 0.15],
+                linewidth=10,
+                c=color_peak,
+            )
+            axis[2].text(
+                (p1[i, 2] + extend / 40),
+                -1 * (pnumber % peak_line) + 0.15,
+                "  " + p1[i, 0] + "_" + str(p1[i, 1]) + "_" + str(p1[i, 2]),
+                fontsize=14 * font_size,
+            )
+            pnumber += 1
+
+        for i in range(len(r1)):
+
+            axis[2].plot(
+                [max(r1[i, 1], start - extend), min(r1[i, 2], end + extend)],
+                [1 + i, 1 + i],
+                linewidth=5,
+                c=color_genes,
+            )
+            axis[2].text(
+                min(r1[i, 2] + extend / 40, end + extend),
+                1 + i,
+                " " + r1[i, 3] + ", " + r1[i, 4],
+                fontsize=12 * font_size,
+            )
+
+            if r1[i, 5] == "-":
+                axis[2].annotate(
+                    "",
+                    xytext=(min(r1[i, 2], end + extend), 1 + i),
+                    xy=(max(r1[i, 1], start - extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+            elif r1[i, 5] == "+":
+                axis[2].annotate(
+                    "",
+                    xytext=(max(r1[i, 1], start - extend), 1 + i),
+                    xy=(min(r1[i, 2], end + extend), 1 + i),
+                    xycoords="data",
+                    va="center",
+                    ha="center",
+                    size=20,
+                    arrowprops=dict(arrowstyle="simple", color=color_genes),
+                )
+
+        axis[2].set_xlim([start - extend, end + extend])
+        axis[2].axis("off")
+
+        if example_length != None:
+            axis[2].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length / 5,
+                ],
+                [-1 - peak_line, -1 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[2].plot(
+                [
+                    end + extend - example_length - example_length / 5,
+                    end + extend - example_length - example_length / 5,
+                ],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[2].plot(
+                [end + extend - example_length / 5, end + extend - example_length / 5],
+                [-1 - peak_line, -0.6 - peak_line],
+                linewidth=2,
+                c="k",
+            )
+            axis[2].text(
+                end + extend,
+                -1 - peak_line,
+                str(example_length) + "bp",
+                fontsize=12 * font_size,
+            )
 
     if title != None:
         figure.suptitle(title, fontsize=16 * font_size)
-
-    if example_length != None:
-        axis[2].plot(
-            [
-                end + extend - example_length - example_length / 5,
-                end + extend - example_length / 5,
-            ],
-            [-1 - peak_line, -1 - peak_line],
-            linewidth=2,
-            c="k",
-        )
-        axis[2].plot(
-            [
-                end + extend - example_length - example_length / 5,
-                end + extend - example_length - example_length / 5,
-            ],
-            [-1 - peak_line, -0.6 - peak_line],
-            linewidth=2,
-            c="k",
-        )
-        axis[2].plot(
-            [end + extend - example_length / 5, end + extend - example_length / 5],
-            [-1 - peak_line, -0.6 - peak_line],
-            linewidth=2,
-            c="k",
-        )
-        axis[2].text(
-            end + extend,
-            -1 - peak_line,
-            str(example_length) + "bp",
-            fontsize=12 * font_size,
-        )
 
     if save != False:
         if save == True:

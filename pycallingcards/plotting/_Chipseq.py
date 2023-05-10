@@ -236,8 +236,12 @@ def signal_heatmap(
 
     figure, axis = plt.subplots(figsize=figsize)
 
+    signalmtx_temp = signalmtx.copy()
+
+    signalmtx_temp = signalmtx_temp[~np.isnan(signalmtx_temp).all(axis=1)]
+
     cf = axis.pcolormesh(
-        np.log2(signalmtx[np.argsort(np.nanmean(signalmtx, axis=1)), :] + 1),
+        np.log2(signalmtx_temp[np.argsort(np.nanmean(signalmtx_temp, axis=1)), :] + 1),
         cmap=colormap,
         vmin=colormap_vmin,
         vmax=colormap_vmax,
@@ -255,6 +259,8 @@ def signal_heatmap(
 
     cbar = figure.colorbar(cf, location="bottom", pad=pad)
     cbar.ax.tick_params(labelsize=fontsize * 1.3)
+
+    del signalmtx_temp
 
     if save != False:
         if save == True:

@@ -6,4 +6,4 @@ from pycallingcards import preprocessing as pp
 from pycallingcards import reading as rd
 from pycallingcards import tools as tl
 
-__version__ = "0.0.5"
+__version__ = "0.0.6"
