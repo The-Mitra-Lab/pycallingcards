@@ -24,6 +24,7 @@ def heatmap(
 
     """\
     Plot ranking of peaks.
+
     :param adata_cc:
         Annotated data matrix.
     :param ran: pd.DataFrame.
@@ -47,6 +48,7 @@ def heatmap(
     :param save:
         Could be bool or str indicating the file name it would be saved.
         If `True`, a default name will be given and the plot would be saved as a png file.
+
     :example:
     >>> import pycallingcards as cc
     >>> adata_cc = cc.datasets.mouse_brd4_data(data = "CC")

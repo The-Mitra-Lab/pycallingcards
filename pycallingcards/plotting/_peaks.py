@@ -1185,6 +1185,7 @@ def draw_area_mu(
     If backgound is the input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
     If backgound is not the input and mdata/name/key is provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
     The third section composes of reference genes and peaks.
+
     :param chromosome:
         The chromosome plotted.
     :param start:
@@ -1241,6 +1242,7 @@ def draw_area_mu(
     :param save: Default is `False`.
         Could be bool or str indicating the file name It will be saved.
         If `True`, a default name would be given and the plot would be saved as a png file.
+
     :example:
     >>> import pycallingcards as cc
     >>> mdata = cc.datasets.mousecortex_data(data="Mudata")
