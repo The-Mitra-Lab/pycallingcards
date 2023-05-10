@@ -47,6 +47,8 @@ def draw_area(
     If backgound is the input, the colored one would be the experiment inerstions/distribution and the grey one would be the backgound one.
     If backgound is not the input and adata/name/key is provided, the colored one would be the inerstions/distribution for specific group and the grey one would be the whole data.
     The bottom section composes of reference genes and peaks.
+
+
     :param chromosome:
         The chromosome plotted.
     :param start:
@@ -103,6 +105,8 @@ def draw_area(
     :param save:
         Could be bool or str indicating the file name It will be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
+
+
     :example:
     >>> import pycallingcards as cc
     >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
@@ -786,6 +790,7 @@ def whole_peaks(
 
     """\
     Plot all the peaks in chromosomes.
+
     :param peak_data:
         Peak_data file from cc.pp.callpeaks.
     :param reference: `['mm10','hg38','sacCer3',None]`.
@@ -811,6 +816,7 @@ def whole_peaks(
     :param save:
         Could be bool or str indicating the file name It will be saved.
         If `True`, a default name will be given and the plot would be saved as a png file.
+
     :example:
     >>> import pycallingcards as cc
     >>> qbed_data = cc.datasets.mousecortex_data(data="qbed")
