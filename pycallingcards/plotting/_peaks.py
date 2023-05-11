@@ -37,10 +37,10 @@ def draw_area(
     example_length: int = 10000,
     peak_line: int = 1,
     font_size: int = 1,
-    name_line1: str = "Experiment Insertions",
-    name_line2: str = "Backgound Insertions",
-    name_line3: str = "Experiment Density",
-    name_line4: str = "Backgound Density",
+    name_insertion1: str = "Experiment Insertions",
+    name_insertion2: str = "Backgound Insertions",
+    name_density1: str = "Experiment Insertion Density",
+    name_density2: str = "Backgound Insertion Density",
     save: Union[bool, str] = False,
 ):
 
@@ -106,14 +106,14 @@ def draw_area(
         The total number of peak lines.
     :param font_size:
         The relative font of the words on the plot.
-    :param name_line1:
-        The name for line1.
-    :param name_line2:
-        The name for line2.
-    :param name_line3:
-        The name for line3.
-    :param name_line4:
-        The name for line4.
+    :param name_insertion1:
+        The name for the top insertion part.
+    :param name_insertion2:
+        The name for the bottom insertion part.
+    :param name_density1:
+        The name for the top density part.
+    :param name_density2:
+        The name for the bottom density part.
     :param save:
         Could be bool or str indicating the file name It will be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
@@ -266,7 +266,7 @@ def draw_area(
         axis[0].text(
             1,
             0.01,
-            name_line1,
+            name_insertion1,
             ha="left",
             va="bottom",
             transform=axis[0].transAxes,
@@ -291,7 +291,7 @@ def draw_area(
         axis[1].text(
             1,
             0.01,
-            name_line2,
+            name_insertion2,
             ha="left",
             va="bottom",
             transform=axis[1].transAxes,
@@ -310,7 +310,7 @@ def draw_area(
         axis[2].text(
             1,
             0.01,
-            name_line3,
+            name_density1,
             ha="left",
             va="bottom",
             transform=axis[2].transAxes,
@@ -331,7 +331,7 @@ def draw_area(
         axis[3].text(
             1,
             0.01,
-            name_line4,
+            name_density2,
             ha="left",
             va="bottom",
             transform=axis[3].transAxes,
@@ -464,7 +464,7 @@ def draw_area(
         axis[0].text(
             1,
             0.01,
-            "Experiment Insertions",
+            name_insertion1,
             ha="left",
             va="bottom",
             transform=axis[0].transAxes,
@@ -490,7 +490,7 @@ def draw_area(
         axis[1].text(
             1,
             0.01,
-            "Backgound Insertions",
+            name_insertion2,
             ha="left",
             va="bottom",
             transform=axis[1].transAxes,
@@ -509,7 +509,7 @@ def draw_area(
         axis[2].text(
             1,
             0.01,
-            "Experiment Density",
+            name_density1,
             ha="left",
             va="bottom",
             transform=axis[2].transAxes,
@@ -528,7 +528,7 @@ def draw_area(
         axis[3].text(
             1,
             0.01,
-            "Background Density",
+            name_density2,
             ha="left",
             va="bottom",
             transform=axis[3].transAxes,
@@ -650,7 +650,7 @@ def draw_area(
         axis[0].text(
             1,
             0.01,
-            "Experiment Insertions",
+            name_insertion1,
             ha="left",
             va="bottom",
             transform=axis[0].transAxes,
@@ -669,7 +669,7 @@ def draw_area(
         axis[1].text(
             1,
             0.01,
-            "Experiment Density",
+            name_density1,
             ha="left",
             va="bottom",
             transform=axis[1].transAxes,
@@ -1186,10 +1186,10 @@ def draw_area_mu(
     example_length: int = 10000,
     peak_line: int = 1,
     font_size: int = 1,
-    name_line1: str = "Experiment Insertions",
-    name_line2: str = "Backgound Insertions",
-    name_line3: str = "Experiment Density",
-    name_line4: str = "Backgound Density",
+    name_insertion1: str = "Experiment Insertions",
+    name_insertion2: str = "Backgound Insertions",
+    name_density1: str = "Experiment Density",
+    name_density2: str = "Backgound Density",
     save: Union[bool, str] = False,
 ):
 
@@ -1255,14 +1255,14 @@ def draw_area_mu(
         The total number of peak lines.
     :param font_size: Default is `10`.
         The relative font of the words on the plot.
-    :param name_line1:
-        The name for line1.
-    :param name_line2:
-        The name for line2.
-    :param name_line3:
-        The name for line3.
-    :param name_line4:
-        The name for line4.
+    :param name_insertion1:
+        The name for the top insertion part.
+    :param name_insertion2:
+        The name for the bottom insertion part.
+    :param name_density1:
+        The name for the top density part.
+    :param name_density2:
+        The name for the bottom density part.
     :param save: Default is `False`.
         Could be bool or str indicating the file name It will be saved.
         If `True`, a default name would be given and the plot would be saved as a png file.
@@ -1413,7 +1413,7 @@ def draw_area_mu(
         axis[0].text(
             1,
             0.01,
-            name_line1,
+            name_insertion1,
             ha="left",
             va="bottom",
             transform=axis[0].transAxes,
@@ -1438,7 +1438,7 @@ def draw_area_mu(
         axis[1].text(
             1,
             0.01,
-            name_line2,
+            name_insertion2,
             ha="left",
             va="bottom",
             transform=axis[1].transAxes,
@@ -1463,7 +1463,7 @@ def draw_area_mu(
         axis[2].text(
             1,
             0.01,
-            name_line3,
+            name_density1,
             ha="left",
             va="bottom",
             transform=axis[2].transAxes,
@@ -1484,7 +1484,7 @@ def draw_area_mu(
         axis[3].text(
             1,
             0.01,
-            name_line4,
+            name_density2,
             ha="left",
             va="bottom",
             transform=axis[3].transAxes,
@@ -1621,7 +1621,7 @@ def draw_area_mu(
         axis[0].text(
             1,
             0.01,
-            "Experiment Insertions",
+            name_insertion1,
             ha="left",
             va="bottom",
             transform=axis[0].transAxes,
@@ -1647,7 +1647,7 @@ def draw_area_mu(
         axis[1].text(
             1,
             0.01,
-            "Backgound Insertions",
+            name_insertion2,
             ha="left",
             va="bottom",
             transform=axis[1].transAxes,
@@ -1666,7 +1666,7 @@ def draw_area_mu(
         axis[2].text(
             1,
             0.01,
-            "Experiment Density",
+            name_density1,
             ha="left",
             va="bottom",
             transform=axis[2].transAxes,
@@ -1685,7 +1685,7 @@ def draw_area_mu(
         axis[3].text(
             1,
             0.01,
-            "Background Density",
+            name_density2,
             ha="left",
             va="bottom",
             transform=axis[3].transAxes,
@@ -1807,7 +1807,7 @@ def draw_area_mu(
         axis[0].text(
             1,
             0.01,
-            "Experiment Insertions",
+            name_insertion1,
             ha="left",
             va="bottom",
             transform=axis[0].transAxes,
@@ -1826,7 +1826,7 @@ def draw_area_mu(
         axis[1].text(
             1,
             0.01,
-            "Experiment Density",
+            name_density1,
             ha="left",
             va="bottom",
             transform=axis[1].transAxes,
