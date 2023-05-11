@@ -28,7 +28,7 @@ Please check [**here**](https://pycallingcards.readthedocs.io/en/latest/) for de
 ## Installation
 
 ```shell
-pip install "git+https://github.com/The-Mitra-Lab/pycallingcards.git" --upgrade
+pip install pycallingcards
 ```
 
 ## Development
