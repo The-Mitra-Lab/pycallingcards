@@ -3,7 +3,7 @@
 [![](https://readthedocs.org/projects/pycallingcards/badge/?version=latest)](https://pycallingcards.readthedocs.io/en/latest/)
 
 <p align="center">
-    <img src="./docs/_static/logo.png", width="350">
+    <img src="https://github.com/The-Mitra-Lab/pycallingcards/assets/64772552/4eb2fa43-1f69-4a35-8b7e-72568e0f95e7", width="350">
 </p>
 
 **Pycallingcards** is a package for calling cards data analysis developed and maintained by [Mitra Lab](http://genetics.wustl.edu/rmlab/) at Washington University in St. Louis.
