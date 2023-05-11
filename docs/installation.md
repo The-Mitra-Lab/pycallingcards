@@ -6,7 +6,7 @@
 Pycallingcards can be installed via pip.
 
 ```
-pip install "git+https://github.com/The-Mitra-Lab/pycallingcards.git" --upgrade
+pip install pycallingcards
 ```
 
 ## Prerequisites
