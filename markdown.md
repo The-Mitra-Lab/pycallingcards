@@ -2,9 +2,7 @@
 
 [![](https://readthedocs.org/projects/pycallingcards/badge/?version=latest)](https://pycallingcards.readthedocs.io/en/latest/)
 
-<p align="center">
-    <img src="https://github.com/The-Mitra-Lab/pycallingcards/assets/64772552/4eb2fa43-1f69-4a35-8b7e-72568e0f95e7", width="350">
-</p>
+
 
 **Pycallingcards** is a package for calling cards data analysis developed and maintained by [Mitra Lab](http://genetics.wustl.edu/rmlab/) at Washington University in St. Louis.
 
@@ -38,17 +36,4 @@ Use pre-commit to format code at `git commit`.
 ```shell
 pip install pre-commit
 pre-commit install
-```
-
-## Cite
-
-```bibtex
-@software{pycallingcards_python,
-  author = {Guo, Juanru and Mitra, Robi},
-  month = {2},
-  year = {2023},
-  title = {Pycallingcards: Calling Cards Data Analysis in Python},
-  url = {https://github.com/The-Mitra-Lab/pycallingcards},
-  version = {0.0.7},
-}
 ```
