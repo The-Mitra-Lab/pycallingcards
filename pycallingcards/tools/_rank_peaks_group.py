@@ -1134,7 +1134,7 @@ def rank_peak_groups_df(
     if pval_cutoff is not None:
         d = d[d["pvalues"] <= pval_cutoff]
     if pval_adj_cutoff is not None:
-        d = d[d["pvalues_adj"] <= pval_cutoff]
+        d = d[d["pvalues_adj"] <= pval_adj_cutoff]
     if logfc_min is not None:
         d = d[d["logfoldchanges"] >= logfc_min]
     if logfc_max is not None:

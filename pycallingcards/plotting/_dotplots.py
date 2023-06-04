@@ -32,6 +32,7 @@ def _dotplot_bulk_bysample(
     title: str = "DE binding & RNA",
     topspace: float = 0.977,
     sort_by_chrom: bool = False,
+    legend: bool = False,
     save: bool = False,
 ):
 
@@ -64,6 +65,8 @@ def _dotplot_bulk_bysample(
     :param sort_by_chrom:
         If `True`, it would sort by chr1, chr2, etc.
         sort_by_chrom can not be applied to yeast data.
+    :param legend:
+        If `True`, it would show the legend.
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
@@ -194,7 +197,7 @@ def _dotplot_bulk_bysample(
     ax[1].set_yticks(yticks)
     ax[1].set_yticklabels(index1)
 
-    ax[2].scatter(x1, y1, c=cs1, s=rate * np.array(cs1), cmap=cmap)
+    im = ax[2].scatter(x1, y1, c=cs1, s=rate * np.array(cs1), cmap=cmap)
     ax[2].axis(xmin=-1, xmax=sum(num_list))
     ax[2].set_xticks(xticks)
     ax[2].set_xticklabels(list(rna.columns))
@@ -204,6 +207,13 @@ def _dotplot_bulk_bysample(
     plt.tight_layout()
     plt.suptitle(title)
     fig.subplots_adjust(top=topspace)
+
+    if legend:
+
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.3])
+        cbar = fig.colorbar(im, cax=cbar_ax, ticks=[0, cs1.max() / 2, cs1.max()])
+        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
 
     if save != False:
         if save == True:
@@ -227,6 +237,7 @@ def _dotplot_bulk_bygroup_rep(
     title: str = "DE binding & RNA",
     topspace: float = 0.977,
     sort_by_chrom: bool = False,
+    legend: bool = False,
     save: bool = False,
 ):
 
@@ -261,6 +272,8 @@ def _dotplot_bulk_bygroup_rep(
     :param sort_by_chrom:
         If `True`, it would sort by chr1, chr2, etc.
         sort_by_chrom can not be applied to yeast data.
+    :param legend:
+        If `True`, it would show the legend.
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
@@ -406,7 +419,7 @@ def _dotplot_bulk_bygroup_rep(
     ax[1].set_yticks(yticks)
     ax[1].set_yticklabels(index1)
 
-    ax[2].scatter(x, y, c=cs2, s=rate * np.array(cs2), cmap=cmap)
+    im = ax[2].scatter(x, y, c=cs2, s=rate * np.array(cs2), cmap=cmap)
     ax[2].axis(xmin=-1, xmax=num_cluster)
     ax[2].set_xticks(xticks)
     ax[2].set_xticklabels(xticklabels)
@@ -416,6 +429,13 @@ def _dotplot_bulk_bygroup_rep(
     plt.tight_layout()
     plt.suptitle(title)
     fig.subplots_adjust(top=topspace)
+
+    if legend:
+
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.3])
+        cbar = fig.colorbar(im, cax=cbar_ax, ticks=[0, cs2.max() / 2, cs2.max()])
+        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
 
     if save != False:
         if save == True:
@@ -438,6 +458,7 @@ def _dotplot_bulk_bygroup_group(
     title: str = "DE binding & RNA",
     topspace: float = 0.977,
     sort_by_chrom: bool = False,
+    legend: bool = False,
     save: bool = False,
 ):
 
@@ -470,6 +491,8 @@ def _dotplot_bulk_bygroup_group(
     :param sort_by_chrom:
         If `True`, it would sort by chr1, chr2, etc.
         sort_by_chrom can not be applied to yeast data.
+    :param legend:
+        If `True`, it would show the legend.
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
@@ -609,7 +632,7 @@ def _dotplot_bulk_bygroup_group(
     ax[1].set_yticks(yticks)
     ax[1].set_yticklabels(index1)
 
-    ax[2].scatter(x, y, c=cs2, s=rate * np.array(cs2), cmap=cmap)
+    im = ax[2].scatter(x, y, c=cs2, s=rate * np.array(cs2), cmap=cmap)
     ax[2].axis(xmin=-1, xmax=num_cluster)
     ax[2].set_xticks(xticks)
     ax[2].set_xticklabels(xticklabels)
@@ -619,6 +642,13 @@ def _dotplot_bulk_bygroup_group(
     plt.tight_layout()
     plt.suptitle(title)
     fig.subplots_adjust(top=topspace)
+
+    if legend:
+
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.3])
+        cbar = fig.colorbar(im, cax=cbar_ax, ticks=[0, cs2.max() / 2, cs2.max()])
+        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
 
     if save != False:
         if save == True:
@@ -643,6 +673,7 @@ def dotplot_bulk(
     topspace: float = 0.977,
     sort_by_chrom: bool = False,
     bysample: bool = False,
+    legend: bool = False,
     save: bool = False,
 ):
 
@@ -680,6 +711,8 @@ def dotplot_bulk(
     :param bysample:
         If `True`, it display one column as a sample.
         If `False`, it display one column as a group.
+    :param legend:
+        If `True`, it would show the legend.
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
@@ -717,6 +750,7 @@ def dotplot_bulk(
             title=title,
             topspace=topspace,
             sort_by_chrom=sort_by_chrom,
+            legend=legend,
             save=save,
         )
 
@@ -737,6 +771,7 @@ def dotplot_bulk(
                 title=title,
                 topspace=topspace,
                 sort_by_chrom=sort_by_chrom,
+                legend=legend,
                 save=save,
             )
 
@@ -756,6 +791,7 @@ def dotplot_bulk(
                 title=title,
                 topspace=topspace,
                 sort_by_chrom=sort_by_chrom,
+                legend=legend,
                 save=save,
             )
 
@@ -769,8 +805,9 @@ def dotplot_sc(
     size: int = 1,
     cmap1: str = "Reds",
     cmap2: str = "BuPu",
-    title="DE binding & RNA",
-    topspace=0.977,
+    title: str = "DE binding & RNA",
+    topspace: float = 0.977,
+    legend: bool = False,
     save: bool = False,
 ):
 
@@ -872,7 +909,7 @@ def dotplot_sc(
         for spine in ["top", "right", "left", "bottom"]:
             ax[num].spines[spine].set_visible(False)
 
-        ax[num].scatter(
+        im1 = ax[num].scatter(
             x,
             [1] * len(clusterlist),
             c=geneinfor_total[num],
@@ -880,7 +917,7 @@ def dotplot_sc(
             facecolor="blue",
             cmap=cmap1,
         )
-        ax[num].scatter(
+        im2 = ax[num].scatter(
             x,
             [0.5] * len(clusterlist),
             c=peakinfor_total[num],
@@ -899,6 +936,18 @@ def dotplot_sc(
     ax[num].set_xticklabels(clusterlist, rotation=90)
     plt.suptitle(title, size=15 * size)
     fig.subplots_adjust(top=topspace)
+
+    if legend:
+
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.3])
+        cbar = fig.colorbar(im1, cax=cbar_ax, ticks=[0, 0.5, 1])
+        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
+
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.55, 0.03, 0.3])
+        cbar = fig.colorbar(im2, cax=cbar_ax, ticks=[0, 0.5, 1])
+        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
 
     if save != False:
         if save == True:
@@ -919,8 +968,9 @@ def dotplot_sc_mu(
     size: int = 1,
     cmap1: str = "Reds",
     cmap2: str = "BuPu",
-    title="DE binding & RNA",
-    topspace=0.977,
+    title: str = "DE binding & RNA",
+    topspace: float = 0.977,
+    legend: bool = False,
     save: bool = False,
 ):
 
@@ -1024,7 +1074,7 @@ def dotplot_sc_mu(
         for spine in ["top", "right", "left", "bottom"]:
             ax[num].spines[spine].set_visible(False)
 
-        ax[num].scatter(
+        im1 = ax[num].scatter(
             x,
             [1] * len(clusterlist),
             c=geneinfor_total[num],
@@ -1032,7 +1082,7 @@ def dotplot_sc_mu(
             facecolor="blue",
             cmap=cmap1,
         )
-        ax[num].scatter(
+        im2 = ax[num].scatter(
             x,
             [0.5] * len(clusterlist),
             c=peakinfor_total[num],
@@ -1051,6 +1101,18 @@ def dotplot_sc_mu(
     ax[num].set_xticklabels(clusterlist, rotation=90)
     plt.suptitle(title, size=15 * size)
     fig.subplots_adjust(top=topspace)
+
+    if legend:
+
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.3])
+        cbar = fig.colorbar(im1, cax=cbar_ax, ticks=[0, 0.5, 1])
+        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
+
+        fig.subplots_adjust(right=0.8)
+        cbar_ax = fig.add_axes([0.85, 0.55, 0.03, 0.3])
+        cbar = fig.colorbar(im2, cax=cbar_ax, ticks=[0, 0.5, 1])
+        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
 
     if save != False:
         if save == True:
