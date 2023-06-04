@@ -5,7 +5,7 @@ import pandas as pd
 import tqdm
 from numba import jit
 
-_Peakcalling_Method = Optional[Literal["CCcaller", "MACCS", "Blockify"]]
+_Peakcalling_Method = Optional[Literal["CCcaller", "MACCs", "Blockify"]]
 _reference = Optional[Literal["hg38", "mm10", "sacCer3"]]
 _PeakTestMethod = Optional[Literal["poisson", "binomial"]]
 
@@ -2520,7 +2520,7 @@ def call_peaks(
         pd.DataFrame with the first three columns as chromosome, start and end.
     :param method:
         `'CCcaller'` is a method considering the maxdistance between insertions in the data,
-        `'MACCS'` uses the idea adapted from :cite:`zhang2008model` and
+        `'MACCs'` uses the idea adapted from :cite:`zhang2008model` and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
         `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://blockify.readthedocs.io/en/latest/>`__.
     :param reference:
@@ -2539,7 +2539,7 @@ def call_peaks(
     :param minlen:
         Valid only for method = `'CCcaller'`. The minimal length for a peak without extend.
     :param extend:
-        Valid for method = `'CCcaller'` and `'MACCS'`. The length (bp) that peaks extend for both sides.
+        Valid for method = `'CCcaller'` and `'MACCs'`. The length (bp) that peaks extend for both sides.
     :param maxbetween:
         Valid only for method = `'CCcaller'`. The maximum length of nearby position within one peak.
     :param minnum:
@@ -2547,11 +2547,11 @@ def call_peaks(
     :param test_method:
         The method for making hypothesis.
     :param window_size:
-        Valid only for method = `'MACCS'`. The length of window looking for.
+        Valid only for method = `'MACCs'`. The length of window looking for.
     :param lam_win_size:
-        Valid for  method = `'CCcaller'` and `'MACCS'`. The length of peak area considered when performing a CCcaller.
+        Valid for  method = `'CCcaller'` and `'MACCs'`. The length of peak area considered when performing a CCcaller.
     :param step_size:
-        Valid only for `'MACCS'`. The length of each step.
+        Valid only for `'MACCs'`. The length of each step.
     :param pseudocounts:
         Number for pseudocounts added for the pyhothesis.
     :param min_length:
@@ -2610,7 +2610,7 @@ def call_peaks(
 
         length = 3
 
-        if method == "MACCS":
+        if method == "MACCs":
 
             print(
                 "For the MACCS method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
@@ -2870,7 +2870,7 @@ def call_peaks(
         if pvalue_adj_cutoff == None:
             pvalue_adj_cutoff = pvalue_cutoff
 
-        if method == "MACCS":
+        if method == "MACCs":
 
             print(
                 "For the MACCS method without background, [expdata, reference, pvalue_cutoff, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized."
@@ -3209,7 +3209,7 @@ def combine_peaks(
         pd.DataFrame with the first three columns as chromosome, start and end.
     :param method:
         `'CCcaller'` is a method considering the maxdistance between insertions in the data,
-        `'MACCS'` uses the idea adapted from :cite:`zhang2008model` and
+        `'MACCs'` uses the idea adapted from :cite:`zhang2008model` and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
         `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://blockify.readthedocs.io/en/latest/>`__.
     :param reference:
@@ -3499,7 +3499,7 @@ def combine_peaks(
                     peak_data_temp = peak_data_temp.drop(index + 1)
                     return peak_data_temp.reset_index(drop=True)
 
-    elif method == "MACCS":
+    elif method == "MACCs":
 
         multinumber = 100000000
         sumcount_expdata = len(expdata)
@@ -3929,7 +3929,7 @@ def separate_peaks(
         pd.DataFrame with the first three columns as chromosome, start and end.
     :param method:
         `'CCcaller'` is a method considering the maxdistance between insertions in the data,
-        `'MACCS'` uses the idea adapted from :cite:`zhang2008model` and
+        `'MACCs'` uses the idea adapted from :cite:`zhang2008model` and
         `here <https://hbctraining.github.io/Intro-to-ChIPseq/lessons/05_peak_calling_macs.html>`__.
         `'Blockify'` uses the method from :cite:`moudgil2020self` and `here <https://blockify.readthedocs.io/en/latest/>`__.
     :param reference:
@@ -4545,7 +4545,7 @@ def separate_peaks(
                     peak_data_temp = peak_data_temp.drop(index)
                     return peak_data_temp.reset_index(drop=True)
 
-    elif method == "MACCS":
+    elif method == "MACCs":
 
         multinumber = 100000000
         sumcount_expdata = len(expdata)
