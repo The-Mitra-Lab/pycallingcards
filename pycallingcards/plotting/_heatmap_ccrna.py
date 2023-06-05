@@ -82,7 +82,7 @@ def heatmap(
 
         if group == None:
 
-            ccf = np.array((adata_ccX.todense()))
+            ccf = np.array((adata_cc.X.todense()))
             groupnumber = ccf.shape[0]
             groups = list(adata_cc.obs.index)
 
