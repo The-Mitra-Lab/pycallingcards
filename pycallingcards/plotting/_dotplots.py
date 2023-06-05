@@ -25,13 +25,13 @@ def _dotplot_bulk_bysample(
     selected_list: list,
     num_list: list,
     xticklabels: list = None,
-    rate: float = 50,
     figsize: Tuple[int, int] = (12, 15),
     dotsize: float = 5,
     cmap: str = "Reds",
     title: str = "DE binding & RNA",
     topspace: float = 0.977,
     sort_by_chrom: bool = False,
+    cax: list = [0.05, 0.085, 0.2, 0.03],
     legend: bool = False,
     save: bool = False,
 ):
@@ -50,8 +50,6 @@ def _dotplot_bulk_bysample(
         eg. the first three columns for RNA is female and the following two columns is male data, then num_list should be [3,2]
     :param xticklabels:
         xticklabels for the column. If `None`, it will be the index of adata_cc.obs
-    :param rate:
-        Rate to control the dot size.
     :param figsize:
         The size of the figure.
     :param dotsize:
@@ -65,6 +63,8 @@ def _dotplot_bulk_bysample(
     :param sort_by_chrom:
         If `True`, it would sort by chr1, chr2, etc.
         sort_by_chrom can not be applied to yeast data.
+    :param cax:
+        The position of legend.
     :param legend:
         If `True`, it would show the legend.
     :param save:
@@ -183,21 +183,21 @@ def _dotplot_bulk_bysample(
     cs0 = np.array(cs0)
     cs0 = dotsize * cs0 / max(cs0)
 
-    ax[0].scatter(x, y, c=cs, s=rate * np.array(cs), cmap=cmap)
+    ax[0].scatter(x, y, c=cs, s=np.array(cs), cmap=cmap)
     ax[0].axis(xmin=-1, xmax=num_cluster)
     ax[0].set_xticks(list(range(num_cluster)))
     ax[0].set_xticklabels(xticklabels)
     ax[0].set_yticks(yticks)
     ax[0].set_yticklabels(index0)
 
-    ax[1].scatter(x0, y0, c=cs0, s=rate * np.array(cs0), cmap=cmap)
+    ax[1].scatter(x0, y0, c=cs0, s=np.array(cs0), cmap=cmap)
     ax[1].axis(xmin=-1, xmax=sum(num_list))
     ax[1].set_xticks(xticks)
     ax[1].set_xticklabels(list(rna.columns))
     ax[1].set_yticks(yticks)
     ax[1].set_yticklabels(index1)
 
-    im = ax[2].scatter(x1, y1, c=cs1, s=rate * np.array(cs1), cmap=cmap)
+    im = ax[2].scatter(x1, y1, c=cs1, s=np.array(cs1), cmap=cmap)
     ax[2].axis(xmin=-1, xmax=sum(num_list))
     ax[2].set_xticks(xticks)
     ax[2].set_xticklabels(list(rna.columns))
@@ -210,10 +210,16 @@ def _dotplot_bulk_bysample(
 
     if legend:
 
-        fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.3])
-        cbar = fig.colorbar(im, cax=cbar_ax, ticks=[0, cs1.max() / 2, cs1.max()])
-        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
+        num1 = max(max(cs.min(), cs1.min()), cs0.min())
+
+        cbar = fig.colorbar(
+            im,
+            cax=fig.add_axes(cax),
+            shrink=0.1,
+            ticks=[num1, (dotsize / 2), dotsize],
+            orientation="horizontal",
+        )
+        cbar.ax.set_xticklabels(["Low", "Medium", "High"])
 
     if save != False:
         if save == True:
@@ -230,13 +236,13 @@ def _dotplot_bulk_bygroup_rep(
     num_list: list,
     xticklabels: list = None,
     group: Union[None, str] = None,
-    rate: float = 50,
     figsize: Tuple[int, int] = (12, 15),
     dotsize: float = 5,
     cmap: str = "Reds",
     title: str = "DE binding & RNA",
     topspace: float = 0.977,
     sort_by_chrom: bool = False,
+    cax: list = [0.05, 0.085, 0.2, 0.03],
     legend: bool = False,
     save: bool = False,
 ):
@@ -257,8 +263,6 @@ def _dotplot_bulk_bygroup_rep(
         xticklabels for the column. If `None`, it will be the index of adata_cc.obs
     :param group:
         The group information in anndata object if (replicate*sample). It will read anndata.obs[group].
-    :param rate:
-        Rate to control the dot size.
     :param figsize:
         The size of the figure.
     :param dotsize:
@@ -272,6 +276,8 @@ def _dotplot_bulk_bygroup_rep(
     :param sort_by_chrom:
         If `True`, it would sort by chr1, chr2, etc.
         sort_by_chrom can not be applied to yeast data.
+    :param cax:
+        The position of legend.
     :param legend:
         If `True`, it would show the legend.
     :param save:
@@ -405,21 +411,21 @@ def _dotplot_bulk_bygroup_rep(
     cs2 = np.array(cs2)
     cs2 = dotsize * cs2 / max(cs2)
 
-    ax[0].scatter(x, y, c=cs, s=rate * np.array(cs), cmap=cmap)
+    ax[0].scatter(x, y, c=cs, s=np.array(cs), cmap=cmap)
     ax[0].axis(xmin=-1, xmax=num_cluster)
     ax[0].set_xticks(xticks)
     ax[0].set_xticklabels(xticklabels)
     ax[0].set_yticks(yticks)
     ax[0].set_yticklabels(index0)
 
-    ax[1].scatter(x, y, c=cs1, s=rate * np.array(cs1), cmap=cmap)
+    ax[1].scatter(x, y, c=cs1, s=np.array(cs1), cmap=cmap)
     ax[1].axis(xmin=-1, xmax=num_cluster)
     ax[1].set_xticks(xticks)
     ax[1].set_xticklabels(xticklabels)
     ax[1].set_yticks(yticks)
     ax[1].set_yticklabels(index1)
 
-    im = ax[2].scatter(x, y, c=cs2, s=rate * np.array(cs2), cmap=cmap)
+    im = ax[2].scatter(x, y, c=cs2, s=np.array(cs2), cmap=cmap)
     ax[2].axis(xmin=-1, xmax=num_cluster)
     ax[2].set_xticks(xticks)
     ax[2].set_xticklabels(xticklabels)
@@ -432,10 +438,16 @@ def _dotplot_bulk_bygroup_rep(
 
     if legend:
 
-        fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.3])
-        cbar = fig.colorbar(im, cax=cbar_ax, ticks=[0, cs2.max() / 2, cs2.max()])
-        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
+        num1 = max(max(cs.min(), cs1.min()), cs2.min())
+
+        cbar = fig.colorbar(
+            im,
+            cax=fig.add_axes(cax),
+            shrink=0.1,
+            ticks=[num1, (dotsize / 2), dotsize],
+            orientation="horizontal",
+        )
+        cbar.ax.set_xticklabels(["Low", "Medium", "High"])
 
     if save != False:
         if save == True:
@@ -451,14 +463,14 @@ def _dotplot_bulk_bygroup_group(
     selected_list: list,
     num_list: list,
     xticklabels: list = None,
-    rate: float = 50,
     figsize: Tuple[int, int] = (12, 15),
     dotsize: float = 5,
     cmap: str = "Reds",
     title: str = "DE binding & RNA",
     topspace: float = 0.977,
     sort_by_chrom: bool = False,
-    legend: bool = False,
+    cax: list = [0.05, 0.085, 0.2, 0.03],
+    legend: bool = True,
     save: bool = False,
 ):
 
@@ -476,8 +488,6 @@ def _dotplot_bulk_bygroup_group(
         eg. the first three columns for RNA is female and the following two columns is male data, then num_list should be [3,2]
     :param xticklabels:
         xticklabels for the column. If `None`, it will be the index of adata_cc.obs
-    :param rate:
-        Rate to control the dot size.
     :param figsize:
         The size of the figure.
     :param dotsize:
@@ -491,6 +501,8 @@ def _dotplot_bulk_bygroup_group(
     :param sort_by_chrom:
         If `True`, it would sort by chr1, chr2, etc.
         sort_by_chrom can not be applied to yeast data.
+    :param cax:
+        The position of legend.
     :param legend:
         If `True`, it would show the legend.
     :param save:
@@ -618,37 +630,43 @@ def _dotplot_bulk_bygroup_group(
     cs2 = np.array(cs2)
     cs2 = dotsize * cs2 / max(cs2)
 
-    ax[0].scatter(x, y, c=cs, s=rate * np.array(cs), cmap=cmap)
+    ax[0].scatter(x, y, c=cs, s=np.array(cs), cmap=cmap)
     ax[0].axis(xmin=-1, xmax=num_cluster)
     ax[0].set_xticks(xticks)
     ax[0].set_xticklabels(xticklabels)
     ax[0].set_yticks(yticks)
     ax[0].set_yticklabels(index0)
 
-    ax[1].scatter(x, y, c=cs1, s=rate * np.array(cs1), cmap=cmap)
+    ax[1].scatter(x, y, c=cs1, s=np.array(cs1), cmap=cmap)
     ax[1].axis(xmin=-1, xmax=num_cluster)
     ax[1].set_xticks(xticks)
     ax[1].set_xticklabels(xticklabels)
     ax[1].set_yticks(yticks)
     ax[1].set_yticklabels(index1)
 
-    im = ax[2].scatter(x, y, c=cs2, s=rate * np.array(cs2), cmap=cmap)
+    points = ax[2].scatter(x, y, c=cs2, s=np.array(cs2), cmap=cmap)
     ax[2].axis(xmin=-1, xmax=num_cluster)
     ax[2].set_xticks(xticks)
     ax[2].set_xticklabels(xticklabels)
     ax[2].set_yticks(yticks)
     ax[2].set_yticklabels(index2)
 
+    if legend:
+
+        num1 = max(max(cs.min(), cs1.min()), cs2.min())
+
+        cbar = fig.colorbar(
+            points,
+            cax=fig.add_axes(cax),
+            shrink=0.1,
+            ticks=[num1, (dotsize / 2), dotsize],
+            orientation="horizontal",
+        )
+        cbar.ax.set_xticklabels(["Low", "Medium", "High"])
+
     plt.tight_layout()
     plt.suptitle(title)
     fig.subplots_adjust(top=topspace)
-
-    if legend:
-
-        fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.3, 0.03, 0.3])
-        cbar = fig.colorbar(im, cax=cbar_ax, ticks=[0, cs2.max() / 2, cs2.max()])
-        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
 
     if save != False:
         if save == True:
@@ -665,7 +683,6 @@ def dotplot_bulk(
     num_list: list,
     xticklabels: list = None,
     group: Union[None, str] = None,
-    rate: float = 50,
     figsize: Tuple[int, int] = (12, 15),
     dotsize: float = 5,
     cmap: str = "Reds",
@@ -674,6 +691,7 @@ def dotplot_bulk(
     sort_by_chrom: bool = False,
     bysample: bool = False,
     legend: bool = False,
+    cax: list = [0.05, 0.085, 0.2, 0.03],
     save: bool = False,
 ):
 
@@ -693,8 +711,6 @@ def dotplot_bulk(
         xticklabels for the column. If `None`, it will be the index of adata_cc.obs.
     :param group:
         The group information in anndata object if (sample*peak). It will read anndata.obs[group].
-    :param rate:
-        Rate to control the dot size.
     :param figsize:
         The size of the figure.
     :param dotsize:
@@ -713,6 +729,8 @@ def dotplot_bulk(
         If `False`, it display one column as a group.
     :param legend:
         If `True`, it would show the legend.
+    :param cax:
+        The position of the legend for.
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
@@ -743,13 +761,13 @@ def dotplot_bulk(
             selected_list=selected_list,
             num_list=num_list,
             xticklabels=xticklabels,
-            rate=rate,
             figsize=figsize,
             dotsize=dotsize,
             cmap=cmap,
             title=title,
             topspace=topspace,
             sort_by_chrom=sort_by_chrom,
+            cax=cax,
             legend=legend,
             save=save,
         )
@@ -764,7 +782,6 @@ def dotplot_bulk(
                 selected_list=selected_list,
                 num_list=num_list,
                 xticklabels=xticklabels,
-                rate=rate,
                 figsize=figsize,
                 dotsize=dotsize,
                 cmap=cmap,
@@ -772,6 +789,7 @@ def dotplot_bulk(
                 topspace=topspace,
                 sort_by_chrom=sort_by_chrom,
                 legend=legend,
+                cax=cax,
                 save=save,
             )
 
@@ -784,7 +802,6 @@ def dotplot_bulk(
                 num_list=num_list,
                 xticklabels=xticklabels,
                 group=group,
-                rate=rate,
                 figsize=figsize,
                 dotsize=dotsize,
                 cmap=cmap,
@@ -792,6 +809,7 @@ def dotplot_bulk(
                 topspace=topspace,
                 sort_by_chrom=sort_by_chrom,
                 legend=legend,
+                cax=cax,
                 save=save,
             )
 
@@ -808,6 +826,8 @@ def dotplot_sc(
     title: str = "DE binding & RNA",
     topspace: float = 0.977,
     legend: bool = False,
+    cax1: list = [-0.05, -0.2, 0.03, 0.25],
+    cax2: list = [0.0, -0.2, 0.03, 0.25],
     save: bool = False,
 ):
 
@@ -834,6 +854,12 @@ def dotplot_sc(
         The title of the plot.
     :param topspace:
         Parameter to control the title position.
+    :param legend:
+        If `True`, it would show the legend.
+    :param cax1:
+        The position of the legend for genes.
+    :param cax2:
+        The position of the legend for bindings.
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name would be given and the plot would be saved as a png file.
@@ -896,7 +922,6 @@ def dotplot_sc(
     peakinfor_total = peakinfor_total / peakinfor_total.max(axis=1).reshape(-1, 1)
 
     x = list(range(len(clusterlist)))
-    rate = 100
 
     total_num = len(genelist)
     fig, ax = plt.subplots(total_num, 1, figsize=figsize)
@@ -940,12 +965,12 @@ def dotplot_sc(
     if legend:
 
         fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.3])
+        cbar_ax = fig.add_axes(cax1)
         cbar = fig.colorbar(im1, cax=cbar_ax, ticks=[0, 0.5, 1])
-        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
+        cbar.ax.set_yticklabels(["", "", ""])
 
         fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.55, 0.03, 0.3])
+        cbar_ax = fig.add_axes(cax2)
         cbar = fig.colorbar(im2, cax=cbar_ax, ticks=[0, 0.5, 1])
         cbar.ax.set_yticklabels(["Low", "Medium", "High"])
 
@@ -971,6 +996,8 @@ def dotplot_sc_mu(
     title: str = "DE binding & RNA",
     topspace: float = 0.977,
     legend: bool = False,
+    cax1: list = [-0.05, -0.2, 0.03, 0.25],
+    cax2: list = [0.0, -0.2, 0.03, 0.25],
     save: bool = False,
 ):
 
@@ -1002,6 +1029,12 @@ def dotplot_sc_mu(
         The title of the plot.
     :param topspace:
         Parameter to control the title position.
+    :param legend:
+        If `True`, it would show the legend.
+    :param cax1:
+        The position of the legend for genes.
+    :param cax2:
+        The position of the legend for bindings.
     :param save:
         Could be bool or str indicating the file name it would be saved as.
         If `True`, a default name will be given and the plot would be saved as a png file.
@@ -1061,8 +1094,6 @@ def dotplot_sc_mu(
     peakinfor_total = peakinfor_total / peakinfor_total.max(axis=1).reshape(-1, 1)
 
     x = list(range(len(clusterlist)))
-    rate = 100
-
     total_num = len(genelist)
     fig, ax = plt.subplots(total_num, 1, figsize=figsize)
 
@@ -1105,12 +1136,12 @@ def dotplot_sc_mu(
     if legend:
 
         fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.3])
+        cbar_ax = fig.add_axes(cax1)
         cbar = fig.colorbar(im1, cax=cbar_ax, ticks=[0, 0.5, 1])
-        cbar.ax.set_yticklabels(["Low", "Medium", "High"])
+        cbar.ax.set_yticklabels(["", "", ""])
 
         fig.subplots_adjust(right=0.8)
-        cbar_ax = fig.add_axes([0.85, 0.55, 0.03, 0.3])
+        cbar_ax = fig.add_axes(cax2)
         cbar = fig.colorbar(im2, cax=cbar_ax, ticks=[0, 0.5, 1])
         cbar.ax.set_yticklabels(["Low", "Medium", "High"])
 
