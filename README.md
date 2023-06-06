@@ -31,6 +31,12 @@ Please check [**here**](https://pycallingcards.readthedocs.io/en/latest/) for de
 pip install pycallingcards
 ```
 
+Install via github
+
+```shell
+pip install "git+https://github.com/The-Mitra-Lab/pycallingcards.git" --upgrade
+```
+
 ## Development
 
 Use pre-commit to format code at `git commit`.
@@ -49,6 +55,6 @@ pre-commit install
   year = {2023},
   title = {Pycallingcards: Calling Cards Data Analysis in Python},
   url = {https://github.com/The-Mitra-Lab/pycallingcards},
-  version = {0.0.7},
+  version = {0.0.8},
 }
 ```

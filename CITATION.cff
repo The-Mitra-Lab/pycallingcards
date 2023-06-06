@@ -6,6 +6,6 @@ authors:
   - family-names: "Mitra"
     given-names: "Robi"
 title: "Pycallingcards: Calling Cards Data Analysis in Python"
-version: 0.0.7
-date-released: 2023-5-11
+version: 0.0.8
+date-released: 2023-6-6
 url: "https://github.com/The-Mitra-Lab/pycallingcards"
