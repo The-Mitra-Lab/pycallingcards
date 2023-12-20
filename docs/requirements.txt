@@ -16,7 +16,7 @@ mudata
 statsmodels
 requests==2.28.2
 # doc
-sphinx==4.3
+sphinx
 myst_parser
 sphinxcontrib-bibtex
 nbsphinx
@@ -26,3 +26,4 @@ sphinx_design
 sphinxext.opengraph
 sphinx-hoverxref
 furo
+pandoc==2.14.2
