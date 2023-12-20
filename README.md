@@ -61,6 +61,6 @@ pre-commit install
   year = {2023},
   title = {Pycallingcards: Calling Cards Data Analysis in Python},
   url = {https://github.com/The-Mitra-Lab/pycallingcards},
-  version = {0.0.8},
+  version = {1.0.0},
 }
 ```

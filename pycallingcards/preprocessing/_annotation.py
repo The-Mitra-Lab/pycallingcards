@@ -52,6 +52,7 @@ def annotation(
     reference: _reference2 = "hg38",
     save_annotation: str = None,
     bedtools_path: str = None,
+    refGene: pd.DataFrame = None,
 ) -> pd.DataFrame:
 
     """\
@@ -66,11 +67,13 @@ def annotation(
     :param reference:  Default is `'hg38'`.
         Reference of the annotation data.
         Currently, only `'hg38'`, `'mm10'`, `'sacCer3'` are provided.
-
     :param save_annotation:
         The path and name of the annotation results would be saved.
     :param bedtools_path:
         Default uses the default path for bedtools.
+    :param refGene:
+        Default is None. If None, it would use the saved refgenome according to the reference provided. Else, if a Dataframe is input, it will use the refgenome provided.
+        Please note that the DataFrame should follow the same format as this "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.hg38.Sorted.bed" which contains 6 columns in total (Chrom, Start, End, Refseq, Name, Direction)
 
     :Returns:
         pd.DataFrame with the first three columns as chromosome, start and end. Following the columns is the peak_annotation.
@@ -107,73 +110,82 @@ def annotation(
     else:
         print("Please input a valid peak.")
 
-    if reference == "hg38":
+    if type(refGene) != pd.DataFrame:
 
-        import os
+        if reference == "hg38":
 
-        from appdirs import user_cache_dir
+            import os
 
-        PYCALLINGCARDS_CACHE_DIR = user_cache_dir("pycallingcards")
+            from appdirs import user_cache_dir
 
-        if not os.path.exists(PYCALLINGCARDS_CACHE_DIR):
-            os.makedirs(PYCALLINGCARDS_CACHE_DIR)
+            PYCALLINGCARDS_CACHE_DIR = user_cache_dir("pycallingcards")
 
-        filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "refGene.hg38.Sorted.bed")
+            if not os.path.exists(PYCALLINGCARDS_CACHE_DIR):
+                os.makedirs(PYCALLINGCARDS_CACHE_DIR)
 
-        if os.path.exists(filename) == False:
-            from urllib import request
+            filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "refGene.hg38.Sorted.bed")
 
-            URL = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.hg38.Sorted.bed"
-            response = request.urlretrieve(URL, filename)
+            if os.path.exists(filename) == False:
+                from urllib import request
 
-        refGene_filename = pybedtools.BedTool(filename)
+                URL = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.hg38.Sorted.bed"
+                response = request.urlretrieve(URL, filename)
 
-    elif reference == "mm10":
+            refGene_filename = pybedtools.BedTool(filename)
 
-        import os
+        elif reference == "mm10":
 
-        from appdirs import user_cache_dir
+            import os
 
-        PYCALLINGCARDS_CACHE_DIR = user_cache_dir("pycallingcards")
+            from appdirs import user_cache_dir
 
-        if not os.path.exists(PYCALLINGCARDS_CACHE_DIR):
-            os.makedirs(PYCALLINGCARDS_CACHE_DIR)
+            PYCALLINGCARDS_CACHE_DIR = user_cache_dir("pycallingcards")
 
-        filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "refGene.mm10.Sorted.bed")
+            if not os.path.exists(PYCALLINGCARDS_CACHE_DIR):
+                os.makedirs(PYCALLINGCARDS_CACHE_DIR)
 
-        if os.path.exists(filename) == False:
-            from urllib import request
+            filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "refGene.mm10.Sorted.bed")
 
-            URL = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.mm10.Sorted.bed"
-            response = request.urlretrieve(URL, filename)
+            if os.path.exists(filename) == False:
+                from urllib import request
 
-        refGene_filename = pybedtools.BedTool(filename)
+                URL = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.mm10.Sorted.bed"
+                response = request.urlretrieve(URL, filename)
 
-    elif reference == "sacCer3":
+            refGene_filename = pybedtools.BedTool(filename)
 
-        import os
+        elif reference == "sacCer3":
 
-        from appdirs import user_cache_dir
+            import os
 
-        PYCALLINGCARDS_CACHE_DIR = user_cache_dir("pycallingcards")
+            from appdirs import user_cache_dir
 
-        if not os.path.exists(PYCALLINGCARDS_CACHE_DIR):
-            os.makedirs(PYCALLINGCARDS_CACHE_DIR)
+            PYCALLINGCARDS_CACHE_DIR = user_cache_dir("pycallingcards")
 
-        filename = os.path.join(PYCALLINGCARDS_CACHE_DIR, "refGene.sacCer3.Sorted.bed")
+            if not os.path.exists(PYCALLINGCARDS_CACHE_DIR):
+                os.makedirs(PYCALLINGCARDS_CACHE_DIR)
 
-        if os.path.exists(filename) == False:
-            from urllib import request
+            filename = os.path.join(
+                PYCALLINGCARDS_CACHE_DIR, "refGene.sacCer3.Sorted.bed"
+            )
 
-            URL = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.sacCer3.Sorted.bed"
-            response = request.urlretrieve(URL, filename)
+            if os.path.exists(filename) == False:
+                from urllib import request
 
-        refGene_filename = pybedtools.BedTool(filename)
+                URL = "https://github.com/The-Mitra-Lab/pycallingcards_data/releases/download/data/refGene.sacCer3.Sorted.bed"
+                response = request.urlretrieve(URL, filename)
 
-    temp_annotated_peaks = peaks_bed.closest(refGene_filename, D="ref", t="first", k=2)
+            refGene_filename = pybedtools.BedTool(filename)
+
+    else:
+        refGene_filename = pybedtools.BedTool(refGene)
+
+    temp_annotated_peaks = peaks_bed.closest(
+        refGene_filename, D="ref", t="first", k=2, d=True
+    )
 
     temp_annotated_peaks = pd.read_table(temp_annotated_peaks.fn, header=None).iloc[
-        :, [0, 1, 2, -4, -3]
+        :, [0, 1, 2, -4, -3, -2, -1]
     ]
     temp_annotated_peaks = temp_annotated_peaks
     temp_annotated_peaks.columns = [
@@ -182,15 +194,39 @@ def annotation(
         "End",
         "Nearest Refseq",
         "Gene Name",
+        "Direction",
+        "Distance",
     ]
     temp_annotated_peaks1 = temp_annotated_peaks.iloc[::2].reset_index()
     temp_annotated_peaks1 = temp_annotated_peaks1[
-        ["Chr", "Start", "End", "Nearest Refseq", "Gene Name"]
-    ].rename(columns={"Nearest Refseq": "Nearest Refseq1", "Gene Name": "Gene Name1"})
+        [
+            "Chr",
+            "Start",
+            "End",
+            "Nearest Refseq",
+            "Gene Name",
+            "Direction",
+            "Distance",
+        ]
+    ].rename(
+        columns={
+            "Nearest Refseq": "Nearest Refseq1",
+            "Gene Name": "Gene Name1",
+            "Direction": "Direction1",
+            "Distance": "Distance1",
+        }
+    )
     temp_annotated_peaks2 = temp_annotated_peaks.iloc[1::2].reset_index()
     temp_annotated_peaks2 = temp_annotated_peaks2[
-        ["Nearest Refseq", "Gene Name"]
-    ].rename(columns={"Nearest Refseq": "Nearest Refseq2", "Gene Name": "Gene Name2"})
+        ["Nearest Refseq", "Gene Name", "Direction", "Distance"]
+    ].rename(
+        columns={
+            "Nearest Refseq": "Nearest Refseq2",
+            "Gene Name": "Gene Name2",
+            "Direction": "Direction2",
+            "Distance": "Distance2",
+        }
+    )
 
     finalresult = pd.concat([temp_annotated_peaks1, temp_annotated_peaks2], axis=1)
 

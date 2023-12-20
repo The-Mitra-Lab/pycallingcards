@@ -10,13 +10,14 @@ from mudata import MuData
 def pair_peak_gene_sc(
     adata_cc: AnnData,
     adata: AnnData,
-    peak_annotation: pd.DataFrame,
+    peak_annotation: Optional[pd.DataFrame] = None,
     pvalue_adj_cutoff_cc: Optional[float] = 0.01,
     pvalue_adj_cutoff_rna: Optional[float] = 0.01,
     pvalue_cutoff_cc: Optional[float] = None,
     pvalue_cutoff_rna: Optional[float] = None,
     lfc_cutoff: float = 3,
     score_cutoff: float = 3,
+    distance_cutoff: float = None,
     group_cc: str = "binomtest",
     group_adata: str = "rank_genes_groups",
     group_name: str = "cluster",
@@ -68,6 +69,12 @@ def pair_peak_gene_sc(
     >>> cc.tl.pair_peak_gene_sc(adata_cc,adata,peak_annotation)
     """
 
+    if distance_cutoff == None:
+        distance_cutoff = 10000000000
+
+    if type(peak_annotation) != pd.DataFrame:
+        peak_annotation = adata_cc.var
+
     pvalue_cc = np.array(adata_cc.uns[group_cc]["pvalues"].tolist())
     pvalue_adj_cc = np.array(adata_cc.uns[group_cc]["pvalues_adj"].tolist())
     name_cc = np.array(adata_cc.uns[group_cc]["names"].tolist())
@@ -96,12 +103,30 @@ def pair_peak_gene_sc(
                 and abs(lfg_cc[peak, cluster]) >= lfc_cutoff
                 and pvalue_adj_cc[peak, cluster] <= float(pvalue_adj_cutoff_cc or 1)
             ):
-                rnalist = list(
+                rnadiction = {}
+                rnadiction[
                     peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
-                        ["Gene Name1", "Gene Name2"]
-                    ].iloc[0]
-                )
-                for rna in list(set((rnalist))):
+                        ["Gene Name2"]
+                    ].iloc[0][0]
+                ] = peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
+                    ["Distance2"]
+                ].iloc[
+                    0
+                ][
+                    0
+                ]
+                rnadiction[
+                    peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
+                        ["Gene Name1"]
+                    ].iloc[0][0]
+                ] = peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
+                    ["Distance1"]
+                ].iloc[
+                    0
+                ][
+                    0
+                ]
+                for rna in list(rnadiction.keys()):
                     if rna in rnalists:
                         if (
                             pvalue_adata[:, cluster][name_adata[:, cluster] == rna]
@@ -114,6 +139,7 @@ def pair_peak_gene_sc(
                                 name_adata[:, cluster] == rna
                             ]
                             <= float(pvalue_adj_cutoff_rna or 1)
+                            and abs(rnadiction[rna]) <= distance_cutoff
                         ):
 
                             result.append(
@@ -133,6 +159,7 @@ def pair_peak_gene_sc(
                                     pvalue_adj_adata[:, cluster][
                                         name_adata[:, cluster] == rna
                                     ][0],
+                                    rnadiction[rna],
                                 ]
                             )
             else:
@@ -150,6 +177,7 @@ def pair_peak_gene_sc(
             "Score_gene",
             "Pvalue_gene",
             "Pvalue_adj_gene",
+            "Distance_peak_to_gene",
         ],
     )
 
@@ -157,12 +185,14 @@ def pair_peak_gene_sc(
 def pair_peak_gene_bulk(
     adata_cc: AnnData,
     deresult: Union[str, pd.DataFrame],
+    peak_annotation: Optional[pd.DataFrame] = None,
     pvalue_adj_cutoff_cc: Optional[float] = 0.01,
     pvalue_adj_cutoff_rna: Optional[float] = 0.01,
     pvalue_cutoff_cc: Optional[float] = None,
     pvalue_cutoff_rna: Optional[float] = None,
     lfc_cutoff_cc: float = 3,
     lfc_cutoff_rna: float = 3,
+    distance_cutoff: float = None,
     group_cc: str = "fisher_exact",
     name_cc: str = "logfoldchanges",
     name_bulk: list = ["pvalue", "padj", "log2FoldChange"],
@@ -176,6 +206,8 @@ def pair_peak_gene_bulk(
         Anndata for callingcards
     :param deresult:
         Results from DEseq2 could be a pandas dataframe or the path to the csv file.
+    :param peak_annotation:
+        peak_annotation gotten from cc.pp.annotation and cc.pp.combine_annotation
     :param pvalue_adj_cutoff_cc:
         The cut off value for the adjusted pvalues of adata_cc.
     :param pvalue_adj_cutoff_rna:
@@ -206,6 +238,12 @@ def pair_peak_gene_bulk(
     if type(deresult) == str:
         rnade = pd.read_csv(deresult, index_col=0)
 
+    if type(peak_annotation) != pd.DataFrame:
+        peak_annotation = adata_cc.var
+
+    if distance_cutoff == None:
+        distance_cutoff = 10000000000000000
+
     de_dic = {}
     ind = 0
     de_dic["names"] = np.array(adata_cc.uns[group_cc]["names"].tolist())[:, ind]
@@ -220,8 +258,13 @@ def pair_peak_gene_bulk(
     result = []
     rna_list = rnade.index
     peaks = adata_cc.var.index
-
-    peak_rna = adata_cc.var[["Gene Name1", "Gene Name2"]]
+    peak_annotation["name"] = (
+        peak_annotation["Chr"].astype(str)
+        + "_"
+        + peak_annotation["Start"].astype(str)
+        + "_"
+        + peak_annotation["End"].astype(str)
+    )
 
     for peak in range(len(peaks)):
         if (
@@ -230,8 +273,31 @@ def pair_peak_gene_bulk(
             and (de_pd.iloc[peak, 2] <= float(pvalue_adj_cutoff_cc or 1))
         ):
 
-            genes = list(peak_rna.iloc[peak])
-            for gene in genes:
+            rnadiction = {}
+
+            rnadiction[
+                peak_annotation[peak_annotation["name"] == peaks[peak]][
+                    ["Gene Name2"]
+                ].iloc[0][0]
+            ] = peak_annotation[peak_annotation["name"] == peaks[peak]][
+                ["Distance2"]
+            ].iloc[
+                0
+            ][
+                0
+            ]
+            rnadiction[
+                peak_annotation[peak_annotation["name"] == peaks[peak]][
+                    ["Gene Name1"]
+                ].iloc[0][0]
+            ] = peak_annotation[peak_annotation["name"] == peaks[peak]][
+                ["Distance1"]
+            ].iloc[
+                0
+            ][
+                0
+            ]
+            for gene in list(rnadiction.keys()):
                 if (
                     (gene in rna_list)
                     and (rnade.loc[gene][name_bulk[0]] <= float(pvalue_cutoff_cc or 1))
@@ -240,6 +306,7 @@ def pair_peak_gene_bulk(
                         <= float(pvalue_adj_cutoff_cc or 1)
                     )
                     and (abs(rnade.loc[gene][name_bulk[2]]) >= lfc_cutoff_rna)
+                    and abs(rnadiction[gene]) <= distance_cutoff
                 ):
                     result.append(
                         [
@@ -251,6 +318,7 @@ def pair_peak_gene_bulk(
                             rnade.loc[gene][name_bulk[2]],
                             rnade.loc[gene][name_bulk[0]],
                             rnade.loc[gene][name_bulk[1]],
+                            rnadiction[gene],
                         ]
                     )
 
@@ -265,6 +333,7 @@ def pair_peak_gene_bulk(
             "Score_gene",
             "Pvalue_gene",
             "Pvalue_adj_gene",
+            "Distance_peak_to_gene",
         ],
     )
 
@@ -280,6 +349,7 @@ def pair_peak_gene_sc_mu(
     pvalue_cutoff_rna: Optional[float] = None,
     lfc_cutoff: float = 3,
     score_cutoff: float = 3,
+    distance_cutoff: float = None,
     group_cc: str = "binomtest",
     group_adata: str = "rank_genes_groups",
     group_name: str = "RNA:cluster",
@@ -310,6 +380,8 @@ def pair_peak_gene_sc_mu(
         The cut off value for the logfoldchange of adata_cc.
     :param score_cutoff:
         The cut off value for the cut of score value for adata.
+    :param distance_cutoff:
+        The cut off value for the cut of distance from peak to gene.
     :param group_cc:
         The name of target result in adata_cc.uns.
     :param group_adata:
@@ -329,6 +401,9 @@ def pair_peak_gene_sc_mu(
 
     if type(peak_annotation) != pd.DataFrame:
         peak_annotation = copy.copy(mdata[adata_cc].var)
+
+    if distance_cutoff == None:
+        distance_cutoff = 10000000000
 
     CC = adata_cc
     adata_cc = mdata[adata_cc]
@@ -362,12 +437,30 @@ def pair_peak_gene_sc_mu(
                 and abs(lfg_cc[peak, cluster]) >= lfc_cutoff
                 and pvalue_adj_cc[peak, cluster] <= float(pvalue_adj_cutoff_cc or 1)
             ):
-                rnalist = list(
+                rnadiction = {}
+                rnadiction[
                     peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
-                        ["Gene Name1", "Gene Name2"]
-                    ].iloc[0]
-                )
-                for rna in list(set((rnalist))):
+                        ["Gene Name2"]
+                    ].iloc[0][0]
+                ] = peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
+                    ["Distance2"]
+                ].iloc[
+                    0
+                ][
+                    0
+                ]
+                rnadiction[
+                    peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
+                        ["Gene Name1"]
+                    ].iloc[0][0]
+                ] = peak_annotation[peak_annotation["name"] == name_cc[peak, cluster]][
+                    ["Distance1"]
+                ].iloc[
+                    0
+                ][
+                    0
+                ]
+                for rna in list(rnadiction.keys()):
                     if rna in rnalists:
                         if (
                             pvalue_adata[:, cluster][name_adata[:, cluster] == rna]
@@ -380,6 +473,7 @@ def pair_peak_gene_sc_mu(
                                 name_adata[:, cluster] == rna
                             ]
                             <= float(pvalue_adj_cutoff_rna or 1)
+                            and abs(rnadiction[rna]) <= distance_cutoff
                         ):
 
                             result.append(
@@ -399,6 +493,7 @@ def pair_peak_gene_sc_mu(
                                     pvalue_adj_adata[:, cluster][
                                         name_adata[:, cluster] == rna
                                     ][0],
+                                    rnadiction[rna],
                                 ]
                             )
             else:
@@ -416,6 +511,7 @@ def pair_peak_gene_sc_mu(
             "Score_gene",
             "Pvalue_gene",
             "Pvalue_adj_gene",
+            "Distance_peak_to_gene",
         ],
     )
 
