@@ -24,7 +24,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.linkcode",
     "sphinxcontrib.bibtex",
-    "pandoc",
     "nbsphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",

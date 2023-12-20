@@ -19,7 +19,8 @@ requests==2.28.2
 sphinx
 myst_parser
 sphinxcontrib-bibtex
-nbsphinx
+nbsphinx>=0.9
+ipython>=7.20
 sphinx_autodoc_typehints
 sphinx_copybutton
 sphinx_design
