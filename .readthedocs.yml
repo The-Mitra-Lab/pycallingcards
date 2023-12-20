@@ -2,6 +2,9 @@ version: 2
 
 build:
   os: ubuntu-22.04
+  apt_packages:
+    - pandoc
+
   tools:
     python: '3.8'
 
