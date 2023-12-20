@@ -19,7 +19,7 @@ requests==2.28.2
 sphinx
 myst_parser
 sphinxcontrib-bibtex
-nbsphinx==0.9.3
+nbsphinx
 ipython>=7.20
 sphinx_autodoc_typehints
 sphinx_copybutton
@@ -27,3 +27,4 @@ sphinx_design
 sphinxext.opengraph
 sphinx-hoverxref
 furo
+nbconvert==7.2.7
