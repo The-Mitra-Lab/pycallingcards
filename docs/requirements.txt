@@ -26,4 +26,3 @@ sphinx_design
 sphinxext.opengraph
 sphinx-hoverxref
 furo
-pandoc==2.14.2
