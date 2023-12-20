@@ -5,3 +5,10 @@ build:
 sphinx:
   fail_on_warning: true # do not change or you will be fired
   configuration: docs/conf.py
+python:
+  install:
+  - method: pip
+    path: .
+    extra_requirements:
+    - doc
+    - leiden
