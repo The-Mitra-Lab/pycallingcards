@@ -55,12 +55,12 @@ pre-commit install
 ## Cite
 
 ```bibtex
-@software{pycallingcards_python,
-  author = {Guo, Juanru and Mitra, Robi},
-  month = {2},
-  year = {2023},
-  title = {Pycallingcards: Calling Cards Data Analysis in Python},
-  url = {https://github.com/The-Mitra-Lab/pycallingcards},
-  version = {1.0.0},
+@article{guo2024pycallingcards,
+  title={Pycallingcards: an integrated environment for visualizing, analyzing, and interpreting calling cards data},
+  author={Guo, Juanru and Zhang, Wenjin and Chen, Xuhua and Yen, Allen and Chen, Lucy and Shively, Christian A and Li, Daofeng and Wang, Ting and Dougherty, Joseph D and Mitra, Robi D},
+  journal={Bioinformatics},
+  pages={btae070},
+  year={2024},
+  publisher={Oxford University Press}
 }
 ```
