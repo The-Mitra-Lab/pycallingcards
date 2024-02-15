@@ -1,0 +1,6 @@
+﻿pycallingcards.preprocessing.down\_sample
+=========================================
+
+.. currentmodule:: pycallingcards.preprocessing
+
+.. autofunction:: down_sample

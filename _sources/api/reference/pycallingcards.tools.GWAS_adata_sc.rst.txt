@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.GWAS\_adata\_sc
+====================================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: GWAS_adata_sc

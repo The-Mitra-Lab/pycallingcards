@@ -1,0 +1,6 @@
+﻿pycallingcards.preprocessing.combine\_peaks
+===========================================
+
+.. currentmodule:: pycallingcards.preprocessing
+
+.. autofunction:: combine_peaks

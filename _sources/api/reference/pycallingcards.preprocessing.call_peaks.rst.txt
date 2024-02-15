@@ -1,0 +1,6 @@
+﻿pycallingcards.preprocessing.call\_peaks
+========================================
+
+.. currentmodule:: pycallingcards.preprocessing
+
+.. autofunction:: call_peaks

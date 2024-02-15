@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.GWAS
+=========================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: GWAS

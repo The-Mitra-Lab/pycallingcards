@@ -1,0 +1,6 @@
+﻿pycallingcards.preprocessing.clean\_qbed
+========================================
+
+.. currentmodule:: pycallingcards.preprocessing
+
+.. autofunction:: clean_qbed

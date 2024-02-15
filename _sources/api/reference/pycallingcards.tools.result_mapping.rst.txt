@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.result\_mapping
+====================================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: result_mapping

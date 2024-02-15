@@ -1,0 +1,6 @@
+﻿pycallingcards.preprocessing.make\_Anndata
+==========================================
+
+.. currentmodule:: pycallingcards.preprocessing
+
+.. autofunction:: make_Anndata

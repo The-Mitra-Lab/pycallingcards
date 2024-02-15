@@ -1,0 +1,6 @@
+﻿pycallingcards.plotting.GWAS\_adata\_bulk
+=========================================
+
+.. currentmodule:: pycallingcards.plotting
+
+.. autofunction:: GWAS_adata_bulk

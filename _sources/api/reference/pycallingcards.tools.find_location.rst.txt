@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.find\_location
+===================================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: find_location

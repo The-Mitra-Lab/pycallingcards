@@ -1,0 +1,6 @@
+﻿pycallingcards.plotting.draw\_area\_mu
+======================================
+
+.. currentmodule:: pycallingcards.plotting
+
+.. autofunction:: draw_area_mu

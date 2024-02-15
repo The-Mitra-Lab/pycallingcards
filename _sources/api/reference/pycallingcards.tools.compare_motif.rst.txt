@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.compare\_motif
+===================================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: compare_motif

@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.GWAS\_adata\_bulk
+======================================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: GWAS_adata_bulk
