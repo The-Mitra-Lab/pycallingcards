@@ -110,7 +110,7 @@ def annotation(
     else:
         print("Please input a valid peak.")
 
-    if type(refGene) != pd.DataFrame:
+    if isinstance(refGene, type(None)):
 
         if reference == "hg38":
 

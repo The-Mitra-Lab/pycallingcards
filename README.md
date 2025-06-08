@@ -27,14 +27,15 @@ Please check [**here**](https://pycallingcards.readthedocs.io/en/latest/) for de
 
 ## Installation
 
-```shell
-pip install pycallingcards
-```
-
-Install via GitHub
+Install via GitHub (Recomended)
 
 ```shell
 pip install "git+https://github.com/The-Mitra-Lab/pycallingcards.git" --upgrade
+```
+or
+
+```shell
+pip install pycallingcards
 ```
 
 # Docker
