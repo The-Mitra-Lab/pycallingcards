@@ -1,0 +1,6 @@
+﻿pycallingcards.plotting.plot\_matched
+=====================================
+
+.. currentmodule:: pycallingcards.plotting
+
+.. autofunction:: plot_matched

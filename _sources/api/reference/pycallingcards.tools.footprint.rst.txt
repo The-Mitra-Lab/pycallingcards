@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.footprint
+==============================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: footprint

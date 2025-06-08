@@ -1,0 +1,6 @@
+﻿pycallingcards.preprocessing.separate\_peaks
+============================================
+
+.. currentmodule:: pycallingcards.preprocessing
+
+.. autofunction:: separate_peaks

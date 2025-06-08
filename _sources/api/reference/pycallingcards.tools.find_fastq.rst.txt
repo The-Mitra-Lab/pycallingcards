@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.find\_fastq
+================================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: find_fastq

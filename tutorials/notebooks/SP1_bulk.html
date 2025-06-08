@@ -1,0 +1,2620 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta property="og:title" content="Tutorial: SP1 bindings in Cre-driver mouse lines." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://pycallingcards.readthedocs.io/en/latest/tutorials/notebooks/SP1_bulk.html" />
+<meta property="og:site_name" content="Pycallingcards" />
+<meta property="og:description" content="In this tutorial, we will analyze the binding of the transcription factor Sp1, collected using cre-dependant calling cards from a Syn1::Cre-driver mouse line. Bulk unfused (Brd4 directed) data was ..." />
+<meta property="og:image:width" content="1146" />
+<meta property="og:image:height" content="600" />
+<meta property="og:image" content="https://pycallingcards.readthedocs.io/en/latest/index.html/_images/social_previews/summary_tutorials_notebooks_SP1_bulk_983944c6.png" />
+<meta property="og:image:alt" content="In this tutorial, we will analyze the binding of the transcription factor Sp1, collected using cre-dependant calling cards from a Syn1::Cre-driver mouse line..." />
+<meta name="description" content="In this tutorial, we will analyze the binding of the transcription factor Sp1, collected using cre-dependant calling cards from a Syn1::Cre-driver mouse line. Bulk unfused (Brd4 directed) data was ..." />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Tutorial: Yeast TYE7 bulk calling cards data" href="yeast.html" /><link rel="prev" title="Tutorial: Brd4 bindings for Male/Female mouse bulk calling cards data." href="Brd4_bulk.html" />
+
+    <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
+        <title>Tutorial: SP1 bindings in Cre-driver mouse lines. - pycallingcards-tools</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster.bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-shadow.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-punk.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-noir.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-light.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/tooltipster-sideTip-borderless.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/micromodal.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #003262;
+  --color-brand-content: #003262;
+  --admonition-font-size: var(--font-size-normal);
+  --admonition-title-font-size: var(--font-size-normal);
+  --code-font-size: var(--font-size--small);
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">pycallingcards-tools</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/logo.png" alt="Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Tutorials</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorials</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Mouse_cortex_Example.html">Tutorial: Analyzing single cell calling cards collected from the mouse cortex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="K562HCT116_SP1.html">Tutorial: K562 HCT116 SP1 single-cell calling cards data.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Brd4_bulk.html">Tutorial: Brd4 bindings for Male/Female mouse bulk calling cards data.</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Tutorial: SP1 bindings in Cre-driver mouse lines.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yeast.html">Tutorial: Yeast TYE7 bulk calling cards data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/index.html">User guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Datasets</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.datasets.mousecortex_data.html">pycallingcards.datasets.mousecortex_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.datasets.SP1_K562HCT116_data.html">pycallingcards.datasets.SP1_K562HCT116_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.datasets.mouse_brd4_data.html">pycallingcards.datasets.mouse_brd4_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.datasets.SP1_Cre_data.html">pycallingcards.datasets.SP1_Cre_data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/reading.html">Reading</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Reading</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.reading.read_qbed.html">pycallingcards.reading.read_qbed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.reading.read_rna.html">pycallingcards.reading.read_rna</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.reading.read_barbodes.html">pycallingcards.reading.read_barbodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.reading.combine_qbed.html">pycallingcards.reading.combine_qbed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.reading.save_qbed.html">pycallingcards.reading.save_qbed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.reading.save_bed.html">pycallingcards.reading.save_bed</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/preprocessing.html">Preprocessing</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Preprocessing</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.clean_qbed.html">pycallingcards.preprocessing.clean_qbed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.call_peaks.html">pycallingcards.preprocessing.call_peaks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.combine_peaks.html">pycallingcards.preprocessing.combine_peaks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.separate_peaks.html">pycallingcards.preprocessing.separate_peaks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.annotation.html">pycallingcards.preprocessing.annotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.make_Anndata.html">pycallingcards.preprocessing.make_Anndata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.filter_peaks.html">pycallingcards.preprocessing.filter_peaks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.adata_insertions.html">pycallingcards.preprocessing.adata_insertions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.preprocessing.down_sample.html">pycallingcards.preprocessing.down_sample</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/tools.html">Tools</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.call_motif.html">pycallingcards.tools.call_motif</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.compare_motif.html">pycallingcards.tools.compare_motif</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.rank_peak_groups.html">pycallingcards.tools.rank_peak_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.rank_peak_groups_mu.html">pycallingcards.tools.rank_peak_groups_mu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.rank_peak_groups_df.html">pycallingcards.tools.rank_peak_groups_df</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.diff2group_bygroup.html">pycallingcards.tools.diff2group_bygroup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.diff2group_bysample.html">pycallingcards.tools.diff2group_bysample</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.DE_pvalue.html">pycallingcards.tools.DE_pvalue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.pair_peak_gene_bulk.html">pycallingcards.tools.pair_peak_gene_bulk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.pair_peak_gene_sc.html">pycallingcards.tools.pair_peak_gene_sc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.pair_peak_gene_sc_mu.html">pycallingcards.tools.pair_peak_gene_sc_mu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.liftover.html">pycallingcards.tools.liftover</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.find_location.html">pycallingcards.tools.find_location</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.result_mapping.html">pycallingcards.tools.result_mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.GWAS.html">pycallingcards.tools.GWAS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.GWAS_adata_bulk.html">pycallingcards.tools.GWAS_adata_bulk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.GWAS_adata_sc.html">pycallingcards.tools.GWAS_adata_sc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.footprint.html">pycallingcards.tools.footprint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.tools.find_fastq.html">pycallingcards.tools.find_fastq</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/plotting.html">Plotting</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Plotting</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.draw_area.html">pycallingcards.plotting.draw_area</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.draw_area_mu.html">pycallingcards.plotting.draw_area_mu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.whole_peaks.html">pycallingcards.plotting.whole_peaks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.calculate_signal.html">pycallingcards.plotting.calculate_signal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.signal_plot.html">pycallingcards.plotting.signal_plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.signal_heatmap.html">pycallingcards.plotting.signal_heatmap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.rank_peak_groups.html">pycallingcards.plotting.rank_peak_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.plot_matched.html">pycallingcards.plotting.plot_matched</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.volcano_plot.html">pycallingcards.plotting.volcano_plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.heatmap.html">pycallingcards.plotting.heatmap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.dotplot_bulk.html">pycallingcards.plotting.dotplot_bulk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.dotplot_sc.html">pycallingcards.plotting.dotplot_sc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.dotplot_sc_mu.html">pycallingcards.plotting.dotplot_sc_mu</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.WashU_browser_url.html">pycallingcards.plotting.WashU_browser_url</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.GWAS_adata_sc.html">pycallingcards.plotting.GWAS_adata_sc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/reference/pycallingcards.plotting.GWAS_adata_bulk.html">pycallingcards.plotting.GWAS_adata_bulk</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../release_notes/index.html">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/The-Mitra-Lab/pycallingcards">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/tutorials/notebooks/SP1_bulk.ipynb.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Tutorial:-SP1-bindings-in-Cre-driver-mouse-lines.">
+<h1>Tutorial: SP1 bindings in Cre-driver mouse lines.<a class="headerlink" href="#Tutorial:-SP1-bindings-in-Cre-driver-mouse-lines." title="Permalink to this heading">¶</a></h1>
+<p>In this tutorial, we will analyze the binding of the transcription factor Sp1, collected using cre-dependant calling cards from a Syn1::Cre-driver mouse line. Bulk unfused (Brd4 directed) data was also collected as backgound. This dataset contains two time points: day 10(P10) and day 28(P28). The dataset is from <a class="reference external" href="https://www.pnas.org/doi/10.1073/pnas.1918241117">Cammack et al., PNAS. (2020)</a>, and it can be downloaded from <a class="reference external" href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE128493">GEO</a>.</p>
+<p>In this tutorial, we will call peaks, make annotation, and perfrom differential peak analysis. There are 271946 insertions in the SP1 P10 qbed file, 1083099 insertions in the SP1 P28 qbed file, and 5573110 insertions in the brd4 qbed file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pycallingcards</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scanpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.dpi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
+</pre></div>
+</div>
+</div>
+<p>We start by reading the qbed datafile. In this file, each row represents a Sp1-directed insertion and columns indicate the chromosome, start point and end point, read number, the direction and the sample barcode of each insertion. For example, the first row means one insertion is on Chromosome 1, and starts from 3095378 and ends on 3095382. The reads number is 7 with direction going from 3’ to 5’. The barcode of the cell is TAAGG. We give it the group column to distinguish between groups.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">cc.rd.read_qbed(filename)</span></code> to read your own qbed data.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SP1_P10</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">SP1_Cre_data</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;SP1_P10&quot;</span><span class="p">)</span>
+<span class="n">SP1_P10</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;P10&#39;</span>
+<span class="n">SP1_P10</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Chr</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Reads</th>
+      <th>Direction</th>
+      <th>Barcodes</th>
+      <th>group</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>3095378</td>
+      <td>3095382</td>
+      <td>7</td>
+      <td>+</td>
+      <td>TAAGG</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>3120128</td>
+      <td>3120132</td>
+      <td>1</td>
+      <td>+</td>
+      <td>GTTAC</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>3121275</td>
+      <td>3121279</td>
+      <td>10</td>
+      <td>-</td>
+      <td>GTTAC</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>3121275</td>
+      <td>3121279</td>
+      <td>2</td>
+      <td>-</td>
+      <td>GTTAC</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>3222947</td>
+      <td>3222951</td>
+      <td>1</td>
+      <td>-</td>
+      <td>GTTAC</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>271941</th>
+      <td>chrY</td>
+      <td>1010004</td>
+      <td>1010008</td>
+      <td>1</td>
+      <td>-</td>
+      <td>GTTAC</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>271942</th>
+      <td>chrY</td>
+      <td>1011155</td>
+      <td>1011159</td>
+      <td>12</td>
+      <td>-</td>
+      <td>GTTAC</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>271943</th>
+      <td>chrY</td>
+      <td>1178766</td>
+      <td>1178770</td>
+      <td>10</td>
+      <td>+</td>
+      <td>GTTAC</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>271944</th>
+      <td>chrY</td>
+      <td>1244787</td>
+      <td>1244791</td>
+      <td>11</td>
+      <td>+</td>
+      <td>GTTAC</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>271945</th>
+      <td>chrY</td>
+      <td>5433055</td>
+      <td>5433059</td>
+      <td>2</td>
+      <td>+</td>
+      <td>CGAAA</td>
+      <td>P10</td>
+    </tr>
+  </tbody>
+</table>
+<p>271946 rows × 7 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SP1_P28</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">SP1_Cre_data</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;SP1_P28&quot;</span><span class="p">)</span>
+<span class="n">SP1_P28</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;P28&#39;</span>
+<span class="n">SP1_P28</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Chr</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Reads</th>
+      <th>Direction</th>
+      <th>Barcodes</th>
+      <th>group</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>3071865</td>
+      <td>3071869</td>
+      <td>76</td>
+      <td>+</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>3095378</td>
+      <td>3095382</td>
+      <td>7</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>3102707</td>
+      <td>3102711</td>
+      <td>1</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>3119905</td>
+      <td>3119909</td>
+      <td>4</td>
+      <td>+</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>3120189</td>
+      <td>3120193</td>
+      <td>66</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1083094</th>
+      <td>chrY</td>
+      <td>90803579</td>
+      <td>90803583</td>
+      <td>14</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1083095</th>
+      <td>chrY</td>
+      <td>90805130</td>
+      <td>90805134</td>
+      <td>10</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1083096</th>
+      <td>chrY</td>
+      <td>90805130</td>
+      <td>90805134</td>
+      <td>1</td>
+      <td>+</td>
+      <td>CGAAA</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1083097</th>
+      <td>chrY</td>
+      <td>90806531</td>
+      <td>90806535</td>
+      <td>5</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1083098</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>63</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+  </tbody>
+</table>
+<p>1083099 rows × 7 columns</p>
+</div></div>
+</div>
+<p>To call differential peaks, we first combine the two qbed files together.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SP1</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">rd</span><span class="o">.</span><span class="n">combine_qbed</span><span class="p">([</span><span class="n">SP1_P10</span><span class="p">,</span> <span class="n">SP1_P28</span><span class="p">])</span>
+<span class="n">SP1</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Chr</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Reads</th>
+      <th>Direction</th>
+      <th>Barcodes</th>
+      <th>group</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>3071865</td>
+      <td>3071869</td>
+      <td>76</td>
+      <td>+</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>3095378</td>
+      <td>3095382</td>
+      <td>7</td>
+      <td>+</td>
+      <td>TAAGG</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>3095378</td>
+      <td>3095382</td>
+      <td>7</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>3102707</td>
+      <td>3102711</td>
+      <td>1</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>3119905</td>
+      <td>3119909</td>
+      <td>4</td>
+      <td>+</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1355040</th>
+      <td>chrY</td>
+      <td>90803579</td>
+      <td>90803583</td>
+      <td>14</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1355041</th>
+      <td>chrY</td>
+      <td>90805130</td>
+      <td>90805134</td>
+      <td>10</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1355042</th>
+      <td>chrY</td>
+      <td>90805130</td>
+      <td>90805134</td>
+      <td>1</td>
+      <td>+</td>
+      <td>CGAAA</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1355043</th>
+      <td>chrY</td>
+      <td>90806531</td>
+      <td>90806535</td>
+      <td>5</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1355044</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>63</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+  </tbody>
+</table>
+<p>1355045 rows × 7 columns</p>
+</div></div>
+</div>
+<p>The insertions might be mapped unlocalized or unplaced, we now clean it here.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SP1</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">clean_qbed</span><span class="p">(</span><span class="n">SP1</span><span class="p">)</span>
+<span class="n">SP1</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Chr</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Reads</th>
+      <th>Direction</th>
+      <th>Barcodes</th>
+      <th>group</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>3071865</td>
+      <td>3071869</td>
+      <td>76</td>
+      <td>+</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>3095378</td>
+      <td>3095382</td>
+      <td>7</td>
+      <td>+</td>
+      <td>TAAGG</td>
+      <td>P10</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>3095378</td>
+      <td>3095382</td>
+      <td>7</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>3102707</td>
+      <td>3102711</td>
+      <td>1</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>3119905</td>
+      <td>3119909</td>
+      <td>4</td>
+      <td>+</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1355040</th>
+      <td>chrY</td>
+      <td>90803579</td>
+      <td>90803583</td>
+      <td>14</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1355041</th>
+      <td>chrY</td>
+      <td>90805130</td>
+      <td>90805134</td>
+      <td>10</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1355042</th>
+      <td>chrY</td>
+      <td>90805130</td>
+      <td>90805134</td>
+      <td>1</td>
+      <td>+</td>
+      <td>CGAAA</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1355043</th>
+      <td>chrY</td>
+      <td>90806531</td>
+      <td>90806535</td>
+      <td>5</td>
+      <td>-</td>
+      <td>GTCAT</td>
+      <td>P28</td>
+    </tr>
+    <tr>
+      <th>1355044</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>63</td>
+      <td>+</td>
+      <td>ACTGC</td>
+      <td>P28</td>
+    </tr>
+  </tbody>
+</table>
+<p>1354844 rows × 7 columns</p>
+</div></div>
+</div>
+<p>We then read the brd4 background file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bg</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">SP1_Cre_data</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;background&quot;</span><span class="p">)</span>
+<span class="n">bg</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Chr</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Reads</th>
+      <th>Direction</th>
+      <th>Barcodes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>3004272</td>
+      <td>3004276</td>
+      <td>5</td>
+      <td>+</td>
+      <td>ACTGC</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>3028063</td>
+      <td>3028067</td>
+      <td>6</td>
+      <td>-</td>
+      <td>ACTGC</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>3043241</td>
+      <td>3043245</td>
+      <td>1</td>
+      <td>-</td>
+      <td>ACTGC</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>3049117</td>
+      <td>3049121</td>
+      <td>1</td>
+      <td>-</td>
+      <td>CAGTG</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>3052152</td>
+      <td>3052156</td>
+      <td>1</td>
+      <td>+</td>
+      <td>ACTGC</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>5573105</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>2</td>
+      <td>+</td>
+      <td>CAGTG</td>
+    </tr>
+    <tr>
+      <th>5573106</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>1</td>
+      <td>+</td>
+      <td>CAGTG</td>
+    </tr>
+    <tr>
+      <th>5573107</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>1</td>
+      <td>+</td>
+      <td>CAGTG</td>
+    </tr>
+    <tr>
+      <th>5573108</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>2</td>
+      <td>+</td>
+      <td>TGACA</td>
+    </tr>
+    <tr>
+      <th>5573109</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>13</td>
+      <td>+</td>
+      <td>CAGTG</td>
+    </tr>
+  </tbody>
+</table>
+<p>5573110 rows × 6 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bg</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">clean_qbed</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span>
+<span class="n">bg</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Chr</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Reads</th>
+      <th>Direction</th>
+      <th>Barcodes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>3004272</td>
+      <td>3004276</td>
+      <td>5</td>
+      <td>+</td>
+      <td>ACTGC</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>3028063</td>
+      <td>3028067</td>
+      <td>6</td>
+      <td>-</td>
+      <td>ACTGC</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>3043241</td>
+      <td>3043245</td>
+      <td>1</td>
+      <td>-</td>
+      <td>ACTGC</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>3049117</td>
+      <td>3049121</td>
+      <td>1</td>
+      <td>-</td>
+      <td>CAGTG</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>3052152</td>
+      <td>3052156</td>
+      <td>1</td>
+      <td>+</td>
+      <td>ACTGC</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>5573105</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>2</td>
+      <td>+</td>
+      <td>CAGTG</td>
+    </tr>
+    <tr>
+      <th>5573106</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>1</td>
+      <td>+</td>
+      <td>CAGTG</td>
+    </tr>
+    <tr>
+      <th>5573107</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>1</td>
+      <td>+</td>
+      <td>CAGTG</td>
+    </tr>
+    <tr>
+      <th>5573108</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>2</td>
+      <td>+</td>
+      <td>TGACA</td>
+    </tr>
+    <tr>
+      <th>5573109</th>
+      <td>chrY</td>
+      <td>90811001</td>
+      <td>90811005</td>
+      <td>13</td>
+      <td>+</td>
+      <td>CAGTG</td>
+    </tr>
+  </tbody>
+</table>
+<p>5572856 rows × 6 columns</p>
+</div></div>
+</div>
+<p>We next need to call peaks to identify potential Sp1 binding sites. Three different methods (‘CCcaller’, ‘MACCs’, ‘Blockify’) are available along with three different species (‘hg38’, ‘mm10’, ‘sacCer3’).</p>
+<p>Here, we use <strong>MACCs</strong> in <em>mouse</em>(‘mm10’) data. <em>window_size</em> is the most important parameter for <em>MACCs</em>, and it is highly related to the length of a peak. 1000-1200 is a good fit for <em>window_size</em>. <em>step_size</em> is another important parameter and it controls how careful we are looking into the chromosomes. 500-800 is good for <em>step_size</em>. <em>pvalue_cutoffTTAA</em> is the pvalue cutoff for TTAA data and <em>pvalue_cutoffbg</em> is pvalue cutoff for the background qbed data. Normally, the setting for
+<em>pvalue_cutoffbg</em> is considerably higher than <em>pvalue_cutoffTTAA</em>. <em>pvalue_cutoffbg</em> is recommended from 0.00001 to 0.01 and <em>pvalue_cutoffTTAA</em> is recommended from 0.001 to 0.1. The setting of <em>pseudocounts</em> is largely influenced by library size. For the first time of trial, it can be adjusted to <span class="math notranslate nohighlight">\(10^{6}-10^{-5} \times\)</span> the number of insertions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">peak_data</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">call_peaks</span><span class="p">(</span><span class="n">SP1</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;MACCs&quot;</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="n">pvalue_cutoffbg</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+                             <span class="n">window_size</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">step_size</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">pvalue_cutoffTTAA</span> <span class="o">=</span> <span class="mf">0.00001</span><span class="p">,</span>
+                             <span class="n">lam_win_size</span> <span class="o">=</span> <span class="mi">1000000</span><span class="p">,</span> <span class="n">pseudocounts</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">record</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="s2">&quot;peak.bed&quot;</span><span class="p">)</span>
+<span class="n">peak_data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+For the MACCs method with background, [expdata, background, reference, pvalue_cutoffbg, pvalue_cutoffTTAA, lam_win_size, window_size, step_size, extend, pseudocounts, test_method, min_insertions, record] would be utilized.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 21/21 [04:43&lt;00:00, 13.50s/it]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Chr</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Center</th>
+      <th>Experiment Insertions</th>
+      <th>Background insertions</th>
+      <th>Reference Insertions</th>
+      <th>pvalue Reference</th>
+      <th>pvalue Background</th>
+      <th>Fraction Experiment</th>
+      <th>TPH Experiment</th>
+      <th>Fraction background</th>
+      <th>TPH background</th>
+      <th>TPH background subtracted</th>
+      <th>pvalue_adj Reference</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>3399656</td>
+      <td>3400345</td>
+      <td>3400068.0</td>
+      <td>21</td>
+      <td>69</td>
+      <td>8</td>
+      <td>0.000000e+00</td>
+      <td>1.745466e-04</td>
+      <td>0.000015</td>
+      <td>1549.993948</td>
+      <td>1.238144e-05</td>
+      <td>1238.144320</td>
+      <td>311.849628</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>3672013</td>
+      <td>3673193</td>
+      <td>3672213.0</td>
+      <td>61</td>
+      <td>47</td>
+      <td>9</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000045</td>
+      <td>4502.363372</td>
+      <td>8.433737e-06</td>
+      <td>843.373667</td>
+      <td>3658.989705</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>4773450</td>
+      <td>4774236</td>
+      <td>4773657.0</td>
+      <td>6</td>
+      <td>5</td>
+      <td>4</td>
+      <td>2.405425e-08</td>
+      <td>1.939280e-04</td>
+      <td>0.000004</td>
+      <td>442.855414</td>
+      <td>8.972060e-07</td>
+      <td>89.720603</td>
+      <td>353.134811</td>
+      <td>6.323087e-06</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>4785206</td>
+      <td>4786550</td>
+      <td>4785472.0</td>
+      <td>31</td>
+      <td>47</td>
+      <td>13</td>
+      <td>0.000000e+00</td>
+      <td>2.298502e-08</td>
+      <td>0.000023</td>
+      <td>2288.086304</td>
+      <td>8.433737e-06</td>
+      <td>843.373667</td>
+      <td>1444.712637</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>5016489</td>
+      <td>5017564</td>
+      <td>5017023.0</td>
+      <td>8</td>
+      <td>10</td>
+      <td>8</td>
+      <td>1.672281e-09</td>
+      <td>3.938477e-04</td>
+      <td>0.000006</td>
+      <td>590.473885</td>
+      <td>1.794412e-06</td>
+      <td>179.441206</td>
+      <td>411.032679</td>
+      <td>4.739980e-07</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>10739</th>
+      <td>chrX</td>
+      <td>169325223</td>
+      <td>169325838</td>
+      <td>169325423.0</td>
+      <td>11</td>
+      <td>16</td>
+      <td>9</td>
+      <td>5.107026e-15</td>
+      <td>1.876575e-04</td>
+      <td>0.000008</td>
+      <td>811.901592</td>
+      <td>2.871059e-06</td>
+      <td>287.105929</td>
+      <td>524.795662</td>
+      <td>1.893816e-12</td>
+    </tr>
+    <tr>
+      <th>10740</th>
+      <td>chrX</td>
+      <td>169799382</td>
+      <td>169801491</td>
+      <td>169799905.0</td>
+      <td>25</td>
+      <td>29</td>
+      <td>23</td>
+      <td>0.000000e+00</td>
+      <td>3.271381e-07</td>
+      <td>0.000018</td>
+      <td>1845.230890</td>
+      <td>5.203795e-06</td>
+      <td>520.379497</td>
+      <td>1324.851393</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>10741</th>
+      <td>chrX</td>
+      <td>169829316</td>
+      <td>169830343</td>
+      <td>169829658.0</td>
+      <td>9</td>
+      <td>9</td>
+      <td>10</td>
+      <td>2.746225e-09</td>
+      <td>1.659074e-04</td>
+      <td>0.000007</td>
+      <td>664.283120</td>
+      <td>1.614971e-06</td>
+      <td>161.497085</td>
+      <td>502.786035</td>
+      <td>7.671705e-07</td>
+    </tr>
+    <tr>
+      <th>10742</th>
+      <td>chrX</td>
+      <td>169878786</td>
+      <td>169879561</td>
+      <td>169879328.0</td>
+      <td>19</td>
+      <td>21</td>
+      <td>10</td>
+      <td>0.000000e+00</td>
+      <td>1.379092e-06</td>
+      <td>0.000014</td>
+      <td>1402.375476</td>
+      <td>3.768265e-06</td>
+      <td>376.826532</td>
+      <td>1025.548944</td>
+      <td>0.000000e+00</td>
+    </tr>
+    <tr>
+      <th>10743</th>
+      <td>chrY</td>
+      <td>1009804</td>
+      <td>1011442</td>
+      <td>1010850.0</td>
+      <td>17</td>
+      <td>2</td>
+      <td>16</td>
+      <td>0.000000e+00</td>
+      <td>7.771561e-16</td>
+      <td>0.000013</td>
+      <td>1254.757005</td>
+      <td>3.588824e-07</td>
+      <td>35.888241</td>
+      <td>1218.868764</td>
+      <td>0.000000e+00</td>
+    </tr>
+  </tbody>
+</table>
+<p>10744 rows × 15 columns</p>
+</div></div>
+</div>
+<p>Approach the above by first combining the data and then call peaks together.</p>
+<p>Although not recommended, you could also try calling peaks seperately and then merging the peaks by <a class="reference external" href="https://daler.github.io/pybedtools/">pybedtools</a>. Below is the code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pybedtools</span>
+<span class="n">peak_data1</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">call_peaks</span><span class="p">(</span><span class="n">SP1_P10</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;MACCs&quot;</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span>
+                              <span class="n">pvalue_cutoffbg</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                              <span class="n">lam_win_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="n">pseudocounts</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">record</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">peak_data2</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">call_peaks</span><span class="p">(</span><span class="n">SP1_P28</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;MACCs&quot;</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span>
+                              <span class="n">pvalue_cutoffbg</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                              <span class="n">lam_win_size</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="n">pseudocounts</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">record</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">peak</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">rd</span><span class="o">.</span><span class="n">combine_qbed</span><span class="p">([</span><span class="n">peak_data1</span><span class="p">,</span> <span class="n">peak_data2</span><span class="p">])</span>
+<span class="n">peak</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">peak</span><span class="p">)</span><span class="o">.</span><span class="n">merge</span><span class="p">()</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+<span class="n">peak_data</span> <span class="o">=</span> <span class="n">peak</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chrom&quot;</span><span class="p">:</span><span class="s2">&quot;Chr&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">:</span><span class="s2">&quot;Start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span><span class="s2">&quot;End&quot;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>In order to choose the suitable method and parameters for peak calling, please take a look at genome areas. We stongly advise to adjust the parameters for <code class="docutils literal notranslate"><span class="pre">cc.pp.call_peaks()</span></code> to call better peaks.</p>
+<p>In this plot, the colored ones are the experiment qbed data and the gray ones are the background data. The top section shows insertions and their read counts. One dot is an insertion and the height is log(reads+1). The middle section indicates the distribution of insertions. The bottom section represents reference genes and peaks.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">draw_area</span><span class="p">(</span><span class="s2">&quot;chr1&quot;</span><span class="p">,</span> <span class="mi">4856929</span><span class="p">,</span> <span class="mi">4863861</span><span class="p">,</span> <span class="mi">100000</span><span class="p">,</span> <span class="n">peak_data</span><span class="p">,</span> <span class="n">SP1</span><span class="p">,</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">plotsize</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span>
+                <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">12</span><span class="p">),</span> <span class="n">peak_line</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">example_length</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_17_0.png" src="../../_images/tutorials_notebooks_SP1_bulk_17_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">draw_area</span><span class="p">(</span><span class="s2">&quot;chr2&quot;</span><span class="p">,</span> <span class="mi">3116481</span><span class="p">,</span> <span class="mi">3125943</span><span class="p">,</span> <span class="mi">15000</span><span class="p">,</span> <span class="n">peak_data</span><span class="p">,</span> <span class="n">SP1</span><span class="p">,</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="n">bg</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">plotsize</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+                <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">peak_line</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">save</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">example_length</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_18_0.png" src="../../_images/tutorials_notebooks_SP1_bulk_18_0.png" />
+</div>
+</div>
+<p>We can also visualize our data directly in the <a class="reference external" href="http://epigenomegateway.wustl.edu/browser/">WashU Epigenome Browser</a>. This can be useful for overlaying your data with other published datasets. Please note that this link only valid for 24hrs, so you will have to rerun it if you want to use it after this time period.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qbed</span><span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SP1&quot;</span><span class="p">:</span><span class="n">SP1</span><span class="p">,</span> <span class="s2">&quot;bg&quot;</span><span class="p">:</span><span class="n">bg</span><span class="p">}</span>
+<span class="n">bed</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;PEAK&#39;</span><span class="p">:</span><span class="n">peak_data</span><span class="p">}</span>
+<span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">WashU_browser_url</span><span class="p">(</span><span class="n">qbed</span><span class="p">,</span> <span class="n">bed</span><span class="p">,</span> <span class="n">genome</span> <span class="o">=</span> <span class="s1">&#39;mm10&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+All qbed addressed
+All bed addressed
+Uploading files
+Please click the following link to see the data on WashU Epigenome Browser directly.
+https://epigenomegateway.wustl.edu/browser/?genome=mm10&amp;hub=https://companion.epigenomegateway.org//task/a4f06270936d67281d4c9aa3065922e2/output//datahub.json
+</pre></div></div>
+</div>
+<p>Pycallingcards can be used to visual peak locations acorss the genome to see that the distribution of peaks is unbiased and that all chromosomes are represented.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">whole_peaks</span><span class="p">(</span><span class="n">peak_data</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="s2">&quot;mm10&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_22_0.png" src="../../_images/tutorials_notebooks_SP1_bulk_22_0.png" />
+</div>
+</div>
+<p>We can next use HOMER to look for motifs that are overrepresented under the peaks. Here, we expect to find the SP1 motif.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">call_motif</span><span class="p">(</span><span class="n">peaks_frame</span> <span class="o">=</span> <span class="n">peak_data</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="n">save_homer</span> <span class="o">=</span> <span class="s2">&quot;Homer/peak&quot;</span><span class="p">,</span>
+                 <span class="n">homer_path</span> <span class="o">=</span> <span class="s2">&quot;/home/juanru/miniconda3/bin/&quot;</span><span class="p">,</span> <span class="n">num_cores</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+There is no save_name, it will save to temp_Homer_trial.bed and then delete.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+        Position file = temp_Homer_trial.bed
+        Genome = mm10
+        Output Directory = Homer/peak
+        Fragment size set to 1000
+        Using 12 CPUs
+        Will not run homer for de novo motifs
+        Found mset for &#34;mouse&#34;, will check against vertebrates motifs
+        Peak/BED file conversion summary:
+                BED/Header formatted lines: 10744
+                peakfile formatted lines: 0
+
+        Peak File Statistics:
+                Total Peaks: 10744
+                Redundant Peak IDs: 0
+                Peaks lacking information: 0 (need at least 5 columns per peak)
+                Peaks with misformatted coordinates: 0 (should be integer)
+                Peaks with misformatted strand: 0 (should be either +/- or 0/1)
+
+        Peak file looks good!
+
+        Background files for 1000 bp fragments found.
+        Custom genome sequence directory: /home/juanru/miniconda3/share/homer/.//data/genomes/mm10//
+
+        Extracting sequences from directory: /home/juanru/miniconda3/share/homer/.//data/genomes/mm10//
+        Extracting 680 sequences from chr1
+        Extracting 873 sequences from chr2
+        Extracting 561 sequences from chr3
+        Extracting 698 sequences from chr4
+        Extracting 682 sequences from chr5
+        Extracting 540 sequences from chr6
+        Extracting 670 sequences from chr7
+        Extracting 535 sequences from chr8
+        Extracting 609 sequences from chr9
+        Extracting 557 sequences from chr10
+        Extracting 768 sequences from chr11
+        Extracting 469 sequences from chr12
+        Extracting 427 sequences from chr13
+        Extracting 413 sequences from chr14
+        Extracting 422 sequences from chr15
+        Extracting 396 sequences from chr16
+        Extracting 453 sequences from chr17
+        Extracting 366 sequences from chr18
+        Extracting 325 sequences from chr19
+        Extracting 299 sequences from chrX
+        Extracting 1 sequences from chrY
+                1 of 10744 removed because they had &gt;70.00% Ns (i.e. masked repeats)
+
+        Not removing redundant sequences
+
+
+        Sequences processed:
+                Auto detected maximum sequence length of 1001 bp
+                10743 total
+
+        Frequency Bins: 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.6 0.7 0.8
+        Freq    Bin     Count
+        0.3     2       6
+        0.35    3       180
+        0.4     4       932
+        0.45    5       2120
+        0.5     6       2862
+        0.6     7       3871
+        0.7     8       717
+        0.8     9       55
+
+        Total sequences set to 50000
+
+        Choosing background that matches in CpG/GC content...
+        Bin     # Targets       # Background    Background Weight
+        2       6       22      0.997
+        3       180     658     1.000
+        4       932     3406    1.000
+        5       2120    7747    1.000
+        6       2862    10458   1.000
+        7       3871    14145   1.000
+        8       717     2620    1.000
+        9       55      201     1.000
+        Assembling sequence file...
+        Normalizing lower order oligos using homer2
+
+        Reading input files...
+        50000 total sequences read
+        Autonormalization: 1-mers (4 total)
+                A       25.47%  25.72%  0.990
+                C       24.53%  24.28%  1.010
+                G       24.53%  24.28%  1.010
+                T       25.47%  25.72%  0.990
+        Autonormalization: 2-mers (16 total)
+                AA      7.69%   7.08%   1.087
+                CA      6.98%   7.64%   0.914
+                GA      6.16%   6.34%   0.972
+                TA      4.64%   4.66%   0.996
+                AC      5.10%   5.36%   0.951
+                CC      7.22%   7.02%   1.029
+                GC      6.05%   5.57%   1.087
+                TC      6.16%   6.34%   0.972
+                AG      7.55%   7.89%   0.957
+                CG      2.78%   1.74%   1.598
+                GG      7.22%   7.02%   1.029
+                TG      6.98%   7.64%   0.914
+                AT      5.13%   5.38%   0.953
+                CT      7.55%   7.89%   0.957
+                GT      5.10%   5.36%   0.951
+                TT      7.69%   7.08%   1.087
+        Autonormalization: 3-mers (64 total)
+        Normalization weights can be found in file: Homer/peak/seq.autonorm.tsv
+        Converging on autonormalization solution:
+        ...............................................................................
+        Final normalization:    Autonormalization: 1-mers (4 total)
+                A       25.47%  25.41%  1.002
+                C       24.53%  24.59%  0.998
+                G       24.53%  24.59%  0.998
+                T       25.47%  25.41%  1.002
+        Autonormalization: 2-mers (16 total)
+                AA      7.69%   7.40%   1.040
+                CA      6.98%   7.14%   0.977
+                GA      6.16%   6.21%   0.992
+                TA      4.64%   4.67%   0.995
+                AC      5.10%   5.16%   0.989
+                CC      7.22%   7.21%   1.001
+                GC      6.05%   6.01%   1.007
+                TC      6.16%   6.21%   0.992
+                AG      7.55%   7.58%   0.996
+                CG      2.78%   2.65%   1.049
+                GG      7.22%   7.21%   1.001
+                TG      6.98%   7.14%   0.977
+                AT      5.13%   5.28%   0.972
+                CT      7.55%   7.58%   0.996
+                GT      5.10%   5.16%   0.989
+                TT      7.69%   7.40%   1.040
+        Autonormalization: 3-mers (64 total)
+        Finished preparing sequence/group files
+
+        ----------------------------------------------------------
+        Known motif enrichment
+
+        Reading input files...
+        50000 total sequences read
+        440 motifs loaded
+        Cache length = 11180
+        Using binomial scoring
+        Checking enrichment of 440 motif(s)
+        |0%                                    50%                                  100%|
+        =================================================================================
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Finished!
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+        Preparing HTML output with sequence logos...
+                1 of 440 (1e-529) Sp5(Zf)/mES-Sp5.Flag-ChIP-Seq(GSE72989)/Homer
+                2 of 440 (1e-371) Sp2(Zf)/HEK293-Sp2.eGFP-ChIP-Seq(Encode)/Homer
+                3 of 440 (1e-365) KLF14(Zf)/HEK293-KLF14.GFP-ChIP-Seq(GSE58341)/Homer
+                4 of 440 (1e-354) KLF1(Zf)/HUDEP2-KLF1-CutnRun(GSE136251)/Homer
+                5 of 440 (1e-294) Sp1(Zf)/Promoter/Homer
+                6 of 440 (1e-258) KLF3(Zf)/MEF-Klf3-ChIP-Seq(GSE44748)/Homer
+                7 of 440 (1e-251) Maz(Zf)/HepG2-Maz-ChIP-Seq(GSE31477)/Homer
+                8 of 440 (1e-229) KLF5(Zf)/LoVo-KLF5-ChIP-Seq(GSE49402)/Homer
+                9 of 440 (1e-221) KLF6(Zf)/PDAC-KLF6-ChIP-Seq(GSE64557)/Homer
+                10 of 440 (1e-154) Klf9(Zf)/GBM-Klf9-ChIP-Seq(GSE62211)/Homer
+                11 of 440 (1e-110) Klf4(Zf)/mES-Klf4-ChIP-Seq(GSE11431)/Homer
+                12 of 440 (1e-94) TATA-Box(TBP)/Promoter/Homer
+                13 of 440 (1e-74) KLF10(Zf)/HEK293-KLF10.GFP-ChIP-Seq(GSE58341)/Homer
+                14 of 440 (1e-63) Egr1(Zf)/K562-Egr1-ChIP-Seq(GSE32465)/Homer
+                15 of 440 (1e-58) E2F3(E2F)/MEF-E2F3-ChIP-Seq(GSE71376)/Homer
+                16 of 440 (1e-53) Zfp281(Zf)/ES-Zfp281-ChIP-Seq(GSE81042)/Homer
+                17 of 440 (1e-52) WT1(Zf)/Kidney-WT1-ChIP-Seq(GSE90016)/Homer
+                18 of 440 (1e-50) Lhx3(Homeobox)/Neuron-Lhx3-ChIP-Seq(GSE31456)/Homer
+                19 of 440 (1e-47) Nkx6.1(Homeobox)/Islet-Nkx6.1-ChIP-Seq(GSE40975)/Homer
+                20 of 440 (1e-47) ZNF467(Zf)/HEK293-ZNF467.GFP-ChIP-Seq(GSE58341)/Homer
+                21 of 440 (1e-45) RFX(HTH)/K562-RFX3-ChIP-Seq(SRA012198)/Homer
+                22 of 440 (1e-43) Znf263(Zf)/K562-Znf263-ChIP-Seq(GSE31477)/Homer
+                23 of 440 (1e-42) Hoxa13(Homeobox)/ChickenMSG-Hoxa13.Flag-ChIP-Seq(GSE86088)/Homer
+                24 of 440 (1e-40) Lhx1(Homeobox)/EmbryoCarcinoma-Lhx1-ChIP-Seq(GSE70957)/Homer
+                25 of 440 (1e-39) Mef2c(MADS)/GM12878-Mef2c-ChIP-Seq(GSE32465)/Homer
+                26 of 440 (1e-38) CHR(?)/Hela-CellCycle-Expression/Homer
+                27 of 440 (1e-37) Rfx2(HTH)/LoVo-RFX2-ChIP-Seq(GSE49402)/Homer
+                28 of 440 (1e-37) Isl1(Homeobox)/Neuron-Isl1-ChIP-Seq(GSE31456)/Homer
+                29 of 440 (1e-37) Dlx3(Homeobox)/Kerainocytes-Dlx3-ChIP-Seq(GSE89884)/Homer
+                30 of 440 (1e-36) En1(Homeobox)/SUM149-EN1-ChIP-Seq(GSE120957)/Homer
+                31 of 440 (1e-36) X-box(HTH)/NPC-H3K4me1-ChIP-Seq(GSE16256)/Homer
+                32 of 440 (1e-35) Mef2d(MADS)/Retina-Mef2d-ChIP-Seq(GSE61391)/Homer
+                33 of 440 (1e-33) E2F6(E2F)/Hela-E2F6-ChIP-Seq(GSE31477)/Homer
+                34 of 440 (1e-33) DLX5(Homeobox)/BasalGanglia-Dlx5-ChIP-seq(GSE124936)/Homer
+                35 of 440 (1e-32) LHX9(Homeobox)/Hct116-LHX9.V5-ChIP-Seq(GSE116822)/Homer
+                36 of 440 (1e-31) E2F4(E2F)/K562-E2F4-ChIP-Seq(GSE31477)/Homer
+                37 of 440 (1e-31) EKLF(Zf)/Erythrocyte-Klf1-ChIP-Seq(GSE20478)/Homer
+                38 of 440 (1e-31) BMYB(HTH)/Hela-BMYB-ChIP-Seq(GSE27030)/Homer
+                39 of 440 (1e-30) DLX2(Homeobox)/BasalGanglia-Dlx2-ChIP-seq(GSE124936)/Homer
+                40 of 440 (1e-30) Lhx2(Homeobox)/HFSC-Lhx2-ChIP-Seq(GSE48068)/Homer
+                41 of 440 (1e-29) Pitx1(Homeobox)/Chicken-Pitx1-ChIP-Seq(GSE38910)/Homer
+                42 of 440 (1e-28) Mef2b(MADS)/HEK293-Mef2b.V5-ChIP-Seq(GSE67450)/Homer
+                43 of 440 (1e-28) Elk4(ETS)/Hela-Elk4-ChIP-Seq(GSE31477)/Homer
+                44 of 440 (1e-27) DLX1(Homeobox)/BasalGanglia-Dlx1-ChIP-seq(GSE124936)/Homer
+                45 of 440 (1e-25) Hoxa11(Homeobox)/ChickenMSG-Hoxa11.Flag-ChIP-Seq(GSE86088)/Homer
+                46 of 440 (1e-25) Hoxd13(Homeobox)/ChickenMSG-Hoxd13.Flag-ChIP-Seq(GSE86088)/Homer
+                47 of 440 (1e-23) Hoxd11(Homeobox)/ChickenMSG-Hoxd11.Flag-ChIP-Seq(GSE86088)/Homer
+                48 of 440 (1e-23) Unknown(Homeobox)/Limb-p300-ChIP-Seq/Homer
+                49 of 440 (1e-22) MYB(HTH)/ERMYB-Myb-ChIPSeq(GSE22095)/Homer
+                50 of 440 (1e-21) Rfx1(HTH)/NPC-H3K4me1-ChIP-Seq(GSE16256)/Homer
+                51 of 440 (1e-19) Nanog(Homeobox)/mES-Nanog-ChIP-Seq(GSE11724)/Homer
+                52 of 440 (1e-18) Mef2a(MADS)/HL1-Mef2a.biotin-ChIP-Seq(GSE21529)/Homer
+                53 of 440 (1e-18) Arnt:Ahr(bHLH)/MCF7-Arnt-ChIP-Seq(Lo_et_al.)/Homer
+                54 of 440 (1e-18) HIF-1b(HLH)/T47D-HIF1b-ChIP-Seq(GSE59937)/Homer
+                55 of 440 (1e-17) Gfi1b(Zf)/HPC7-Gfi1b-ChIP-Seq(GSE22178)/Homer
+                56 of 440 (1e-17) Egr2(Zf)/Thymocytes-Egr2-ChIP-Seq(GSE34254)/Homer
+                57 of 440 (1e-17) Npas4(bHLH)/Neuron-Npas4-ChIP-Seq(GSE127793)/Homer
+                58 of 440 (1e-16) CTCF(Zf)/CD4+-CTCF-ChIP-Seq(Barski_et_al.)/Homer
+                59 of 440 (1e-14) CEBP(bZIP)/ThioMac-CEBPb-ChIP-Seq(GSE21512)/Homer
+                60 of 440 (1e-14) Tbr1(T-box)/Cortex-Tbr1-ChIP-Seq(GSE71384)/Homer
+                61 of 440 (1e-13) Elk1(ETS)/Hela-Elk1-ChIP-Seq(GSE31477)/Homer
+                62 of 440 (1e-13) Fli1(ETS)/CD8-FLI-ChIP-Seq(GSE20898)/Homer
+                63 of 440 (1e-12) AMYB(HTH)/Testes-AMYB-ChIP-Seq(GSE44588)/Homer
+                64 of 440 (1e-12) Tcf12(bHLH)/GM12878-Tcf12-ChIP-Seq(GSE32465)/Homer
+                65 of 440 (1e-11) JunD(bZIP)/K562-JunD-ChIP-Seq/Homer
+                66 of 440 (1e-11) Oct11(POU,Homeobox)/NCIH1048-POU2F3-ChIP-seq(GSE115123)/Homer
+                67 of 440 (1e-11) ETV4(ETS)/HepG2-ETV4-ChIP-Seq(ENCODE)/Homer
+                68 of 440 (1e-11) STAT6(Stat)/Macrophage-Stat6-ChIP-Seq(GSE38377)/Homer
+                69 of 440 (1e-10) CRX(Homeobox)/Retina-Crx-ChIP-Seq(GSE20012)/Homer
+                70 of 440 (1e-10) Ronin(THAP)/ES-Thap11-ChIP-Seq(GSE51522)/Homer
+                71 of 440 (1e-9) Rbpj1(?)/Panc1-Rbpj1-ChIP-Seq(GSE47459)/Homer
+                72 of 440 (1e-9) MYNN(Zf)/HEK293-MYNN.eGFP-ChIP-Seq(Encode)/Homer
+                73 of 440 (1e-9) Hnf1(Homeobox)/Liver-Foxa2-Chip-Seq(GSE25694)/Homer
+                74 of 440 (1e-9) Myf5(bHLH)/GM-Myf5-ChIP-Seq(GSE24852)/Homer
+                75 of 440 (1e-8) Hoxa9(Homeobox)/ChickenMSG-Hoxa9.Flag-ChIP-Seq(GSE86088)/Homer
+                76 of 440 (1e-8) HIF2a(bHLH)/785_O-HIF2a-ChIP-Seq(GSE34871)/Homer
+                77 of 440 (1e-8) ELF1(ETS)/Jurkat-ELF1-ChIP-Seq(SRA014231)/Homer
+                78 of 440 (1e-8) NFY(CCAAT)/Promoter/Homer
+                79 of 440 (1e-8) Hoxc9(Homeobox)/Ainv15-Hoxc9-ChIP-Seq(GSE21812)/Homer
+                80 of 440 (1e-8) Zfp57(Zf)/H1-ZFP57.HA-ChIP-Seq(GSE115387)/Homer
+                81 of 440 (1e-8) NF1-halfsite(CTF)/LNCaP-NF1-ChIP-Seq(Unpublished)/Homer
+                82 of 440 (1e-7) Nkx2.2(Homeobox)/NPC-Nkx2.2-ChIP-Seq(GSE61673)/Homer
+                83 of 440 (1e-7) GFY(?)/Promoter/Homer
+                84 of 440 (1e-7) MyoD(bHLH)/Myotube-MyoD-ChIP-Seq(GSE21614)/Homer
+                85 of 440 (1e-7) Stat3+il21(Stat)/CD4-Stat3-ChIP-Seq(GSE19198)/Homer
+                86 of 440 (1e-7) STAT6(Stat)/CD4-Stat6-ChIP-Seq(GSE22104)/Homer
+                87 of 440 (1e-7) FoxD3(forkhead)/ZebrafishEmbryo-Foxd3.biotin-ChIP-seq(GSE106676)/Homer
+                88 of 440 (1e-6) Rfx6(HTH)/Min6b1-Rfx6.HA-ChIP-Seq(GSE62844)/Homer
+                89 of 440 (1e-6) E2F1(E2F)/Hela-E2F1-ChIP-Seq(GSE22478)/Homer
+                90 of 440 (1e-6) Prop1(Homeobox)/GHFT1-PROP1.biotin-ChIP-Seq(GSE77302)/Homer
+                91 of 440 (1e-6) STAT4(Stat)/CD4-Stat4-ChIP-Seq(GSE22104)/Homer
+                92 of 440 (1e-6) Tcf21(bHLH)/ArterySmoothMuscle-Tcf21-ChIP-Seq(GSE61369)/Homer
+                93 of 440 (1e-6) GLIS3(Zf)/Thyroid-Glis3.GFP-ChIP-Seq(GSE103297)/Homer
+                94 of 440 (1e-6) Eomes(T-box)/H9-Eomes-ChIP-Seq(GSE26097)/Homer
+                95 of 440 (1e-6) Stat3(Stat)/mES-Stat3-ChIP-Seq(GSE11431)/Homer
+                96 of 440 (1e-6) NRF1(NRF)/MCF7-NRF1-ChIP-Seq(Unpublished)/Homer
+                97 of 440 (1e-6) ZNF652/HepG2-ZNF652.Flag-ChIP-Seq(Encode)/Homer
+                98 of 440 (1e-5) Rfx5(HTH)/GM12878-Rfx5-ChIP-Seq(GSE31477)/Homer
+                99 of 440 (1e-5) RORg(NR)/Liver-Rorc-ChIP-Seq(GSE101115)/Homer
+                100 of 440 (1e-5) NFAT(RHD)/Jurkat-NFATC1-ChIP-Seq(Jolma_et_al.)/Homer
+                101 of 440 (1e-5) Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer
+                102 of 440 (1e-5) Fox:Ebox(Forkhead,bHLH)/Panc1-Foxa2-ChIP-Seq(GSE47459)/Homer
+                103 of 440 (1e-5) Pitx1:Ebox(Homeobox,bHLH)/Hindlimb-Pitx1-ChIP-Seq(GSE41591)/Homer
+                104 of 440 (1e-5) MyoG(bHLH)/C2C12-MyoG-ChIP-Seq(GSE36024)/Homer
+                105 of 440 (1e-5) ETV1(ETS)/GIST48-ETV1-ChIP-Seq(GSE22441)/Homer
+                106 of 440 (1e-5) NFIL3(bZIP)/HepG2-NFIL3-ChIP-Seq(Encode)/Homer
+                107 of 440 (1e-5) NRF(NRF)/Promoter/Homer
+                108 of 440 (1e-5) Fos(bZIP)/TSC-Fos-ChIP-Seq(GSE110950)/Homer
+                109 of 440 (1e-4) TEAD1(TEAD)/HepG2-TEAD1-ChIP-Seq(Encode)/Homer
+                110 of 440 (1e-4) HLF(bZIP)/HSC-HLF.Flag-ChIP-Seq(GSE69817)/Homer
+                111 of 440 (1e-4) Tbx5(T-box)/HL1-Tbx5.biotin-ChIP-Seq(GSE21529)/Homer
+                112 of 440 (1e-4) NFkB-p65(RHD)/GM12787-p65-ChIP-Seq(GSE19485)/Homer
+                113 of 440 (1e-4) HNF1b(Homeobox)/PDAC-HNF1B-ChIP-Seq(GSE64557)/Homer
+                114 of 440 (1e-4) BORIS(Zf)/K562-CTCFL-ChIP-Seq(GSE32465)/Homer
+                115 of 440 (1e-4) E2F7(E2F)/Hela-E2F7-ChIP-Seq(GSE32673)/Homer
+                116 of 440 (1e-4) CRE(bZIP)/Promoter/Homer
+                117 of 440 (1e-4) GABPA(ETS)/Jurkat-GABPa-ChIP-Seq(GSE17954)/Homer
+                118 of 440 (1e-4) ERG(ETS)/VCaP-ERG-ChIP-Seq(GSE14097)/Homer
+                119 of 440 (1e-4) Smad3(MAD)/NPC-Smad3-ChIP-Seq(GSE36673)/Homer
+                120 of 440 (1e-4) HIC1(Zf)/Treg-ZBTB29-ChIP-Seq(GSE99889)/Homer
+                121 of 440 (1e-4) HOXB13(Homeobox)/ProstateTumor-HOXB13-ChIP-Seq(GSE56288)/Homer
+                122 of 440 (1e-4) Hoxd12(Homeobox)/ChickenMSG-Hoxd12.Flag-ChIP-Seq(GSE86088)/Homer
+                123 of 440 (1e-4) c-Myc(bHLH)/LNCAP-cMyc-ChIP-Seq(Unpublished)/Homer
+                124 of 440 (1e-4) CArG(MADS)/PUER-Srf-ChIP-Seq(Sullivan_et_al.)/Homer
+                125 of 440 (1e-4) TEAD3(TEA)/HepG2-TEAD3-ChIP-Seq(Encode)/Homer
+                126 of 440 (1e-4) Oct4:Sox17(POU,Homeobox,HMG)/F9-Sox17-ChIP-Seq(GSE44553)/Homer
+                127 of 440 (1e-4) OCT:OCT(POU,Homeobox)/NPC-Brn1-ChIP-Seq(GSE35496)/Homer
+                128 of 440 (1e-4) Foxo3(Forkhead)/U2OS-Foxo3-ChIP-Seq(E-MTAB-2701)/Homer
+                129 of 440 (1e-4) STAT5(Stat)/mCD4+-Stat5-ChIP-Seq(GSE12346)/Homer
+                130 of 440 (1e-4) FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer
+                131 of 440 (1e-4) HIF-1a(bHLH)/MCF7-HIF1a-ChIP-Seq(GSE28352)/Homer
+                132 of 440 (1e-3) PBX2(Homeobox)/K562-PBX2-ChIP-Seq(Encode)/Homer
+                133 of 440 (1e-3) Phox2a(Homeobox)/Neuron-Phox2a-ChIP-Seq(GSE31456)/Homer
+                134 of 440 (1e-3) ZSCAN22(Zf)/HEK293-ZSCAN22.GFP-ChIP-Seq(GSE58341)/Homer
+                135 of 440 (1e-3) Atoh1(bHLH)/Cerebellum-Atoh1-ChIP-Seq(GSE22111)/Homer
+                136 of 440 (1e-3) RORa(NR)/Liver-Rora-ChIP-Seq(GSE101115)/Homer
+                137 of 440 (1e-3) OCT:OCT(POU,Homeobox,IR1)/NPC-Brn2-ChIP-Seq(GSE35496)/Homer
+                138 of 440 (1e-3) PRDM15(Zf)/ESC-Prdm15-ChIP-Seq(GSE73694)/Homer
+                139 of 440 (1e-3) Fra2(bZIP)/Striatum-Fra2-ChIP-Seq(GSE43429)/Homer
+                140 of 440 (1e-3) PU.1-IRF(ETS:IRF)/Bcell-PU.1-ChIP-Seq(GSE21512)/Homer
+                141 of 440 (1e-3) Atf2(bZIP)/3T3L1-Atf2-ChIP-Seq(GSE56872)/Homer
+                142 of 440 (1e-3) c-Jun-CRE(bZIP)/K562-cJun-ChIP-Seq(GSE31477)/Homer
+                143 of 440 (1e-3) OCT:OCT-short(POU,Homeobox)/NPC-OCT6-ChIP-Seq(GSE43916)/Homer
+                144 of 440 (1e-3) CEBP:AP1(bZIP)/ThioMac-CEBPb-ChIP-Seq(GSE21512)/Homer
+                145 of 440 (1e-3) Oct4(POU,Homeobox)/mES-Oct4-ChIP-Seq(GSE11431)/Homer
+                146 of 440 (1e-3) Fra1(bZIP)/BT549-Fra1-ChIP-Seq(GSE46166)/Homer
+                147 of 440 (1e-3) Pit1(Homeobox)/GCrat-Pit1-ChIP-Seq(GSE58009)/Homer
+                148 of 440 (1e-3) Atf1(bZIP)/K562-ATF1-ChIP-Seq(GSE31477)/Homer
+                149 of 440 (1e-3) E-box(bHLH)/Promoter/Homer
+                150 of 440 (1e-2) Smad4(MAD)/ESC-SMAD4-ChIP-Seq(GSE29422)/Homer
+                151 of 440 (1e-2) STAT1(Stat)/HelaS3-STAT1-ChIP-Seq(GSE12782)/Homer
+                152 of 440 (1e-2) Jun-AP1(bZIP)/K562-cJun-ChIP-Seq(GSE31477)/Homer
+                153 of 440 (1e-2) FOXA1(Forkhead)/MCF7-FOXA1-ChIP-Seq(GSE26831)/Homer
+                154 of 440 (1e-2) JunB(bZIP)/DendriticCells-Junb-ChIP-Seq(GSE36099)/Homer
+                155 of 440 (1e-2) IRF3(IRF)/BMDM-Irf3-ChIP-Seq(GSE67343)/Homer
+                156 of 440 (1e-2) ZNF675(Zf)/HEK293-ZNF675.GFP-ChIP-Seq(GSE58341)/Homer
+                157 of 440 (1e-2) GSC(Homeobox)/FrogEmbryos-GSC-ChIP-Seq(DRA000576)/Homer
+                158 of 440 (1e-2) Brn1(POU,Homeobox)/NPC-Brn1-ChIP-Seq(GSE35496)/Homer
+                159 of 440 (1e-2) Fosl2(bZIP)/3T3L1-Fosl2-ChIP-Seq(GSE56872)/Homer
+                160 of 440 (1e-2) bHLHE40(bHLH)/HepG2-BHLHE40-ChIP-Seq(GSE31477)/Homer
+                161 of 440 (1e-2) E2F(E2F)/Hela-CellCycle-Expression/Homer
+                162 of 440 (1e-2) Atf7(bZIP)/3T3L1-Atf7-ChIP-Seq(GSE56872)/Homer
+                163 of 440 (1e-2) ETS1(ETS)/Jurkat-ETS1-ChIP-Seq(GSE17954)/Homer
+                164 of 440 (1e-2) TEAD(TEA)/Fibroblast-PU.1-ChIP-Seq(Unpublished)/Homer
+                165 of 440 (1e-2) bHLHE41(bHLH)/proB-Bhlhe41-ChIP-Seq(GSE93764)/Homer
+                166 of 440 (1e-2) Brachyury(T-box)/Mesoendoderm-Brachyury-ChIP-exo(GSE54963)/Homer
+                167 of 440 (1e-2) SPDEF(ETS)/VCaP-SPDEF-ChIP-Seq(SRA014231)/Homer
+                168 of 440 (1e-2) Smad2(MAD)/ES-SMAD2-ChIP-Seq(GSE29422)/Homer
+                169 of 440 (1e-2) IRF4(IRF)/GM12878-IRF4-ChIP-Seq(GSE32465)/Homer
+                170 of 440 (1e-2) CDX4(Homeobox)/ZebrafishEmbryos-Cdx4.Myc-ChIP-Seq(GSE48254)/Homer
+                171 of 440 (1e-2) Tbet(T-box)/CD8-Tbet-ChIP-Seq(GSE33802)/Homer
+                172 of 440 (1e-2) Foxo1(Forkhead)/RAW-Foxo1-ChIP-Seq(Fan_et_al.)/Homer
+                173 of 440 (1e-2) Tbx21(T-box)/GM12878-TBX21-ChIP-Seq(Encode)/Homer
+                174 of 440 (1e-2) Atf3(bZIP)/GBM-ATF3-ChIP-Seq(GSE33912)/Homer
+        Skipping...
+        Job finished - if results look good, please send beer to ..
+
+        Cleaning up tmp files...
+
+</pre></div></div>
+</div>
+<p>The Sp1 motif is rank top, and the next motif is highly similar.</p>
+<p><img alt="drawing" class="no-scaled-link" src="../../_images/bulk-SP1.png" style="width: 800px;" /></p>
+<p>In the next step, we annotate the peaks by their closest genes using <a class="reference external" href="https://bedtools.readthedocs.io/en/latest/">bedtools</a> and <a class="reference external" href="https://daler.github.io/pybedtools/">pybedtools</a>. Make sure they are all previously installed before using.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">peak_annotation</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">annotation</span><span class="p">(</span><span class="n">peak_data</span><span class="p">,</span> <span class="n">reference</span> <span class="o">=</span> <span class="s2">&quot;mm10&quot;</span><span class="p">)</span>
+<span class="n">peak_annotation</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">combine_annotation</span><span class="p">(</span><span class="n">peak_data</span><span class="p">,</span> <span class="n">peak_annotation</span><span class="p">)</span>
+<span class="n">peak_annotation</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+In the bedtools method, we would use bedtools in the default path. Set bedtools path by &#39;bedtools_path&#39; if needed.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Chr</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Center</th>
+      <th>Experiment Insertions</th>
+      <th>Background insertions</th>
+      <th>Reference Insertions</th>
+      <th>pvalue Reference</th>
+      <th>pvalue Background</th>
+      <th>Fraction Experiment</th>
+      <th>...</th>
+      <th>TPH background subtracted</th>
+      <th>pvalue_adj Reference</th>
+      <th>Nearest Refseq1</th>
+      <th>Gene Name1</th>
+      <th>Direction1</th>
+      <th>Distance1</th>
+      <th>Nearest Refseq2</th>
+      <th>Gene Name2</th>
+      <th>Direction2</th>
+      <th>Distance2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>3399656</td>
+      <td>3400345</td>
+      <td>3400068.0</td>
+      <td>21</td>
+      <td>69</td>
+      <td>8</td>
+      <td>0.000000e+00</td>
+      <td>1.745466e-04</td>
+      <td>0.000015</td>
+      <td>...</td>
+      <td>311.849628</td>
+      <td>0.000000e+00</td>
+      <td>NM_001011874</td>
+      <td>Xkr4</td>
+      <td>-</td>
+      <td>0</td>
+      <td>NM_001195662</td>
+      <td>Rp1</td>
+      <td>-</td>
+      <td>890501</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>3672013</td>
+      <td>3673193</td>
+      <td>3672213.0</td>
+      <td>61</td>
+      <td>47</td>
+      <td>9</td>
+      <td>0.000000e+00</td>
+      <td>0.000000e+00</td>
+      <td>0.000045</td>
+      <td>...</td>
+      <td>3658.989705</td>
+      <td>0.000000e+00</td>
+      <td>NM_001011874</td>
+      <td>Xkr4</td>
+      <td>-</td>
+      <td>-516</td>
+      <td>NM_001195662</td>
+      <td>Rp1</td>
+      <td>-</td>
+      <td>617653</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>4773450</td>
+      <td>4774236</td>
+      <td>4773657.0</td>
+      <td>6</td>
+      <td>5</td>
+      <td>4</td>
+      <td>2.405425e-08</td>
+      <td>1.939280e-04</td>
+      <td>0.000004</td>
+      <td>...</td>
+      <td>353.134811</td>
+      <td>6.323087e-06</td>
+      <td>NR_033530</td>
+      <td>Mrpl15</td>
+      <td>-</td>
+      <td>0</td>
+      <td>NM_008866</td>
+      <td>Lypla1</td>
+      <td>+</td>
+      <td>33657</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>4785206</td>
+      <td>4786550</td>
+      <td>4785472.0</td>
+      <td>31</td>
+      <td>47</td>
+      <td>13</td>
+      <td>0.000000e+00</td>
+      <td>2.298502e-08</td>
+      <td>0.000023</td>
+      <td>...</td>
+      <td>1444.712637</td>
+      <td>0.000000e+00</td>
+      <td>NR_033530</td>
+      <td>Mrpl15</td>
+      <td>-</td>
+      <td>0</td>
+      <td>NM_008866</td>
+      <td>Lypla1</td>
+      <td>+</td>
+      <td>21343</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>5016489</td>
+      <td>5017564</td>
+      <td>5017023.0</td>
+      <td>8</td>
+      <td>10</td>
+      <td>8</td>
+      <td>1.672281e-09</td>
+      <td>3.938477e-04</td>
+      <td>0.000006</td>
+      <td>...</td>
+      <td>411.032679</td>
+      <td>4.739980e-07</td>
+      <td>NM_001290372</td>
+      <td>Rgs20</td>
+      <td>-</td>
+      <td>0</td>
+      <td>NM_133826</td>
+      <td>Atp6v1h</td>
+      <td>+</td>
+      <td>65522</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>10739</th>
+      <td>chrX</td>
+      <td>169325223</td>
+      <td>169325838</td>
+      <td>169325423.0</td>
+      <td>11</td>
+      <td>16</td>
+      <td>9</td>
+      <td>5.107026e-15</td>
+      <td>1.876575e-04</td>
+      <td>0.000008</td>
+      <td>...</td>
+      <td>524.795662</td>
+      <td>1.893816e-12</td>
+      <td>NM_001331049</td>
+      <td>Hccs</td>
+      <td>-</td>
+      <td>-4852</td>
+      <td>NM_009707</td>
+      <td>Arhgap6</td>
+      <td>+</td>
+      <td>-20784</td>
+    </tr>
+    <tr>
+      <th>10740</th>
+      <td>chrX</td>
+      <td>169799382</td>
+      <td>169801491</td>
+      <td>169799905.0</td>
+      <td>25</td>
+      <td>29</td>
+      <td>23</td>
+      <td>0.000000e+00</td>
+      <td>3.271381e-07</td>
+      <td>0.000018</td>
+      <td>...</td>
+      <td>1324.851393</td>
+      <td>0.000000e+00</td>
+      <td>NM_010797</td>
+      <td>Mid1</td>
+      <td>+</td>
+      <td>0</td>
+      <td>NR_003635</td>
+      <td>4933400A11Rik</td>
+      <td>-</td>
+      <td>-19748</td>
+    </tr>
+    <tr>
+      <th>10741</th>
+      <td>chrX</td>
+      <td>169829316</td>
+      <td>169830343</td>
+      <td>169829658.0</td>
+      <td>9</td>
+      <td>9</td>
+      <td>10</td>
+      <td>2.746225e-09</td>
+      <td>1.659074e-04</td>
+      <td>0.000007</td>
+      <td>...</td>
+      <td>502.786035</td>
+      <td>7.671705e-07</td>
+      <td>NM_010797</td>
+      <td>Mid1</td>
+      <td>+</td>
+      <td>0</td>
+      <td>NM_001290506</td>
+      <td>Mid1</td>
+      <td>+</td>
+      <td>49276</td>
+    </tr>
+    <tr>
+      <th>10742</th>
+      <td>chrX</td>
+      <td>169878786</td>
+      <td>169879561</td>
+      <td>169879328.0</td>
+      <td>19</td>
+      <td>21</td>
+      <td>10</td>
+      <td>0.000000e+00</td>
+      <td>1.379092e-06</td>
+      <td>0.000014</td>
+      <td>...</td>
+      <td>1025.548944</td>
+      <td>0.000000e+00</td>
+      <td>NM_010797</td>
+      <td>Mid1</td>
+      <td>+</td>
+      <td>0</td>
+      <td>NM_001290506</td>
+      <td>Mid1</td>
+      <td>+</td>
+      <td>58</td>
+    </tr>
+    <tr>
+      <th>10743</th>
+      <td>chrY</td>
+      <td>1009804</td>
+      <td>1011442</td>
+      <td>1010850.0</td>
+      <td>17</td>
+      <td>2</td>
+      <td>16</td>
+      <td>0.000000e+00</td>
+      <td>7.771561e-16</td>
+      <td>0.000013</td>
+      <td>...</td>
+      <td>1218.868764</td>
+      <td>0.000000e+00</td>
+      <td>NM_012011</td>
+      <td>Eif2s3y</td>
+      <td>+</td>
+      <td>0</td>
+      <td>NR_027507</td>
+      <td>Tspy-ps</td>
+      <td>-</td>
+      <td>44322</td>
+    </tr>
+  </tbody>
+</table>
+<p>10744 rows × 23 columns</p>
+</div></div>
+</div>
+<p>Use qbed data, peak data and group names to make a group by peak anndata object.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adata_cc</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">make_Anndata</span><span class="p">(</span><span class="n">SP1</span><span class="p">,</span> <span class="n">peak_annotation</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;P10&quot;</span><span class="p">,</span> <span class="s2">&quot;P28&quot;</span><span class="p">],</span> <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;group&#39;</span><span class="p">)</span>
+<span class="n">adata_cc</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 21/21 [00:06&lt;00:00,  3.31it/s]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+AnnData object with n_obs × n_vars = 2 × 10744
+    var: &#39;Chr&#39;, &#39;Start&#39;, &#39;End&#39;, &#39;Center&#39;, &#39;Experiment Insertions&#39;, &#39;Background insertions&#39;, &#39;Reference Insertions&#39;, &#39;pvalue Reference&#39;, &#39;pvalue Background&#39;, &#39;Fraction Experiment&#39;, &#39;TPH Experiment&#39;, &#39;Fraction background&#39;, &#39;TPH background&#39;, &#39;TPH background subtracted&#39;, &#39;pvalue_adj Reference&#39;, &#39;Nearest Refseq1&#39;, &#39;Gene Name1&#39;, &#39;Direction1&#39;, &#39;Distance1&#39;, &#39;Nearest Refseq2&#39;, &#39;Gene Name2&#39;, &#39;Direction2&#39;, &#39;Distance2&#39;
+</pre></div></div>
+</div>
+<p>Filter peaks by minimum count.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">filter_peaks</span><span class="p">(</span><span class="n">adata_cc</span><span class="p">,</span> <span class="n">min_counts</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">adata_cc</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+AnnData object with n_obs × n_vars = 2 × 10744
+    var: &#39;Chr&#39;, &#39;Start&#39;, &#39;End&#39;, &#39;Center&#39;, &#39;Experiment Insertions&#39;, &#39;Background insertions&#39;, &#39;Reference Insertions&#39;, &#39;pvalue Reference&#39;, &#39;pvalue Background&#39;, &#39;Fraction Experiment&#39;, &#39;TPH Experiment&#39;, &#39;Fraction background&#39;, &#39;TPH background&#39;, &#39;TPH background subtracted&#39;, &#39;pvalue_adj Reference&#39;, &#39;Nearest Refseq1&#39;, &#39;Gene Name1&#39;, &#39;Direction1&#39;, &#39;Distance1&#39;, &#39;Nearest Refseq2&#39;, &#39;Gene Name2&#39;, &#39;Direction2&#39;, &#39;Distance2&#39;, &#39;n_counts&#39;
+</pre></div></div>
+</div>
+<p>Differential peak analysis will find out the significant binding for each group. In this example, we use the <em>Fisher’s exact test</em> to find out.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">rank_peak_groups</span><span class="p">(</span><span class="n">adata_cc</span><span class="p">,</span> <span class="s1">&#39;Index&#39;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;fisher_exact&#39;</span><span class="p">,</span> <span class="n">key_added</span> <span class="o">=</span> <span class="s1">&#39;fisher_exact&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 2/2 [00:50&lt;00:00, 25.17s/it]
+</pre></div></div>
+</div>
+<p>Plot the differential peak analysis results.</p>
+<p>Currently, the peaks are ranked by pvalues. It could also be ranked by logfoldchanges by the following codes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">rank_peak_groups</span><span class="p">(</span><span class="n">adata_cc</span><span class="p">,</span> <span class="s1">&#39;Index&#39;</span><span class="p">,</span> <span class="n">method</span> <span class="o">=</span> <span class="s1">&#39;fisher_exact&#39;</span><span class="p">,</span> <span class="n">key_added</span> <span class="o">=</span> <span class="s1">&#39;fisher_exact&#39;</span><span class="p">,</span>
+                       <span class="n">rankby</span> <span class="o">=</span> <span class="s1">&#39;logfoldchanges&#39;</span><span class="p">)</span>
+<span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">rank_peak_groups</span><span class="p">(</span><span class="n">adata_cc</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;fisher_exact&#39;</span><span class="p">,</span> <span class="n">rankby</span> <span class="o">=</span> <span class="s1">&#39;logfoldchanges&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">rank_peak_groups</span><span class="p">(</span><span class="n">adata_cc</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;fisher_exact&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_35_0.png" src="../../_images/tutorials_notebooks_SP1_bulk_35_0.png" />
+</div>
+</div>
+<p>Next, we will visualize differentially bound peaks. The colored datapoints are the insertions specific to a cluster and the grey ones are the total insertions. If we input the backgound file, grey datapoints represent backgound insertions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">draw_area</span><span class="p">(</span><span class="s2">&quot;chr16&quot;</span><span class="p">,</span> <span class="mi">42904181</span><span class="p">,</span> <span class="mi">42922657</span><span class="p">,</span> <span class="mi">40000</span><span class="p">,</span> <span class="n">peak_data</span><span class="p">,</span> <span class="n">SP1</span><span class="p">,</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="n">adata</span> <span class="o">=</span> <span class="n">adata_cc</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;P10&quot;</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;Index&quot;</span><span class="p">,</span> <span class="n">insertionkey</span> <span class="o">=</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">plotsize</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+                <span class="n">name_insertion1</span> <span class="o">=</span> <span class="s1">&#39;P10 Insertions&#39;</span><span class="p">,</span> <span class="n">name_density1</span> <span class="o">=</span> <span class="s1">&#39;P10 Insertion Density&#39;</span><span class="p">,</span>
+                <span class="n">name_insertion2</span> <span class="o">=</span> <span class="s1">&#39;Total Insertions&#39;</span><span class="p">,</span> <span class="n">name_density2</span> <span class="o">=</span> <span class="s1">&#39;Total Insertion Density&#39;</span><span class="p">,</span>
+                <span class="n">peak_line</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">600</span><span class="p">,</span> <span class="n">example_length</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;P10&quot;</span><span class="p">)</span>
+<span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">draw_area</span><span class="p">(</span><span class="s2">&quot;chr16&quot;</span><span class="p">,</span> <span class="mi">42904181</span><span class="p">,</span> <span class="mi">42922657</span><span class="p">,</span> <span class="mi">40000</span><span class="p">,</span> <span class="n">peak_data</span><span class="p">,</span> <span class="n">SP1</span><span class="p">,</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="n">adata</span> <span class="o">=</span> <span class="n">adata_cc</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;P28&quot;</span><span class="p">,</span><span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;Index&quot;</span><span class="p">,</span> <span class="n">insertionkey</span> <span class="o">=</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">plotsize</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+                <span class="n">name_insertion1</span> <span class="o">=</span> <span class="s1">&#39;P28 Insertions&#39;</span><span class="p">,</span> <span class="n">name_density1</span> <span class="o">=</span> <span class="s1">&#39;P28 Insertion Density&#39;</span><span class="p">,</span>
+                <span class="n">name_insertion2</span> <span class="o">=</span> <span class="s1">&#39;Total Insertions&#39;</span><span class="p">,</span> <span class="n">name_density2</span> <span class="o">=</span> <span class="s1">&#39;Total Insertion Density&#39;</span><span class="p">,</span>
+                <span class="n">peak_line</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">600</span><span class="p">,</span> <span class="n">example_length</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;P28&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_37_0.png" src="../../_images/tutorials_notebooks_SP1_bulk_37_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_37_1.png" src="../../_images/tutorials_notebooks_SP1_bulk_37_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">draw_area</span><span class="p">(</span><span class="s2">&quot;chr8&quot;</span><span class="p">,</span> <span class="mi">64630703</span><span class="p">,</span> <span class="mi">64690703</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="n">peak_data</span><span class="p">,</span> <span class="n">SP1</span><span class="p">,</span> <span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="n">adata</span> <span class="o">=</span> <span class="n">adata_cc</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;P10&quot;</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;Index&quot;</span><span class="p">,</span> <span class="n">insertionkey</span> <span class="o">=</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">plotsize</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+                <span class="n">name_insertion1</span> <span class="o">=</span> <span class="s1">&#39;P10 Insertions&#39;</span><span class="p">,</span> <span class="n">name_density1</span> <span class="o">=</span> <span class="s1">&#39;P10 Insertion Density&#39;</span><span class="p">,</span>
+                <span class="n">name_insertion2</span> <span class="o">=</span> <span class="s1">&#39;Total Insertions&#39;</span><span class="p">,</span> <span class="n">name_density2</span> <span class="o">=</span> <span class="s1">&#39;Total Insertion Density&#39;</span><span class="p">,</span>
+                <span class="n">bins</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">peak_line</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;P10&quot;</span><span class="p">)</span>
+<span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">draw_area</span><span class="p">(</span><span class="s2">&quot;chr8&quot;</span><span class="p">,</span> <span class="mi">64630703</span><span class="p">,</span> <span class="mi">64690703</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="n">peak_data</span><span class="p">,</span> <span class="n">SP1</span><span class="p">,</span><span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="n">adata</span> <span class="o">=</span> <span class="n">adata_cc</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;P28&quot;</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;Index&quot;</span><span class="p">,</span> <span class="n">insertionkey</span> <span class="o">=</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="n">plotsize</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span>
+                <span class="n">name_insertion1</span> <span class="o">=</span> <span class="s1">&#39;P28 Insertions&#39;</span><span class="p">,</span> <span class="n">name_density1</span> <span class="o">=</span> <span class="s1">&#39;P28 Insertion Density&#39;</span><span class="p">,</span>
+                <span class="n">name_insertion2</span> <span class="o">=</span> <span class="s1">&#39;Total Insertions&#39;</span><span class="p">,</span> <span class="n">name_density2</span> <span class="o">=</span> <span class="s1">&#39;Total Insertion Density&#39;</span><span class="p">,</span>
+                <span class="n">bins</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="n">peak_line</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;P28&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_38_0.png" src="../../_images/tutorials_notebooks_SP1_bulk_38_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_38_1.png" src="../../_images/tutorials_notebooks_SP1_bulk_38_1.png" />
+</div>
+</div>
+<p>Plot the volcano plot for differential binding sites.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">volcano_plot</span><span class="p">(</span><span class="n">adata_cc</span><span class="p">,</span> <span class="n">pvalue_cutoff</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">lfc_cutoff</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_40_0.png" src="../../_images/tutorials_notebooks_SP1_bulk_40_0.png" />
+</div>
+</div>
+<p>This is the heatmap for relative calling cards bindings.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">adata_cc</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/tutorials_notebooks_SP1_bulk_42_0.png" src="../../_images/tutorials_notebooks_SP1_bulk_42_0.png" />
+</div>
+</div>
+<p>We can see from this plot that P28 has a considerable amount of additional Sp1 binding, as most peaks show increased binding at this timepoint. This is consistent with the experiment design as P28 is the accumulated insertions from day1 to day 28 while P10 reflect the insertions until day 10.</p>
+<p>Save the file if needed.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adata_cc</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;SP1_qbed.h5ad&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="yeast.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Tutorial: Yeast TYE7 bulk calling cards data</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="Brd4_bulk.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Tutorial: Brd4 bindings for Male/Female mouse bulk calling cards data.</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; Mitra lab, Washington University in St. Louis
+            </div>
+            Made with 
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=0b546569"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/hoverxref.js"></script>
+    <script src="../../_static/js/tooltipster.bundle.min.js"></script>
+    <script src="../../_static/js/micromodal.min.js"></script>
+    <script src="../../_static/design-tabs.js?v=36754332"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

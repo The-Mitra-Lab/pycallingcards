@@ -1,0 +1,6 @@
+﻿pycallingcards.tools.rank\_peak\_groups\_df
+===========================================
+
+.. currentmodule:: pycallingcards.tools
+
+.. autofunction:: rank_peak_groups_df
